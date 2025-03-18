@@ -22,12 +22,12 @@ export class PlayerController {
         this.cameraAngle = Math.PI / 6; // 30-degree tilt
         this.cameraDistance = 20; // Distance behind and above the view target
 
-        // Initialize camera position for top-down view
-        const initialHeight = this.currentZoom;
+        // Initialize camera position centered on player
+        const playerPos = player.getPosition();
         this.cameraOffset = new THREE.Vector3(
-            0,
-            initialHeight,
-            initialHeight * Math.tan(this.cameraAngle)
+            playerPos.x,
+            this.currentZoom,
+            playerPos.z - this.currentZoom * Math.tan(this.cameraAngle) // Changed to minus
         );
 
         this.initializeControls();
@@ -99,7 +99,7 @@ export class PlayerController {
         const lookAtPoint = new THREE.Vector3(
             this.cameraOffset.x,
             0,
-            this.cameraOffset.z + distance
+            this.cameraOffset.z + distance // This remains positive to look forward
         );
 
         this.camera.lookAt(lookAtPoint);

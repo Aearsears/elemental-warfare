@@ -33,8 +33,9 @@ const camera = new THREE.PerspectiveCamera(
     0.1,
     1000
 );
-camera.position.set(0, 20, 20); // Move camera back and up
-camera.lookAt(0, 0, 0); // Look at center
+// Remove these lines as the PlayerController will handle initial position
+camera.position.set(0, 20, 20);
+camera.lookAt(0, 0, 0);
 
 // Renderer setup
 const renderer = new THREE.WebGLRenderer({ antialias: true });
