@@ -59,17 +59,15 @@ export class MultiShot extends Ability {
             .applyAxisAngle(new THREE.Vector3(0, 1, 0), arrow.rotation.y)
             .normalize();
 
+        // Store velocity in closure
+        const velocity = direction.multiplyScalar(20);
+
         this.particles.push({
             mesh: arrow,
             life: 2,
-            velocity: direction.multiplyScalar(20),
             update: (delta) => {
-                // Update position
-                arrow.position.add(
-                    this.particles[
-                        this.particles.length - 1
-                    ].velocity.multiplyScalar(delta)
-                );
+                // Update position using closure-scoped velocity
+                arrow.position.add(velocity.clone().multiplyScalar(delta));
 
                 // Add trail effect
                 this.createTrail(arrow.position);

@@ -12,6 +12,7 @@ export class PrecisionStrike extends Ability {
         this.maxChargeTime = 2.0;
         this.charging = false;
         this.chargeEffects = [];
+        this.chargeInterval = null;
     }
 
     use(champion) {
@@ -20,17 +21,20 @@ export class PrecisionStrike extends Ability {
             this.chargeStart = Date.now();
             this.createChargeEffect(champion);
 
-            // Start charging animation
-            const chargeInterval = setInterval(() => {
+            // Store interval reference
+            this.chargeInterval = setInterval(() => {
                 if (!this.charging) {
-                    clearInterval(chargeInterval);
+                    this.cleanupChargeEffects();
+                    clearInterval(this.chargeInterval);
                     return;
                 }
 
                 const chargeProgress = this.getChargeProgress();
                 if (chargeProgress >= 1) {
                     this.releaseShot(champion, 1);
-                    clearInterval(chargeInterval);
+                    this.charging = false;
+                    this.cleanupChargeEffects();
+                    clearInterval(this.chargeInterval);
                 }
             }, 100);
 
@@ -39,11 +43,13 @@ export class PrecisionStrike extends Ability {
                 if (event.key.toUpperCase() === 'R' && this.charging) {
                     this.charging = false;
                     document.removeEventListener('keyup', keyUpHandler);
+                    clearInterval(this.chargeInterval);
+
                     const chargeProgress = this.getChargeProgress();
                     if (chargeProgress >= 0.2) {
-                        // Minimum charge threshold
                         this.releaseShot(champion, chargeProgress);
                     }
+                    this.cleanupChargeEffects();
                 }
             };
             document.addEventListener('keyup', keyUpHandler);
@@ -51,6 +57,13 @@ export class PrecisionStrike extends Ability {
             return true;
         }
         return false;
+    }
+
+    cleanupChargeEffects() {
+        this.chargeEffects.forEach((effect) => {
+            this.scene.remove(effect.mesh);
+        });
+        this.chargeEffects = [];
     }
 
     getChargeProgress() {
@@ -87,28 +100,27 @@ export class PrecisionStrike extends Ability {
     }
 
     releaseShot(champion, chargeProgress) {
-        // Clean up charge effects
-        this.chargeEffects.forEach((effect) => {
-            this.scene.remove(effect.mesh);
-        });
-        this.chargeEffects = [];
-
-        // Create the powerful arrow
         const arrow = this.createPowerfulArrow(champion, chargeProgress);
-        const direction = new THREE.Vector3(0, 0, 1).applyQuaternion(
-            champion.mesh.quaternion
-        );
+
+        // Calculate initial direction and velocity
+        const direction = new THREE.Vector3(0, 0, 1)
+            .applyQuaternion(champion.mesh.quaternion)
+            .normalize();
+
+        // Store velocity in closure
+        const velocity = direction.multiplyScalar(40 * chargeProgress);
+
+        arrow.position.copy(champion.getPosition());
+        arrow.position.y += 1.5;
+        arrow.rotation.copy(champion.mesh.rotation);
 
         this.particles.push({
             mesh: arrow,
             life: 2,
-            velocity: direction.multiplyScalar(40 * chargeProgress),
             update: (delta) => {
-                arrow.position.add(
-                    this.particles[
-                        this.particles.length - 1
-                    ].velocity.multiplyScalar(delta)
-                );
+                // Create new movement vector from stored velocity
+                const movement = velocity.clone().multiplyScalar(delta);
+                arrow.position.add(movement);
                 this.createPowerTrail(arrow.position, chargeProgress);
             }
         });

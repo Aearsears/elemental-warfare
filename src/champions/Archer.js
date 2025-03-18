@@ -10,7 +10,7 @@ export class Archer extends Champion {
         super({
             scene,
             health: 100,
-            mana: 80,
+            mana: 100,
             speed: 0.2,
             attackDamage: 12,
             attackRange: 15,

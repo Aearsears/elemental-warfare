@@ -122,16 +122,16 @@ export class EvasiveShot extends Ability {
             champion.mesh.quaternion
         );
 
+        // Store velocity in closure
+        const velocity = direction.multiplyScalar(30);
+
         this.particles.push({
             mesh: arrow,
             life: 1,
-            velocity: direction.multiplyScalar(30),
             update: (delta) => {
-                arrow.position.add(
-                    this.particles[
-                        this.particles.length - 1
-                    ].velocity.multiplyScalar(delta)
-                );
+                // Use closure-scoped velocity
+                const movement = velocity.clone().multiplyScalar(delta);
+                arrow.position.add(movement);
                 this.createEnergyTrail(arrow.position);
             }
         });
