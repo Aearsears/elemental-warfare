@@ -3,9 +3,10 @@ import * as THREE from 'three';
 export class Ability {
     constructor(config) {
         this.name = config.name;
-        this.cooldown = config.cooldown;
-        this.manaCost = config.manaCost;
-        this.lastUsed = 0;
+        this.cooldown = config.cooldown || 0;
+        this.manaCost = config.manaCost || 0;
+        this.lastUsed = 0; // Initialize lastUsed to 0
+        this.lastAttempted = 0;
         this.particles = [];
     }
 
@@ -24,11 +25,20 @@ export class Ability {
     use(champion) {
         this.lastAttempted = Date.now();
 
-        if (!this.canUse(champion)) {
+        // Check if ability can be used
+        const currentTime = Date.now();
+        const timeSinceUsed = (currentTime - this.lastUsed) / 1000;
+
+        if (timeSinceUsed < this.cooldown) {
             return false;
         }
 
-        this.lastUsed = Date.now();
+        if (champion.mana < this.manaCost) {
+            return false;
+        }
+
+        // Ability can be used
+        this.lastUsed = currentTime;
         champion.mana -= this.manaCost;
         return true;
     }

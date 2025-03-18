@@ -159,7 +159,7 @@ export class StatsUI {
                     }
 
                     // Update cooldown display
-                    if (timeSinceUsed < ability.cooldown) {
+                    if (ability.lastUsed && timeSinceUsed < ability.cooldown) {
                         cooldownOverlay.style.display = 'flex';
                         cooldownOverlay.textContent = Math.ceil(
                             ability.cooldown - timeSinceUsed
