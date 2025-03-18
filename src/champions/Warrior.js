@@ -1,5 +1,6 @@
 import { Champion } from './Champion.js';
 import * as THREE from 'three';
+import { Ability } from '../abilities/Ability.js';
 
 export class Warrior extends Champion {
     constructor() {
@@ -13,6 +14,17 @@ export class Warrior extends Champion {
         this.isAttacking = false;
         this.attackAnimationTime = 0;
         this.attackDuration = 0.5; // seconds
+
+        // Initialize abilities
+        this.abilities = {
+            Q: new WhirlwindSlash(),
+            W: new BattleShout(),
+            E: new ShieldBlock(),
+            R: new BerserkerRage()
+        };
+
+        // Add key listeners
+        this.initializeAbilities();
     }
 
     createModel() {
@@ -72,5 +84,39 @@ export class Warrior extends Champion {
 
     resetAnimation() {
         this.sword.rotation.z = 0;
+    }
+
+    initializeAbilities() {
+        document.addEventListener('keydown', (event) => {
+            switch (event.key.toUpperCase()) {
+                case 'Q':
+                    this.useAbility('Q');
+                    break;
+                case 'W':
+                    this.useAbility('W');
+                    break;
+                case 'E':
+                    this.useAbility('E');
+                    break;
+                case 'R':
+                    this.useAbility('R');
+                    break;
+            }
+        });
+    }
+
+    useAbility(key) {
+        if (this.abilities[key].use(this)) {
+            // Trigger ability specific animation
+            this.triggerAbilityAnimation(key);
+        }
+    }
+
+    update(delta) {
+        super.update(delta);
+        // Update all abilities
+        Object.values(this.abilities).forEach((ability) =>
+            ability.update(delta)
+        );
     }
 }
