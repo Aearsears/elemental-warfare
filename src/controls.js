@@ -8,7 +8,12 @@ export class PlayerController {
         this.ground = ground;
         this.camera = camera;
         this.scene = scene;
-        this.keys = {};
+        this.keys = {
+            ArrowUp: false,
+            ArrowDown: false,
+            ArrowLeft: false,
+            ArrowRight: false
+        };
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
         this.targetPosition = null;
@@ -46,11 +51,15 @@ export class PlayerController {
 
     initializeControls() {
         document.addEventListener('keydown', (event) => {
-            this.keys[event.key.toLowerCase()] = true;
+            if (this.keys.hasOwnProperty(event.key)) {
+                this.keys[event.key] = true;
+            }
         });
 
         document.addEventListener('keyup', (event) => {
-            this.keys[event.key.toLowerCase()] = false;
+            if (this.keys.hasOwnProperty(event.key)) {
+                this.keys[event.key] = false;
+            }
         });
 
         document.addEventListener('contextmenu', (event) => {
@@ -173,11 +182,11 @@ export class PlayerController {
         // Update camera position in 2D plane
         const movementVector = new THREE.Vector2(0, 0);
 
-        // Reversed the signs to fix inverted controls
-        if (this.keys['w']) movementVector.y += this.cameraSpeed; // Changed from -=
-        if (this.keys['s']) movementVector.y -= this.cameraSpeed; // Changed from +=
-        if (this.keys['a']) movementVector.x += this.cameraSpeed; // Changed from -=
-        if (this.keys['d']) movementVector.x -= this.cameraSpeed; // Changed from +=
+        // Use arrow keys instead of WASD
+        if (this.keys['ArrowUp']) movementVector.y += this.cameraSpeed;
+        if (this.keys['ArrowDown']) movementVector.y -= this.cameraSpeed;
+        if (this.keys['ArrowLeft']) movementVector.x += this.cameraSpeed;
+        if (this.keys['ArrowRight']) movementVector.x -= this.cameraSpeed;
 
         // Apply diagonal movement normalization
         if (movementVector.length() > 0) {
