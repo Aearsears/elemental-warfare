@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { CollisionManager } from './physics/CollisionManager.js';
 import { HoverEffect } from './effects/HoverEffect.js';
 
+// TOOD: refactor into smaller peices
 export class PlayerController {
     constructor(player, ground, camera, environment, scene) {
         this.player = player;
