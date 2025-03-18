@@ -4,6 +4,7 @@ export class DebugUI {
         this.environment = environment;
         this.player = player;
         this.isUnlimitedMana = false;
+        this.isNoCooldown = false;
 
         // Load CSS file
         this.loadStyles();
@@ -11,62 +12,44 @@ export class DebugUI {
         this.debug = document.createElement('div');
         this.debug.className = 'debug-panel';
 
-        // Create switch container
-        this.switchContainer = document.createElement('div');
-        this.switchContainer.className = 'switch-container';
+        // Create container for debug toggles
+        this.togglesContainer = document.createElement('div');
+        this.togglesContainer.className = 'toggles-container';
 
-        // Create switch label
-        const label = document.createElement('label');
-        label.className = 'switch';
+        // Store toggle references
+        this.toggles = {
+            mana: null,
+            cooldown: null
+        };
 
-        // Create checkbox input
-        this.unlimitedManaToggle = document.createElement('input');
-        this.unlimitedManaToggle.type = 'checkbox';
+        // Create unlimited mana toggle
+        const manaToggleContainer = this.createToggleSwitch(
+            'Unlimited Mana',
+            (checked) => {
+                this.isUnlimitedMana = checked;
+                this.handleUnlimitedManaToggle();
+            },
+            'mana'
+        );
 
-        // Create slider
-        const slider = document.createElement('span');
-        slider.className = 'slider round';
+        // Create no cooldown toggle
+        const cooldownToggleContainer = this.createToggleSwitch(
+            'No Cooldown',
+            (checked) => {
+                this.isNoCooldown = checked;
+                this.handleNoCooldownToggle();
+            },
+            'cooldown'
+        );
 
-        // Add text label
-        const textLabel = document.createElement('span');
-        textLabel.textContent = 'Unlimited Mana';
-        textLabel.className = 'switch-label';
+        // Add toggles to container
+        this.togglesContainer.appendChild(manaToggleContainer);
+        this.togglesContainer.appendChild(cooldownToggleContainer);
 
-        // Add event listener
-        this.unlimitedManaToggle.addEventListener('change', () => {
-            this.handleUnlimitedManaToggle();
-            slider.style.backgroundColor = this.isUnlimitedMana
-                ? '#080'
-                : '#444';
-        });
-
-        // Prevent event propagation
-        label.addEventListener('mousedown', (event) => {
-            event.stopPropagation();
-        });
-
-        this.unlimitedManaToggle.addEventListener('click', (event) => {
-            event.stopPropagation();
-        });
-
-        label.addEventListener('click', (event) => {
-            event.stopPropagation();
-        });
-
-        slider.addEventListener('click', (event) => {
-            event.stopPropagation();
-        });
-
-        // Assemble the switch
-        label.appendChild(this.unlimitedManaToggle);
-        label.appendChild(slider);
-        this.switchContainer.appendChild(label);
-        this.switchContainer.appendChild(textLabel);
-
-        // Create debug info container separately
+        // Add containers to debug panel
         this.debugInfo = document.createElement('div');
         this.debug.appendChild(this.debugInfo);
-        this.debug.appendChild(this.switchContainer);
+        this.debug.appendChild(this.togglesContainer);
 
         document.body.appendChild(this.debug);
 
@@ -93,9 +76,49 @@ export class DebugUI {
         document.head.appendChild(link);
     }
 
-    handleUnlimitedManaToggle() {
-        this.isUnlimitedMana = this.unlimitedManaToggle.checked;
+    createToggleSwitch(labelText, onChange, toggleKey) {
+        const container = document.createElement('div');
+        container.className = 'switch-container';
 
+        const label = document.createElement('label');
+        label.className = 'switch';
+
+        const toggle = document.createElement('input');
+        toggle.type = 'checkbox';
+
+        // Store toggle reference
+        this.toggles[toggleKey] = toggle;
+
+        const slider = document.createElement('span');
+        slider.className = 'slider round';
+
+        const textLabel = document.createElement('span');
+        textLabel.textContent = labelText;
+        textLabel.className = 'switch-label';
+
+        // Add event listeners
+        toggle.addEventListener('change', () => onChange(toggle.checked));
+
+        // Prevent event propagation
+        [label, toggle, slider].forEach((element) => {
+            element.addEventListener('click', (event) =>
+                event.stopPropagation()
+            );
+            element.addEventListener('mousedown', (event) =>
+                event.stopPropagation()
+            );
+        });
+
+        // Assemble the switch
+        label.appendChild(toggle);
+        label.appendChild(slider);
+        container.appendChild(label);
+        container.appendChild(textLabel);
+
+        return container;
+    }
+
+    handleUnlimitedManaToggle() {
         if (this.player && this.player.champion) {
             if (this.isUnlimitedMana) {
                 // Store original values
@@ -116,6 +139,32 @@ export class DebugUI {
                     this.player.champion.maxMana = this.originalValues.maxMana;
                     this.player.champion.manaRegenRate =
                         this.originalValues.manaRegenRate;
+                }
+            }
+        }
+
+        this.update();
+    }
+
+    handleNoCooldownToggle() {
+        if (this.player && this.player.champion) {
+            // Store original cooldowns
+            if (this.isNoCooldown) {
+                this.originalCooldowns = {};
+                Object.entries(this.player.champion.abilities).forEach(
+                    ([key, ability]) => {
+                        this.originalCooldowns[key] = ability.cooldown;
+                        ability.cooldown = 0;
+                    }
+                );
+            } else {
+                // Restore original cooldowns
+                if (this.originalCooldowns) {
+                    Object.entries(this.player.champion.abilities).forEach(
+                        ([key, ability]) => {
+                            ability.cooldown = this.originalCooldowns[key];
+                        }
+                    );
                 }
             }
         }
@@ -152,7 +201,8 @@ export class DebugUI {
                 0
             )}`,
             `Destructibles: ${this.environment.destructibles.length}`,
-            `Unlimited Mana: ${this.isUnlimitedMana ? 'ON' : 'OFF'}`
+            `Unlimited Mana: ${this.isUnlimitedMana ? 'ON' : 'OFF'}`,
+            `No Cooldown: ${this.isNoCooldown ? 'ON' : 'OFF'}`
         ].join('</br>');
     }
 
