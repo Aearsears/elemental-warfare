@@ -28,6 +28,7 @@ export class CombatController {
     }
 
     applyDamage(destructibleGroup, target) {
+        // TODO: FIX ATTACKING AND WHERE TO HANDLE ATTCK
         destructibleGroup.userData.health -= this.player.attackDamage;
         this.showDamageEffect(target);
 
