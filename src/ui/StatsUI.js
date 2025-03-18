@@ -42,7 +42,8 @@ export class StatsUI {
             const value = document.createElement('span');
             this.statsElements[stat] = value;
 
-            if (stat === 'health' || stat === 'mana') {
+            // Add experience to bars that need progress
+            if (stat === 'health' || stat === 'mana' || stat === 'experience') {
                 const barContainer = document.createElement('div');
                 barContainer.className = 'bar-container';
 
@@ -108,11 +109,13 @@ export class StatsUI {
             (champion.mana / champion.maxMana) * 100
         }%`;
 
-        // Update level and experience
+        // Update level and experience with progress bar
         this.statsElements.level.textContent = this.player.level;
-        this.statsElements.experience.textContent = `${
-            this.player.experience
-        }/${this.player.level * 100}`;
+        const expForNextLevel = this.player.level * 100;
+        const expPercentage = (this.player.experience / expForNextLevel) * 100;
+
+        this.statsElements.experience.textContent = `${this.player.experience}/${expForNextLevel}`;
+        this.statsElements.experienceBar.style.width = `${expPercentage}%`;
 
         // Update ability cooldowns
         if (this.player.champion) {

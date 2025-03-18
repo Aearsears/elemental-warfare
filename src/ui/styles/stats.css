@@ -47,6 +47,14 @@
     transition: width 0.3s;
 }
 
+.experience-bar {
+    height: 100%;
+    border-radius: 5px;
+    background-color: #ffdd44;
+    width: 100%;
+    transition: width 0.3s;
+}
+
 .abilities-container {
     display: flex;
     justify-content: center;
