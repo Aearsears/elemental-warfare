@@ -104,17 +104,24 @@ export class PlayerController {
 
         // Get all targetable objects
         const targetableObjects = [
-            ...this.environment.destructibles.map((d) => d.children[0]),
+            ...this.environment.destructibles, // Changed: check entire destructible group
             ...this.environment.jungleCamps.flatMap((camp) =>
                 camp.monsterInstances.map((monster) => monster.mesh)
             )
         ];
 
-        const intersects = this.raycaster.intersectObjects(targetableObjects);
+        const intersects = this.raycaster.intersectObjects(
+            targetableObjects,
+            true
+        ); // Added: true for recursive check
 
         if (intersects.length > 0) {
             const targetObject = intersects[0].object;
-            if (targetObject.userData.isTargetable) {
+            // Check if parent is destructible or object itself is targetable
+            if (
+                targetObject.parent?.userData?.isDestructible ||
+                targetObject.userData?.isTargetable
+            ) {
                 this.hoverEffect.addOutline(targetObject);
             }
         } else {

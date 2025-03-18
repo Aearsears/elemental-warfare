@@ -171,34 +171,16 @@ export class Environment {
         const barrel = new THREE.Mesh(geometry, material);
         barrel.castShadow = true;
         barrel.receiveShadow = true;
-        barrel.userData.isDestructible = true; // Mark as destructible for hover detection
-        barrel.userData.parentGroup = group; // Reference to parent for easier access
 
-        // Add metal rings
-        const ringGeometry = new THREE.TorusGeometry(0.5, 0.05, 8, 16);
-        const ringMaterial = new THREE.MeshPhongMaterial({
-            color: 0x444444,
-            shininess: 60,
-            specular: 0x888888
-        });
-
-        const topRing = new THREE.Mesh(ringGeometry, ringMaterial);
-        topRing.position.y = 0.4;
-        topRing.rotation.x = Math.PI / 2;
-
-        const bottomRing = new THREE.Mesh(ringGeometry, ringMaterial);
-        bottomRing.position.y = -0.4;
-        bottomRing.rotation.x = Math.PI / 2;
+        // Mark both the group and the mesh as targetable
+        group.userData.isDestructible = true;
+        group.userData.health = 100;
+        barrel.userData.isTargetable = true;
+        barrel.userData.parentGroup = group;
 
         group.add(barrel);
-        group.add(topRing);
-        group.add(bottomRing);
         group.position.copy(position);
-        group.position.y = 0.5; // Lift slightly above ground
-
-        // Add metadata for game logic
-        group.userData.health = 100;
-        group.userData.isDestructible = true;
+        group.position.y = 0.5;
 
         return group;
     }
