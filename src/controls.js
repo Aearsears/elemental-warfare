@@ -17,7 +17,7 @@ export class PlayerController {
 
         // Add zoom configuration
         this.minZoom = 10;
-        this.maxZoom = 50;
+        this.maxZoom = 100;
         this.zoomSpeed = 1;
         this.currentZoom = 20;
 
@@ -94,7 +94,9 @@ export class PlayerController {
 
         if (intersects.length > 0) {
             this.targetPosition = intersects[0].point;
-            this.targetPosition.y = this.player.position.y;
+            // Use getPosition() instead of accessing position directly
+            const playerPos = this.player.getPosition();
+            this.targetPosition.y = playerPos.y;
         }
     }
 

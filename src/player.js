@@ -4,7 +4,8 @@ import { Mage } from './champions/Mage.js';
 import { Archer } from './champions/Archer.js';
 
 export class Player {
-    constructor(championType = 'warrior') {
+    constructor(championType = 'warrior', scene) {
+        this.scene = scene;
         this.champion = this.createChampion(championType);
         this.score = 0;
         this.level = 1;
