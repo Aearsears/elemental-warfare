@@ -15,7 +15,7 @@ export class DebugUI {
         this.debug.style.fontFamily = 'monospace';
         this.debug.style.cursor = 'pointer';
 
-        // Stop click propagation on the debug panel
+        // Stop ALL click events from propagating through the debug panel
         this.debug.addEventListener('mousedown', (event) => {
             event.stopPropagation();
         });
@@ -61,11 +61,27 @@ export class DebugUI {
             event.stopPropagation();
         });
 
+        this.unlimitedManaToggle.addEventListener('click', (event) => {
+            event.stopPropagation();
+        });
+
+        label.addEventListener('click', (event) => {
+            event.stopPropagation();
+        });
+
+        slider.addEventListener('click', (event) => {
+            event.stopPropagation();
+        });
+
         // Assemble the switch
         label.appendChild(this.unlimitedManaToggle);
         label.appendChild(slider);
         this.switchContainer.appendChild(label);
         this.switchContainer.appendChild(textLabel);
+
+        // Create debug info container separately
+        this.debugInfo = document.createElement('div');
+        this.debug.appendChild(this.debugInfo);
         this.debug.appendChild(this.switchContainer);
 
         document.body.appendChild(this.debug);
@@ -164,8 +180,9 @@ export class DebugUI {
             this.player.champion.mana = this.player.champion.maxMana;
         }
 
+        // Update only the debug info content
         const playerPos = this.player.getPosition();
-        this.debug.innerHTML = [
+        this.debugInfo.innerHTML = [
             '<strong>Debug Information</strong>',
             '-------------------',
             `Camera: (${this.camera.position.x.toFixed(
@@ -185,9 +202,6 @@ export class DebugUI {
             `Destructibles: ${this.environment.destructibles.length}`,
             `Unlimited Mana: ${this.isUnlimitedMana ? 'ON' : 'OFF'}`
         ].join('</br>');
-
-        // Re-append the button after updating innerHTML
-        this.debug.appendChild(this.switchContainer);
     }
 
     destroy() {
