@@ -26,11 +26,6 @@ export class Warrior extends Champion {
             R: new BerserkerRage()
         };
 
-        // Initialize each ability with scene
-        Object.values(this.abilities).forEach((ability) =>
-            ability.initialize(scene)
-        );
-
         // Add key listeners
         this.initializeAbilities();
     }
@@ -92,39 +87,5 @@ export class Warrior extends Champion {
 
     resetAnimation() {
         this.sword.rotation.z = 0;
-    }
-
-    initializeAbilities() {
-        document.addEventListener('keydown', (event) => {
-            switch (event.key.toUpperCase()) {
-                case 'Q':
-                    this.useAbility('Q');
-                    break;
-                case 'W':
-                    this.useAbility('W');
-                    break;
-                case 'E':
-                    this.useAbility('E');
-                    break;
-                case 'R':
-                    this.useAbility('R');
-                    break;
-            }
-        });
-    }
-
-    useAbility(key) {
-        if (this.abilities[key].use(this)) {
-            // Trigger ability specific animation
-            this.triggerAbilityAnimation(key);
-        }
-    }
-
-    update(delta) {
-        super.update(delta);
-        // Update all abilities
-        Object.values(this.abilities).forEach((ability) =>
-            ability.update(delta)
-        );
     }
 }

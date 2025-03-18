@@ -55,10 +55,7 @@ export class Champion {
     }
 
     useAbility(key) {
-        if (this.abilities[key]?.use(this)) {
-            // Trigger ability specific animation
-            this.triggerAbilityAnimation(key);
-        }
+        this.abilities[key]?.use(this);
     }
 
     createModel() {

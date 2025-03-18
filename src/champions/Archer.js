@@ -26,39 +26,8 @@ export class Archer extends Champion {
             R: new PrecisionStrike()
         };
 
-        // Initialize each ability with scene
-        Object.values(this.abilities).forEach((ability) =>
-            ability.initialize(scene)
-        );
-
         // Add key listeners
         this.initializeAbilities();
-    }
-
-    initializeAbilities() {
-        document.addEventListener('keydown', (event) => {
-            switch (event.key.toUpperCase()) {
-                case 'Q':
-                    this.useAbility('Q');
-                    break;
-                case 'W':
-                    this.useAbility('W');
-                    break;
-                case 'E':
-                    this.useAbility('E');
-                    break;
-                case 'R':
-                    this.useAbility('R');
-                    break;
-            }
-        });
-    }
-
-    useAbility(key) {
-        if (this.abilities[key].use(this)) {
-            // Trigger ability specific animation
-            this.triggerAbilityAnimation(key);
-        }
     }
 
     createModel() {
@@ -133,13 +102,5 @@ export class Archer extends Champion {
     resetAnimation() {
         this.bow.scale.z = 1;
         this.bow.position.y = 1.2;
-    }
-
-    update(delta) {
-        super.update(delta);
-        // Update all abilities
-        Object.values(this.abilities).forEach((ability) =>
-            ability.update(delta)
-        );
     }
 }
