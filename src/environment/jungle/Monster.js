@@ -9,6 +9,8 @@ export class Monster {
         this.mesh.userData.isTargetable = true;
         this.mesh.userData.type = 'monster';
         this.mesh.userData.parent = this;
+        this.boundingBox = new THREE.Box3();
+        this.updateBoundingBox();
     }
 
     createModel(config) {
@@ -114,6 +116,15 @@ export class Monster {
         return monsterGroup;
     }
 
+    updateBoundingBox() {
+        this.boundingBox.setFromObject(this.mesh);
+    }
+
+    checkCollision(otherBox) {
+        this.updateBoundingBox();
+        return this.boundingBox.intersectsBox(otherBox);
+    }
+
     update(delta) {
         if (this.isAlive) {
             // Idle animation - body bobbing
@@ -127,6 +138,9 @@ export class Monster {
                         Math.sin(Date.now() * 0.003 + index) * 0.2;
                 }
             });
+
+            // Update bounding box after movement
+            this.updateBoundingBox();
         }
     }
 }

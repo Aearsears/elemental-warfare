@@ -102,30 +102,35 @@ export class PlayerController {
 
         this.raycaster.setFromCamera(this.mouse, this.camera);
 
-        // Get all targetable objects
+        // Get all targetable objects including monsters
         const targetableObjects = [
-            ...this.environment.destructibles, // Changed: check entire destructible group
+            ...this.environment.destructibles,
             ...this.environment.jungleCamps.flatMap((camp) =>
-                camp.monsterInstances.map((monster) => monster.mesh)
+                camp.monsterInstances
+                    .filter((monster) => monster.isAlive)
+                    .map((monster) => monster.mesh)
             )
         ];
 
         const intersects = this.raycaster.intersectObjects(
             targetableObjects,
             true
-        ); // Added: true for recursive check
+        );
 
         if (intersects.length > 0) {
             const targetObject = intersects[0].object;
-            // Check if parent is destructible or object itself is targetable
-            if (
-                targetObject.parent?.userData?.isDestructible ||
-                targetObject.userData?.isTargetable
-            ) {
+            const monster = targetObject.userData.parent;
+
+            if (monster && monster instanceof Monster) {
                 this.hoverEffect.addOutline(targetObject);
+                document.body.style.cursor = 'crosshair';
+            } else if (targetObject.parent?.userData?.isDestructible) {
+                this.hoverEffect.addOutline(targetObject);
+                document.body.style.cursor = 'crosshair';
             }
         } else {
             this.hoverEffect.removeOutline();
+            document.body.style.cursor = 'default';
         }
     }
 
@@ -192,32 +197,43 @@ export class PlayerController {
             const direction = this.targetPosition
                 .clone()
                 .sub(this.player.getPosition());
+
             if (direction.length() > this.playerSpeed) {
-                // Calculate new position
                 const newPosition = this.player.getPosition().clone();
                 newPosition.add(
                     direction.normalize().multiplyScalar(this.playerSpeed)
                 );
 
-                // Check for collisions before moving
-                const oldPosition = this.player.getPosition().clone();
-                this.player.setPosition(
-                    newPosition.x,
-                    newPosition.y,
-                    newPosition.z
+                // Check collisions with monsters
+                const playerBox = new THREE.Box3().setFromObject(
+                    this.player.getMesh()
                 );
+                let collisionDetected = false;
 
-                if (this.collisionManager.checkCollisions(this.player)) {
-                    // Collision detected, revert position
-                    this.player.setPosition(
-                        oldPosition.x,
-                        oldPosition.y,
-                        oldPosition.z
-                    );
-                    this.targetPosition = null;
+                for (const camp of this.environment.jungleCamps) {
+                    for (const monster of camp.monsterInstances) {
+                        if (
+                            monster.isAlive &&
+                            monster.checkCollision(playerBox)
+                        ) {
+                            collisionDetected = true;
+                            break;
+                        }
+                    }
+                    if (collisionDetected) break;
                 }
 
-                this.player.setMoving(true);
+                if (!collisionDetected) {
+                    this.player.setPosition(
+                        newPosition.x,
+                        newPosition.y,
+                        newPosition.z
+                    );
+                    this.player.setMoving(true);
+                } else {
+                    this.targetPosition = null;
+                    this.player.setMoving(false);
+                }
             } else {
                 this.player.setPosition(
                     this.targetPosition.x,
