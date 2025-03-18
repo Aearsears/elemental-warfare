@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Monster } from './Monster.js';
 
 export class JungleCamp {
     constructor(position, type) {
@@ -47,70 +48,51 @@ export class JungleCamp {
     }
 
     addBuffMonster(group) {
-        // Add a larger, more detailed monster for buff camps
-        const bodyGeometry = new THREE.IcosahedronGeometry(1);
-        const bodyMaterial = new THREE.MeshPhongMaterial({
+        const buffMonster = new Monster({
+            health: 200,
+            damage: 20,
+            geometry: new THREE.IcosahedronGeometry(1),
             color: 0xff0000,
-            emissive: 0xff0000,
-            emissiveIntensity: 0.2
+            emissiveColor: 0xff0000,
+            emissiveIntensity: 0.2,
+            scale: 2
         });
 
-        const monster = new THREE.Mesh(bodyGeometry, bodyMaterial);
-        monster.position.y = 1;
-        group.add(monster);
+        buffMonster.mesh.position.y = 1;
+        group.add(buffMonster.mesh);
+        this.monsterInstances = [buffMonster];
     }
 
     addNormalMonsters(group) {
-        // Create 3 smaller monsters for normal camps
-        const colors = [0x00ff00, 0x00dd00, 0x00bb00]; // Different shades of green
+        const colors = [0x00ff00, 0x00dd00, 0x00bb00];
         const positions = [
             new THREE.Vector3(-1, 0, 0),
             new THREE.Vector3(1, 0, 0),
             new THREE.Vector3(0, 0, 1)
         ];
 
-        positions.forEach((pos, index) => {
-            // Create monster body
-            const bodyGeometry = new THREE.TetrahedronGeometry(0.5);
-            const bodyMaterial = new THREE.MeshPhongMaterial({
+        this.monsterInstances = positions.map((pos, index) => {
+            const monster = new Monster({
+                health: 100,
+                damage: 10,
                 color: colors[index],
-                emissive: colors[index],
-                emissiveIntensity: 0.1,
-                shininess: 30
+                emissiveColor: colors[index],
+                scale: 1
             });
 
-            const monster = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            monster.position.copy(pos);
-            monster.position.y = 0.5;
-            monster.castShadow = true;
-            monster.receiveShadow = true;
-
-            // Add eyes
-            const eyeGeometry = new THREE.SphereGeometry(0.1, 8, 8);
-            const eyeMaterial = new THREE.MeshPhongMaterial({
-                color: 0xffffff,
-                emissive: 0xffff00,
-                emissiveIntensity: 0.5
-            });
-
-            const eye1 = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            const eye2 = new THREE.Mesh(eyeGeometry, eyeMaterial);
-
-            eye1.position.set(0.2, 0.2, 0.2);
-            eye2.position.set(-0.2, 0.2, 0.2);
-
-            monster.add(eye1);
-            monster.add(eye2);
-            group.add(monster);
+            monster.mesh.position.copy(pos);
+            monster.mesh.position.y = 0.5;
+            group.add(monster.mesh);
+            return monster;
         });
     }
 
     update(delta) {
-        if (this.isActive) {
-            // Animate monsters
-            this.monsters.children.forEach((monster) => {
-                monster.rotation.y += delta;
-                monster.position.y = 1 + Math.sin(Date.now() * 0.002) * 0.1;
+        if (this.isActive && this.monsterInstances) {
+            this.monsterInstances.forEach((monster) => {
+                if (monster.isAlive) {
+                    monster.update(delta);
+                }
             });
         }
     }

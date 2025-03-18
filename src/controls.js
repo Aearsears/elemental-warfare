@@ -19,10 +19,10 @@ export class PlayerController {
         this.hoverEffect = new HoverEffect(scene);
 
         // Add zoom configuration
-        this.minZoom = 10;
-        this.maxZoom = 100;
+        this.minZoom = 5;
+        this.maxZoom = 20;
         this.zoomSpeed = 1;
-        this.currentZoom = 20;
+        this.currentZoom = 10;
 
         // Add camera angle configuration
         this.cameraAngle = Math.PI / 6; // 30-degree tilt
@@ -97,21 +97,26 @@ export class PlayerController {
     }
 
     checkHoverTargets(event) {
-        // Convert mouse position to normalized device coordinates
         this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
         this.raycaster.setFromCamera(this.mouse, this.camera);
 
-        // Check destructibles
-        const destructibles = this.environment.destructibles.map(
-            (d) => d.children[0]
-        ); // Get barrel mesh
-        const intersects = this.raycaster.intersectObjects(destructibles);
+        // Get all targetable objects
+        const targetableObjects = [
+            ...this.environment.destructibles.map((d) => d.children[0]),
+            ...this.environment.jungleCamps.flatMap((camp) =>
+                camp.monsterInstances.map((monster) => monster.mesh)
+            )
+        ];
+
+        const intersects = this.raycaster.intersectObjects(targetableObjects);
 
         if (intersects.length > 0) {
             const targetObject = intersects[0].object;
-            this.hoverEffect.addOutline(targetObject);
+            if (targetObject.userData.isTargetable) {
+                this.hoverEffect.addOutline(targetObject);
+            }
         } else {
             this.hoverEffect.removeOutline();
         }
@@ -218,5 +223,106 @@ export class PlayerController {
         } else {
             this.player.setMoving(false);
         }
+    }
+
+    // Update attack logic to handle monsters
+    handleAttack(target) {
+        if (target.userData.type === 'monster') {
+            const monster = target.userData.parent;
+            if (monster.isAlive) {
+                monster.takeDamage(this.player.attackDamage);
+            }
+        } else if (target.userData.isDestructible) {
+            // Get the parent group that holds the health data
+            const destructibleGroup = target.userData.parentGroup;
+            if (destructibleGroup && destructibleGroup.userData.health > 0) {
+                // Apply damage
+                destructibleGroup.userData.health -= this.player.attackDamage;
+
+                // Visual feedback
+                target.material.emissive = new THREE.Color(0xff0000);
+                setTimeout(() => {
+                    target.material.emissive = new THREE.Color(0x000000);
+                }, 100);
+
+                // Check if destroyed
+                if (destructibleGroup.userData.health <= 0) {
+                    // Destruction animation/effect
+                    this.createDestructionEffect(destructibleGroup.position);
+
+                    // Remove from scene and environment
+                    this.scene.remove(destructibleGroup);
+                    this.environment.destructibles =
+                        this.environment.destructibles.filter(
+                            (d) => d !== destructibleGroup
+                        );
+
+                    // Remove hover effect if it was being shown
+                    this.hoverEffect.removeOutline();
+                }
+            }
+        }
+    }
+
+    createDestructionEffect(position) {
+        // Create particle effect for destruction
+        const particleCount = 20;
+        const geometry = new THREE.BufferGeometry();
+        const positions = [];
+        const velocities = [];
+
+        for (let i = 0; i < particleCount; i++) {
+            positions.push(
+                position.x + (Math.random() - 0.5) * 0.5,
+                position.y + (Math.random() - 0.5) * 0.5,
+                position.z + (Math.random() - 0.5) * 0.5
+            );
+            velocities.push(
+                (Math.random() - 0.5) * 0.3,
+                Math.random() * 0.5,
+                (Math.random() - 0.5) * 0.3
+            );
+        }
+
+        geometry.setAttribute(
+            'position',
+            new THREE.Float32BufferAttribute(positions, 3)
+        );
+
+        const material = new THREE.PointsMaterial({
+            color: 0x8b4513,
+            size: 0.2,
+            sizeAttenuation: true
+        });
+
+        const particles = new THREE.Points(geometry, material);
+        this.scene.add(particles);
+
+        // Animate particles
+        const animateParticles = () => {
+            const positions = particles.geometry.attributes.position.array;
+
+            for (let i = 0; i < positions.length; i += 3) {
+                positions[i] += velocities[i]; // x
+                positions[i + 1] += velocities[i + 1] - 0.1; // y with gravity
+                positions[i + 2] += velocities[i + 2]; // z
+            }
+
+            particles.geometry.attributes.position.needsUpdate = true;
+        };
+
+        // Remove particles after animation
+        let frames = 0;
+        const animate = () => {
+            if (frames < 30) {
+                animateParticles();
+                frames++;
+                requestAnimationFrame(animate);
+            } else {
+                this.scene.remove(particles);
+            }
+        };
+
+        animate();
     }
 }
