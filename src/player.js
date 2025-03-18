@@ -20,13 +20,13 @@ export class Player {
     createChampion(type) {
         switch (type.toLowerCase()) {
             case 'warrior':
-                return new Warrior();
+                return new Warrior(this.scene);
             case 'mage':
-                return new Mage();
+                return new Mage(this.scene);
             case 'archer':
-                return new Archer();
+                return new Archer(this.scene);
             default:
-                return new Warrior();
+                return new Warrior(this.scene);
         }
     }
 
