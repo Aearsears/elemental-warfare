@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { PlayerController } from './src/controls.js';
-import { Environment } from './src/environment.js';
+import { Environment } from './src/environment/Environment.js';
 import { Player } from './src/player.js';
 import { StatsUI } from './src/ui/StatsUI.js';
 
