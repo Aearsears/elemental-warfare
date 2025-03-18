@@ -79,7 +79,8 @@ const playerController = new PlayerController(
     player,
     ground,
     camera,
-    environment
+    environment,
+    scene
 );
 
 // Create UI

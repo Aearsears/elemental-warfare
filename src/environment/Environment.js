@@ -171,6 +171,8 @@ export class Environment {
         const barrel = new THREE.Mesh(geometry, material);
         barrel.castShadow = true;
         barrel.receiveShadow = true;
+        barrel.userData.isDestructible = true; // Mark as destructible for hover detection
+        barrel.userData.parentGroup = group; // Reference to parent for easier access
 
         // Add metal rings
         const ringGeometry = new THREE.TorusGeometry(0.5, 0.05, 8, 16);

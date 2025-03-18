@@ -1,11 +1,13 @@
 import * as THREE from 'three';
 import { CollisionManager } from './physics/CollisionManager.js';
+import { HoverEffect } from './effects/HoverEffect.js';
 
 export class PlayerController {
-    constructor(player, ground, camera, environment) {
+    constructor(player, ground, camera, environment, scene) {
         this.player = player;
         this.ground = ground;
         this.camera = camera;
+        this.scene = scene;
         this.keys = {};
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
@@ -14,6 +16,7 @@ export class PlayerController {
         this.cameraSpeed = 0.5;
         this.collisionManager = new CollisionManager(environment);
         this.environment = environment;
+        this.hoverEffect = new HoverEffect(scene);
 
         // Add zoom configuration
         this.minZoom = 10;
@@ -36,6 +39,9 @@ export class PlayerController {
         // Add attack binding
         this.initializeControls();
         this.updateCameraPosition();
+
+        // Add mousemove event listener
+        this.initializeHoverDetection();
     }
 
     initializeControls() {
@@ -82,6 +88,33 @@ export class PlayerController {
                 this.player.attack(this.environment);
             }
         });
+    }
+
+    initializeHoverDetection() {
+        document.addEventListener('mousemove', (event) => {
+            this.checkHoverTargets(event);
+        });
+    }
+
+    checkHoverTargets(event) {
+        // Convert mouse position to normalized device coordinates
+        this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+
+        // Check destructibles
+        const destructibles = this.environment.destructibles.map(
+            (d) => d.children[0]
+        ); // Get barrel mesh
+        const intersects = this.raycaster.intersectObjects(destructibles);
+
+        if (intersects.length > 0) {
+            const targetObject = intersects[0].object;
+            this.hoverEffect.addOutline(targetObject);
+        } else {
+            this.hoverEffect.removeOutline();
+        }
     }
 
     handleRightClick(event) {
