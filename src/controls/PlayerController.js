@@ -34,11 +34,13 @@ export class PlayerController {
 
     initializeHoverDetection() {
         document.addEventListener('mousemove', (event) => {
+            event.preventDefault();
             this.inputHandler.updateMousePosition(event);
             this.checkHover(event);
         });
 
         document.addEventListener('mousedown', (event) => {
+            event.preventDefault();
             if (event.button === 0) {
                 // Left click
                 this.handleLeftClick();
@@ -78,6 +80,8 @@ export class PlayerController {
     }
 
     handleLeftClick() {
+        console.log('Left click detected'); // Debug log
+
         this.inputHandler.raycaster.setFromCamera(
             this.inputHandler.mouse,
             this.cameraController.camera
@@ -88,12 +92,18 @@ export class PlayerController {
             true
         );
 
+        console.log('Intersects:', intersects); // Debug log
+
         if (intersects.length > 0) {
             const target = intersects[0].object;
+            console.log('Target:', target); // Debug log
+            console.log('Target userData:', target.userData); // Debug log
+
             if (
                 target.userData.isTargetable &&
                 this.combatController.isTargetInRange(target.position)
             ) {
+                console.log('Attack conditions met'); // Debug log
                 this.combatController.handleAttack(target);
             }
         }

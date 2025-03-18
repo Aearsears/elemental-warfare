@@ -3,7 +3,7 @@ export class DebugUI {
         this.camera = camera;
         this.environment = environment;
         this.player = player;
-        this.sandboxMode = false;
+        this.isUnlimitedMana = false; // Renamed from unlimitedMana to avoid conflict
 
         this.debug = document.createElement('div');
         this.debug.style.position = 'fixed';
@@ -15,39 +15,124 @@ export class DebugUI {
         this.debug.style.fontFamily = 'monospace';
         this.debug.style.cursor = 'pointer';
 
-        // Add sandbox mode toggle button
-        this.sandboxButton = document.createElement('button');
-        this.sandboxButton.textContent = 'Toggle Sandbox Mode';
-        this.sandboxButton.style.marginTop = '10px';
-        this.sandboxButton.style.padding = '5px';
-        this.sandboxButton.style.backgroundColor = '#444';
-        this.sandboxButton.style.color = 'white';
-        this.sandboxButton.style.border = '1px solid #666';
-        this.sandboxButton.style.cursor = 'pointer';
+        // Stop click propagation on the debug panel
+        this.debug.addEventListener('mousedown', (event) => {
+            event.stopPropagation();
+        });
 
-        // Use the handleSandboxToggle method for click events
-        this.sandboxButton.addEventListener('click', () =>
-            this.handleSandboxToggle()
-        );
+        // Create switch container
+        this.switchContainer = document.createElement('div');
+        this.switchContainer.style.display = 'flex';
+        this.switchContainer.style.alignItems = 'center';
+        this.switchContainer.style.marginTop = '10px';
 
-        this.debug.appendChild(this.sandboxButton);
+        // Create switch label
+        const label = document.createElement('label');
+        label.className = 'switch';
+        label.style.marginRight = '10px';
+
+        // Create checkbox input
+        this.unlimitedManaToggle = document.createElement('input');
+        this.unlimitedManaToggle.type = 'checkbox';
+        this.unlimitedManaToggle.style.opacity = '0';
+        this.unlimitedManaToggle.style.width = '0';
+        this.unlimitedManaToggle.style.height = '0';
+
+        // Create slider
+        const slider = document.createElement('span');
+        slider.className = 'slider round';
+
+        // Add text label
+        const textLabel = document.createElement('span');
+        textLabel.textContent = 'Unlimited Mana';
+        textLabel.style.color = 'white';
+        textLabel.style.marginLeft = '10px';
+
+        // Add event listener
+        this.unlimitedManaToggle.addEventListener('change', () => {
+            this.handleUnlimitedManaToggle();
+            slider.style.backgroundColor = this.isUnlimitedMana
+                ? '#080'
+                : '#444';
+        });
+
+        // Prevent event propagation
+        label.addEventListener('mousedown', (event) => {
+            event.stopPropagation();
+        });
+
+        // Assemble the switch
+        label.appendChild(this.unlimitedManaToggle);
+        label.appendChild(slider);
+        this.switchContainer.appendChild(label);
+        this.switchContainer.appendChild(textLabel);
+        this.debug.appendChild(this.switchContainer);
+
         document.body.appendChild(this.debug);
+
+        // Add CSS styles for the switch
+        const style = document.createElement('style');
+        style.textContent = `
+            .switch {
+                position: relative;
+                display: inline-block;
+                width: 60px;
+                height: 34px;
+            }
+
+            .switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+            .slider {
+                position: absolute;
+                cursor: pointer;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: #444;
+                transition: .4s;
+                border-radius: 34px;
+            }
+
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 26px;
+                width: 26px;
+                left: 4px;
+                bottom: 4px;
+                background-color: white;
+                transition: .4s;
+                border-radius: 50%;
+            }
+
+            input:checked + .slider {
+                background-color: #080;
+            }
+
+            input:checked + .slider:before {
+                transform: translateX(26px);
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Remove inline styles from slider
+        slider.removeAttribute('style');
+
+        // Remove inline styles from label except marginRight
+        label.style = '';
+        label.style.marginRight = '10px';
     }
 
-    handleSandboxToggle() {
-        this.sandboxMode = !this.sandboxMode;
+    handleUnlimitedManaToggle() {
+        this.isUnlimitedMana = this.unlimitedManaToggle.checked;
 
-        // Update button appearance
-        this.sandboxButton.style.backgroundColor = this.sandboxMode
-            ? '#080'
-            : '#444';
-        this.sandboxButton.textContent = `Sandbox Mode: ${
-            this.sandboxMode ? 'ON' : 'OFF'
-        }`;
-
-        // Apply sandbox effects
         if (this.player && this.player.champion) {
-            if (this.sandboxMode) {
+            if (this.isUnlimitedMana) {
                 // Store original values
                 this.originalValues = {
                     mana: this.player.champion.mana,
@@ -55,11 +140,10 @@ export class DebugUI {
                     manaRegenRate: this.player.champion.manaRegenRate
                 };
 
-                // Set infinite mana
-                // TOOD: FIX
-                this.player.champion.mana = Infinity;
-                this.player.champion.maxMana = Infinity;
-                this.player.champion.manaRegenRate = Infinity;
+                // Set unlimited mana
+                this.player.champion.mana = 999999;
+                this.player.champion.maxMana = 999999;
+                this.player.champion.manaRegenRate = 999999;
             } else {
                 // Restore original values
                 if (this.originalValues) {
@@ -71,13 +155,12 @@ export class DebugUI {
             }
         }
 
-        // Force an update of the debug display
         this.update();
     }
 
     update() {
-        // If sandbox mode is on, set mana to max
-        if (this.sandboxMode && this.player.champion) {
+        // If unlimited mana is on, keep mana at max
+        if (this.isUnlimitedMana && this.player.champion) {
             this.player.champion.mana = this.player.champion.maxMana;
         }
 
@@ -100,11 +183,11 @@ export class DebugUI {
                 0
             )}`,
             `Destructibles: ${this.environment.destructibles.length}`,
-            `Sandbox Mode: ${this.sandboxMode ? 'ON' : 'OFF'}`
+            `Unlimited Mana: ${this.isUnlimitedMana ? 'ON' : 'OFF'}`
         ].join('</br>');
 
         // Re-append the button after updating innerHTML
-        this.debug.appendChild(this.sandboxButton);
+        this.debug.appendChild(this.switchContainer);
     }
 
     destroy() {
