@@ -10,6 +10,9 @@ export class Warrior extends Champion {
             attackDamage: 15,
             attackRange: 2
         });
+        this.isAttacking = false;
+        this.attackAnimationTime = 0;
+        this.attackDuration = 0.5; // seconds
     }
 
     createModel() {
@@ -41,8 +44,30 @@ export class Warrior extends Champion {
     }
 
     updateAnimation(delta) {
-        // Sword swinging animation
-        this.sword.rotation.z = Math.sin(this.movementTime) * 0.3;
+        if (this.isAttacking) {
+            // Attack animation
+            this.attackAnimationTime += delta;
+            // Full 360-degree swing
+            this.sword.rotation.z =
+                Math.PI * 2 * (this.attackAnimationTime / this.attackDuration);
+
+            if (this.attackAnimationTime >= this.attackDuration) {
+                this.isAttacking = false;
+                this.attackAnimationTime = 0;
+                this.sword.rotation.z = 0;
+            }
+        } else if (this.isMoving) {
+            // Walking animation
+            this.movementTime += delta * 5;
+            this.sword.rotation.z = Math.sin(this.movementTime) * 0.3;
+        } else {
+            this.resetAnimation();
+        }
+    }
+
+    attack() {
+        this.isAttacking = true;
+        this.attackAnimationTime = 0;
     }
 
     resetAnimation() {

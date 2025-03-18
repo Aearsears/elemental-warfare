@@ -10,6 +10,9 @@ export class Archer extends Champion {
             attackDamage: 12,
             attackRange: 6
         });
+        this.isAttacking = false;
+        this.attackAnimationTime = 0;
+        this.attackDuration = 0.6; // seconds
     }
 
     createModel() {
@@ -43,8 +46,35 @@ export class Archer extends Champion {
     }
 
     updateAnimation(delta) {
-        // Bow drawing animation
-        this.bow.scale.y = 1 + Math.sin(this.movementTime) * 0.1;
+        if (this.isAttacking) {
+            // Attack animation
+            this.attackAnimationTime += delta;
+            const progress = this.attackAnimationTime / this.attackDuration;
+
+            // Bow drawing and release animation
+            if (progress < 0.5) {
+                // Drawing bow
+                this.bow.scale.y = 1 - progress * 0.3;
+            } else {
+                // Release and reset
+                this.bow.scale.y = 0.85 + (progress - 0.5) * 0.3;
+            }
+
+            if (this.attackAnimationTime >= this.attackDuration) {
+                this.isAttacking = false;
+                this.attackAnimationTime = 0;
+                this.bow.scale.y = 1;
+            }
+        } else if (this.isMoving) {
+            // Walking animation
+            this.movementTime += delta * 5;
+            this.bow.position.y = 1.5 + Math.sin(this.movementTime) * 0.1;
+        }
+    }
+
+    attack() {
+        this.isAttacking = true;
+        this.attackAnimationTime = 0;
     }
 
     resetAnimation() {

@@ -10,6 +10,9 @@ export class Mage extends Champion {
             attackDamage: 8,
             attackRange: 8
         });
+        this.isAttacking = false;
+        this.attackAnimationTime = 0;
+        this.attackDuration = 0.8; // seconds
     }
 
     createModel() {
@@ -45,16 +48,38 @@ export class Mage extends Champion {
     }
 
     updateAnimation(delta) {
-        // Floating staff and glowing orb
-        this.staff.position.y = 1.5 + Math.sin(this.movementTime) * 0.1;
-        this.orb.position.y = 2.5 + Math.sin(this.movementTime) * 0.1;
-        this.orb.material.emissiveIntensity =
-            0.5 + Math.sin(this.movementTime) * 0.2;
+        if (this.isAttacking) {
+            // Attack animation
+            this.attackAnimationTime += delta;
+
+            // Staff raising and orb glowing animation
+            const progress = this.attackAnimationTime / this.attackDuration;
+            this.staff.rotation.z = Math.sin(progress * Math.PI) * 0.5;
+            this.orb.material.emissiveIntensity =
+                0.5 + Math.sin(progress * Math.PI * 2) * 1.5;
+
+            if (this.attackAnimationTime >= this.attackDuration) {
+                this.isAttacking = false;
+                this.attackAnimationTime = 0;
+                this.staff.rotation.z = 0;
+                this.orb.material.emissiveIntensity = 0.5;
+            }
+        } else if (this.isMoving) {
+            // Walking animation
+            this.movementTime += delta * 5;
+            this.staff.position.y = 1.5 + Math.sin(this.movementTime) * 0.1;
+            this.orb.position.y = 2.5 + Math.sin(this.movementTime) * 0.1;
+        }
     }
 
     resetAnimation() {
         this.staff.position.y = 1.5;
         this.orb.position.y = 2.5;
         this.orb.material.emissiveIntensity = 0.5;
+    }
+
+    attack() {
+        this.isAttacking = true;
+        this.attackAnimationTime = 0;
     }
 }

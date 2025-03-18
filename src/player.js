@@ -81,8 +81,11 @@ export class Player {
     attack(environment) {
         const now = Date.now();
         if (now - this.lastAttackTime < this.attackCooldown) {
-            return; // Attack on cooldown
+            return;
         }
+
+        // Trigger champion attack animation
+        this.champion.attack();
 
         const playerPosition = this.getPosition();
 
