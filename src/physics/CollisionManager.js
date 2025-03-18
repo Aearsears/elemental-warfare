@@ -16,15 +16,14 @@ export class CollisionManager {
             return true;
         }
 
-        // Check collisions with destructibles
         const playerBoundingBox = new THREE.Box3().setFromObject(
             player.getMesh()
         );
-        for (const destructible of this.environment.destructibles) {
-            const destructibleBoundingBox = new THREE.Box3().setFromObject(
-                destructible
-            );
-            if (playerBoundingBox.intersectsBox(destructibleBoundingBox)) {
+
+        // Check collisions with structures (bases)
+        for (const base of this.environment.bases) {
+            const baseBoundingBox = new THREE.Box3().setFromObject(base.mesh);
+            if (playerBoundingBox.intersectsBox(baseBoundingBox)) {
                 return true;
             }
         }
@@ -37,6 +36,46 @@ export class CollisionManager {
             }
         }
 
+        // Check collisions with monsters
+        for (const camp of this.environment.jungleCamps) {
+            for (const monster of camp.monsterInstances) {
+                if (monster.isAlive) {
+                    const monsterBoundingBox = monster.boundingBox;
+                    if (playerBoundingBox.intersectsBox(monsterBoundingBox)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Check collisions with trees
+        for (const tree of this.environment.trees) {
+            const treeBoundingBox = new THREE.Box3().setFromObject(tree);
+            if (playerBoundingBox.intersectsBox(treeBoundingBox)) {
+                return true;
+            }
+        }
+
+        // Check collisions with destructibles
+        for (const destructible of this.environment.destructibles) {
+            const destructibleBoundingBox = new THREE.Box3().setFromObject(
+                destructible
+            );
+            if (playerBoundingBox.intersectsBox(destructibleBoundingBox)) {
+                return true;
+            }
+        }
+
         return false;
+    }
+
+    // Helper method to get collision normal
+    getCollisionNormal(playerBox, objectBox) {
+        const playerCenter = new THREE.Vector3();
+        const objectCenter = new THREE.Vector3();
+        playerBox.getCenter(playerCenter);
+        objectBox.getCenter(objectCenter);
+
+        return objectCenter.sub(playerCenter).normalize();
     }
 }

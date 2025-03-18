@@ -203,62 +203,68 @@ export class PlayerController {
                 const movement = direction
                     .normalize()
                     .multiplyScalar(this.playerSpeed);
-
-                // Check collisions with monsters and adjust movement
-                const playerBox = new THREE.Box3().setFromObject(
-                    this.player.getMesh()
-                );
                 let adjustedPosition = newPosition.clone().add(movement);
 
-                for (const camp of this.environment.jungleCamps) {
-                    for (const monster of camp.monsterInstances) {
-                        if (monster.isAlive) {
-                            // Create a slightly larger bounding box for early detection
-                            const monsterBox = monster.boundingBox.clone();
-                            monsterBox.expandByScalar(0.5); // Add some padding
+                // Store original position
+                const originalPosition = this.player.getPosition().clone();
 
-                            if (monster.checkCollision(playerBox)) {
-                                // Get direction away from monster
-                                const awayFromMonster = this.player
-                                    .getPosition()
-                                    .clone()
-                                    .sub(monster.mesh.position)
-                                    .normalize();
-
-                                // Project movement onto the direction perpendicular to awayFromMonster
-                                const perpendicular = new THREE.Vector3(
-                                    -awayFromMonster.z,
-                                    0,
-                                    awayFromMonster.x
-                                ).normalize();
-
-                                const dot = movement.dot(perpendicular);
-                                movement.copy(
-                                    perpendicular.multiplyScalar(dot)
-                                );
-
-                                // Add a small push away from monster
-                                movement.add(
-                                    awayFromMonster.multiplyScalar(0.1)
-                                );
-
-                                // Update adjusted position
-                                adjustedPosition = newPosition
-                                    .clone()
-                                    .add(movement);
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                // Apply the adjusted movement
+                // Temporarily move player to test collision
                 this.player.setPosition(
                     adjustedPosition.x,
                     adjustedPosition.y,
                     adjustedPosition.z
                 );
-                this.player.setMoving(true);
+
+                // Check all collisions using CollisionManager
+                if (this.collisionManager.checkCollisions(this.player)) {
+                    // If collision detected, try sliding along obstacles
+                    const slideDirections = [
+                        new THREE.Vector3(-movement.z, 0, movement.x),
+                        new THREE.Vector3(movement.z, 0, -movement.x)
+                    ];
+
+                    let validSlideFound = false;
+
+                    for (const slideDir of slideDirections) {
+                        // Try sliding movement
+                        const slideMovement = slideDir
+                            .normalize()
+                            .multiplyScalar(this.playerSpeed);
+                        const slidePosition = newPosition
+                            .clone()
+                            .add(slideMovement);
+
+                        // Test slide position
+                        this.player.setPosition(
+                            slidePosition.x,
+                            slidePosition.y,
+                            slidePosition.z
+                        );
+
+                        if (
+                            !this.collisionManager.checkCollisions(this.player)
+                        ) {
+                            adjustedPosition = slidePosition;
+                            validSlideFound = true;
+                            break;
+                        }
+                    }
+
+                    // If no valid slide found, revert to original position
+                    if (!validSlideFound) {
+                        adjustedPosition = originalPosition;
+                    }
+                }
+
+                // Apply final position
+                this.player.setPosition(
+                    adjustedPosition.x,
+                    adjustedPosition.y,
+                    adjustedPosition.z
+                );
+                this.player.setMoving(
+                    adjustedPosition.distanceTo(originalPosition) > 0.01
+                );
             } else {
                 // Reached target position
                 this.player.setPosition(
