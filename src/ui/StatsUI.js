@@ -74,18 +74,18 @@ export class StatsUI {
         const champion = this.player.champion;
         if (!champion) return;
 
-        // Update health
-        const health = `${champion.health}`;
+        // Update health - show as whole number
+        const health = `${Math.floor(champion.health)}`;
         this.statsElements.health.textContent = health;
         this.statsElements.healthBar.style.width = `${
-            (champion.health / 100) * 100
+            (champion.health / champion.maxHealth) * 100
         }%`;
 
-        // Update mana
-        const mana = `${champion.mana}`;
+        // Update mana - show as whole number
+        const mana = `${Math.floor(champion.mana)}`;
         this.statsElements.mana.textContent = mana;
         this.statsElements.manaBar.style.width = `${
-            (champion.mana / 100) * 100
+            (champion.mana / champion.maxMana) * 100
         }%`;
 
         // Update level and experience
