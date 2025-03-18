@@ -200,41 +200,67 @@ export class PlayerController {
 
             if (direction.length() > this.playerSpeed) {
                 const newPosition = this.player.getPosition().clone();
-                newPosition.add(
-                    direction.normalize().multiplyScalar(this.playerSpeed)
-                );
+                const movement = direction
+                    .normalize()
+                    .multiplyScalar(this.playerSpeed);
 
-                // Check collisions with monsters
+                // Check collisions with monsters and adjust movement
                 const playerBox = new THREE.Box3().setFromObject(
                     this.player.getMesh()
                 );
-                let collisionDetected = false;
+                let adjustedPosition = newPosition.clone().add(movement);
 
                 for (const camp of this.environment.jungleCamps) {
                     for (const monster of camp.monsterInstances) {
-                        if (
-                            monster.isAlive &&
-                            monster.checkCollision(playerBox)
-                        ) {
-                            collisionDetected = true;
-                            break;
+                        if (monster.isAlive) {
+                            // Create a slightly larger bounding box for early detection
+                            const monsterBox = monster.boundingBox.clone();
+                            monsterBox.expandByScalar(0.5); // Add some padding
+
+                            if (monster.checkCollision(playerBox)) {
+                                // Get direction away from monster
+                                const awayFromMonster = this.player
+                                    .getPosition()
+                                    .clone()
+                                    .sub(monster.mesh.position)
+                                    .normalize();
+
+                                // Project movement onto the direction perpendicular to awayFromMonster
+                                const perpendicular = new THREE.Vector3(
+                                    -awayFromMonster.z,
+                                    0,
+                                    awayFromMonster.x
+                                ).normalize();
+
+                                const dot = movement.dot(perpendicular);
+                                movement.copy(
+                                    perpendicular.multiplyScalar(dot)
+                                );
+
+                                // Add a small push away from monster
+                                movement.add(
+                                    awayFromMonster.multiplyScalar(0.1)
+                                );
+
+                                // Update adjusted position
+                                adjustedPosition = newPosition
+                                    .clone()
+                                    .add(movement);
+                                break;
+                            }
                         }
                     }
-                    if (collisionDetected) break;
                 }
 
-                if (!collisionDetected) {
-                    this.player.setPosition(
-                        newPosition.x,
-                        newPosition.y,
-                        newPosition.z
-                    );
-                    this.player.setMoving(true);
-                } else {
-                    this.targetPosition = null;
-                    this.player.setMoving(false);
-                }
+                // Apply the adjusted movement
+                this.player.setPosition(
+                    adjustedPosition.x,
+                    adjustedPosition.y,
+                    adjustedPosition.z
+                );
+                this.player.setMoving(true);
             } else {
+                // Reached target position
                 this.player.setPosition(
                     this.targetPosition.x,
                     this.player.getPosition().y,
