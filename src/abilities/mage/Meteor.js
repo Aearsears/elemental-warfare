@@ -43,23 +43,24 @@ export class Meteor extends Ability {
             meteor.position.copy(champion.getPosition());
             meteor.position.y = 30;
 
-            this.particles.push({
+            const particle = {
                 mesh: meteor,
                 life: 3,
                 velocity: new THREE.Vector3(0, -15, 0),
-                hasImpacted: false,
-                update: (delta) => this.updateMeteor(meteor, delta, champion)
-            });
+                hasImpacted: false
+            };
 
+            particle.update = (delta) =>
+                this.updateMeteor(meteor, delta, champion, particle);
+
+            this.particles.push(particle);
             this.scene.add(meteor);
             return true;
         }
         return false;
     }
 
-    updateMeteor(meteor, delta, champion) {
-        const particle = this.particles[this.particles.length - 1];
-
+    updateMeteor(meteor, delta, champion, particle) {
         if (!particle.hasImpacted) {
             // Update meteor position
             meteor.position.add(

@@ -1,6 +1,7 @@
 import { Ability } from '../Ability.js';
 import * as THREE from 'three';
 
+// TODO: add directions to the fireball
 export class Fireball extends Ability {
     constructor() {
         super({
