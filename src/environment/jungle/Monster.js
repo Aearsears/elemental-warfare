@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { HealthBar } from '../../ui/HealthBar.js';
 
 export class Monster {
     constructor(config) {
@@ -11,6 +12,11 @@ export class Monster {
         this.mesh.userData.parent = this;
         this.boundingBox = new THREE.Box3();
         this.updateBoundingBox();
+
+        // Add health bar
+        this.healthBar = new HealthBar(this.health);
+        this.healthBar.container.position.y = 1.5 * (config.scale || 1);
+        this.mesh.add(this.healthBar.container);
     }
 
     createModel(config) {
@@ -141,6 +147,17 @@ export class Monster {
 
             // Update bounding box after movement
             this.updateBoundingBox();
+
+            // Update health bar
+            this.healthBar.update(this.health, window.camera);
+        }
+    }
+
+    takeDamage(amount) {
+        this.health -= amount;
+        if (this.health <= 0 && this.isAlive) {
+            this.isAlive = false;
+            this.mesh.remove(this.healthBar.container);
         }
     }
 }
