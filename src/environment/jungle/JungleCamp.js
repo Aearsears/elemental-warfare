@@ -6,7 +6,10 @@ export class JungleCamp {
         this.position = position;
         this.type = type;
         this.mesh = this.createCamp();
-        this.monsters = this.createMonsters();
+        this.monsterInstances = [];
+        this.monsters = new THREE.Group();
+        this.monsters.position.copy(position); // Position monster group at camp location
+        this.createMonsters();
         this.respawnTime = 60; // seconds
         this.isActive = true;
     }
@@ -32,22 +35,18 @@ export class JungleCamp {
     }
 
     createMonsters() {
-        const monsterGroup = new THREE.Group();
-
         // Create different monsters based on camp type
         switch (this.type) {
             case 'buff':
-                this.addBuffMonster(monsterGroup);
+                this.addBuffMonster();
                 break;
             case 'normal':
-                this.addNormalMonsters(monsterGroup);
+                this.addNormalMonsters();
                 break;
         }
-
-        return monsterGroup;
     }
 
-    addBuffMonster(group) {
+    addBuffMonster() {
         const buffMonster = new Monster({
             health: 200,
             damage: 20,
@@ -59,11 +58,11 @@ export class JungleCamp {
         });
 
         buffMonster.mesh.position.y = 1;
-        group.add(buffMonster.mesh);
+        this.monsters.add(buffMonster.mesh);
         this.monsterInstances = [buffMonster];
     }
 
-    addNormalMonsters(group) {
+    addNormalMonsters() {
         const colors = [0x00ff00, 0x00dd00, 0x00bb00];
         const positions = [
             new THREE.Vector3(-1, 0, 0),
@@ -82,7 +81,7 @@ export class JungleCamp {
 
             monster.mesh.position.copy(pos);
             monster.mesh.position.y = 0.5;
-            group.add(monster.mesh);
+            this.monsters.add(monster.mesh);
             return monster;
         });
     }

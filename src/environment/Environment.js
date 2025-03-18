@@ -86,8 +86,8 @@ export class Environment {
         campLocations.forEach((camp) => {
             const jungleCamp = new JungleCamp(camp.pos, camp.type);
             this.jungleCamps.push(jungleCamp);
-            this.scene.add(jungleCamp.mesh);
-            this.scene.add(jungleCamp.monsters);
+            this.scene.add(jungleCamp.mesh); // Add camp marker
+            this.scene.add(jungleCamp.monsters); // Add monster group
         });
     }
 
