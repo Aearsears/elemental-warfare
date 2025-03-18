@@ -13,6 +13,7 @@ export class PrecisionStrike extends Ability {
         this.charging = false;
         this.chargeEffects = [];
         this.chargeInterval = null;
+        this.arrows = []; // Track active arrows
     }
 
     use(champion) {
@@ -100,9 +101,13 @@ export class PrecisionStrike extends Ability {
     }
 
     releaseShot(champion, chargeProgress) {
+        // Create arrow mesh
         const arrow = this.createPowerfulArrow(champion, chargeProgress);
+        arrow.position.copy(champion.getPosition());
+        arrow.position.y += 1.5;
+        arrow.rotation.copy(champion.mesh.rotation);
 
-        // Calculate initial direction and velocity
+        // Calculate direction and velocity
         const direction = new THREE.Vector3(0, 0, 1)
             .applyQuaternion(champion.mesh.quaternion)
             .normalize();
@@ -110,22 +115,36 @@ export class PrecisionStrike extends Ability {
         // Store velocity in closure
         const velocity = direction.multiplyScalar(40 * chargeProgress);
 
-        arrow.position.copy(champion.getPosition());
-        arrow.position.y += 1.5;
-        arrow.rotation.copy(champion.mesh.rotation);
-
-        this.particles.push({
+        // Create particle with fixed velocity
+        const particle = {
             mesh: arrow,
             life: 2,
+            hasImpacted: false,
             update: (delta) => {
-                // Create new movement vector from stored velocity
-                const movement = velocity.clone().multiplyScalar(delta);
-                arrow.position.add(movement);
-                this.createPowerTrail(arrow.position, chargeProgress);
+                if (!particle.hasImpacted) {
+                    const movement = velocity.clone().multiplyScalar(delta);
+                    arrow.position.add(movement);
+                    this.createPowerTrail(arrow.position, chargeProgress);
+                }
             }
-        });
+        };
 
+        this.particles.push(particle);
         this.scene.add(arrow);
+    }
+
+    update(delta) {
+        // Update charge effects
+        if (this.charging) {
+            const chargeProgress = this.getChargeProgress();
+            this.chargeEffects.forEach((effect) => {
+                const scale = 1 + chargeProgress * 0.5;
+                effect.mesh.scale.set(scale, scale, scale);
+            });
+        }
+
+        // Update particles (instead of arrows)
+        super.update(delta);
     }
 
     createPowerfulArrow(champion, chargeProgress) {
