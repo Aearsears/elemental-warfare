@@ -81,11 +81,11 @@ export class PlayerController {
             { passive: false }
         );
 
-        // Add mouse click for attacks
+        // Update mouse click for attacks
         document.addEventListener('click', (event) => {
             if (event.button === 0) {
                 // Left click
-                this.player.attack(this.environment);
+                this.handleLeftClick(event);
             }
         });
     }
@@ -282,6 +282,8 @@ export class PlayerController {
 
     // Update attack logic to handle monsters
     handleAttack(target) {
+        // TODO:  this.player.attack(this.environment); need to find where to handle the attack
+
         if (target.userData.type === 'monster') {
             const monster = target.userData.parent;
             if (monster.isAlive) {
@@ -379,5 +381,50 @@ export class PlayerController {
         };
 
         animate();
+    }
+
+    // Add new method to handle left clicks
+    handleLeftClick(event) {
+        this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+
+        // Get all targetable objects
+        const targetableObjects = [
+            ...this.environment.destructibles,
+            ...this.environment.jungleCamps.flatMap((camp) =>
+                camp.monsterInstances
+                    .filter((monster) => monster.isAlive)
+                    .map((monster) => monster.mesh)
+            )
+        ];
+
+        const intersects = this.raycaster.intersectObjects(
+            targetableObjects,
+            true
+        );
+
+        if (intersects.length > 0) {
+            const targetObject = intersects[0].object;
+
+            // Calculate 2D distance (ignoring Y-axis)
+            const playerPos = this.player.getPosition();
+            const targetPos = targetObject.position;
+            const distance = Math.sqrt(
+                Math.pow(playerPos.x - targetPos.x, 2) +
+                    Math.pow(playerPos.z - targetPos.z, 2)
+            );
+
+            // Check if target is within attack range
+            console.log('Attacking target' + distance);
+            console.log('atatckrange' + this.player.attackRange);
+            if (distance <= this.player.attackRange) {
+                this.handleAttack(targetObject);
+            } else {
+                // Optional: Add visual or audio feedback that target is too far
+                console.log('Target is too far to attack');
+            }
+        }
     }
 }

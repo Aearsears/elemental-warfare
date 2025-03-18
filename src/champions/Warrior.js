@@ -8,7 +8,7 @@ export class Warrior extends Champion {
             mana: 50,
             speed: 0.15,
             attackDamage: 15,
-            attackRange: 2
+            attackRange: 10
         });
         this.isAttacking = false;
         this.attackAnimationTime = 0;
