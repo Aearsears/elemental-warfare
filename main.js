@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { PlayerController } from './src/controls.js';
 import { Environment } from './src/environment.js';
 import { Player } from './src/player.js';
-import { Warrior } from './src/champions/Warrior.js';
+import { StatsUI } from './src/ui/StatsUI.js';
 
 const debug = document.createElement('div');
 debug.style.position = 'fixed';
@@ -77,6 +77,9 @@ const environment = new Environment(scene);
 // Initialize player controller
 const playerController = new PlayerController(player, ground, camera);
 
+// Create UI
+const statsUI = new StatsUI(player);
+
 // Handle window resize
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -91,6 +94,7 @@ function animate() {
     playerController.update();
     player.update(delta);
     updateDebug();
+    statsUI.update();
     renderer.render(scene, camera);
 }
 
