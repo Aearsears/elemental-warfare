@@ -151,10 +151,16 @@ export class StatsUI {
                         ability.lastAttempted &&
                         currentTime - ability.lastAttempted < 1000
                     ) {
-                        if (timeSinceUsed < ability.cooldown) {
-                            this.showAbilityError(key, `On cooldown`);
-                        } else if (champion.mana < ability.manaCost) {
-                            this.showAbilityError(key, 'Not Enough Mana');
+                        // Only show error if this was a failed attempt
+                        if (
+                            !ability.lastUsed ||
+                            ability.lastAttempted > ability.lastUsed
+                        ) {
+                            if (timeSinceUsed < ability.cooldown) {
+                                this.showAbilityError(key, `On Cooldown`);
+                            } else if (champion.mana < ability.manaCost) {
+                                this.showAbilityError(key, 'Not Enough Mana');
+                            }
                         }
                     }
 
