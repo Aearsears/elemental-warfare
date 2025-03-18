@@ -69,6 +69,20 @@ export class DebugUI {
         this.debug.appendChild(this.switchContainer);
 
         document.body.appendChild(this.debug);
+
+        // Add FPS tracking properties
+        this.frameCount = 0;
+        this.lastTime = performance.now();
+        this.fps = 0;
+
+        // Update FPS every second
+        setInterval(() => {
+            const currentTime = performance.now();
+            const deltaTime = currentTime - this.lastTime;
+            this.fps = Math.round((this.frameCount * 1000) / deltaTime);
+            this.frameCount = 0;
+            this.lastTime = currentTime;
+        }, 1000);
     }
 
     loadStyles() {
@@ -110,6 +124,9 @@ export class DebugUI {
     }
 
     update() {
+        // Increment frame counter
+        this.frameCount++;
+
         // If unlimited mana is on, keep mana at max
         if (this.isUnlimitedMana && this.player.champion) {
             this.player.champion.mana = this.player.champion.maxMana;
@@ -128,7 +145,7 @@ export class DebugUI {
             `Player: (${playerPos.x.toFixed(2)}, ${playerPos.y.toFixed(
                 2
             )}, ${playerPos.z.toFixed(2)})`,
-            `FPS: ${Math.round(1000 / 16)}`,
+            `FPS: ${this.fps}`,
             `Trees: ${this.environment.trees.length}`,
             `Monsters: ${this.environment.jungleCamps.reduce(
                 (sum, camp) => sum + camp.monsterInstances.length,
