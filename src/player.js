@@ -10,6 +10,10 @@ export class Player {
         this.level = 1;
         this.experience = 0;
         this.isMoving = false;
+        this.attackRange = 2;
+        this.attackDamage = 25;
+        this.attackCooldown = 1000; // 1 second
+        this.lastAttackTime = 0;
     }
 
     createChampion(type) {
@@ -71,5 +75,44 @@ export class Player {
         this.champion.health += 10;
         this.champion.mana += 5;
         this.champion.attackDamage += 2;
+    }
+
+    attack(environment) {
+        const now = Date.now();
+        if (now - this.lastAttackTime < this.attackCooldown) {
+            return; // Attack on cooldown
+        }
+
+        const playerPosition = this.getPosition();
+
+        // Check for destructibles in range
+        environment.destructibles.forEach((destructible) => {
+            const distance = playerPosition.distanceTo(destructible.position);
+            if (distance <= this.attackRange) {
+                destructible.userData.health -= this.attackDamage;
+                this.lastAttackTime = now;
+
+                // Visual feedback for hit
+                this.createHitEffect(destructible.position);
+            }
+        });
+    }
+
+    createHitEffect(position) {
+        // Create a simple hit effect
+        const geometry = new THREE.SphereGeometry(0.5, 8, 8);
+        const material = new THREE.MeshBasicMaterial({
+            color: 0xff0000,
+            transparent: true,
+            opacity: 0.5
+        });
+        const hitEffect = new THREE.Mesh(geometry, material);
+        hitEffect.position.copy(position);
+
+        // Add to scene and remove after animation
+        this.scene.add(hitEffect);
+        setTimeout(() => {
+            this.scene.remove(hitEffect);
+        }, 200);
     }
 }

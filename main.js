@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { PlayerController } from './src/controls.js';
 import { Environment } from './src/environment/Environment.js';
-import { Player } from './src/player.js';
+import { Player } from './src/Player.js';
 import { StatsUI } from './src/ui/StatsUI.js';
 
 const debug = document.createElement('div');
@@ -75,7 +75,12 @@ scene.add(player.getMesh());
 const environment = new Environment(scene);
 
 // Initialize player controller
-const playerController = new PlayerController(player, ground, camera);
+const playerController = new PlayerController(
+    player,
+    ground,
+    camera,
+    environment
+);
 
 // Create UI
 const statsUI = new StatsUI(player);

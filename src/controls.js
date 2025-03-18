@@ -1,7 +1,8 @@
 import * as THREE from 'three';
+import { CollisionManager } from './physics/CollisionManager.js';
 
 export class PlayerController {
-    constructor(player, ground, camera) {
+    constructor(player, ground, camera, environment) {
         this.player = player;
         this.ground = ground;
         this.camera = camera;
@@ -11,6 +12,8 @@ export class PlayerController {
         this.targetPosition = null;
         this.playerSpeed = 0.2;
         this.cameraSpeed = 0.5;
+        this.collisionManager = new CollisionManager(environment);
+        this.environment = environment;
 
         // Add zoom configuration
         this.minZoom = 10;
@@ -30,6 +33,7 @@ export class PlayerController {
             playerPos.z - this.currentZoom * Math.tan(this.cameraAngle) // Changed to minus
         );
 
+        // Add attack binding
         this.initializeControls();
         this.updateCameraPosition();
     }
@@ -70,6 +74,14 @@ export class PlayerController {
             },
             { passive: false }
         );
+
+        // Add mouse click for attacks
+        document.addEventListener('click', (event) => {
+            if (event.button === 0) {
+                // Left click
+                this.player.attack(this.environment);
+            }
+        });
     }
 
     handleRightClick(event) {
@@ -134,13 +146,30 @@ export class PlayerController {
                 .clone()
                 .sub(this.player.getPosition());
             if (direction.length() > this.playerSpeed) {
-                direction.normalize();
-                this.player.setPosition(
-                    this.player.getPosition().x +
-                        direction.x * this.playerSpeed,
-                    this.player.getPosition().y,
-                    this.player.getPosition().z + direction.z * this.playerSpeed
+                // Calculate new position
+                const newPosition = this.player.getPosition().clone();
+                newPosition.add(
+                    direction.normalize().multiplyScalar(this.playerSpeed)
                 );
+
+                // Check for collisions before moving
+                const oldPosition = this.player.getPosition().clone();
+                this.player.setPosition(
+                    newPosition.x,
+                    newPosition.y,
+                    newPosition.z
+                );
+
+                if (this.collisionManager.checkCollisions(this.player)) {
+                    // Collision detected, revert position
+                    this.player.setPosition(
+                        oldPosition.x,
+                        oldPosition.y,
+                        oldPosition.z
+                    );
+                    this.targetPosition = null;
+                }
+
                 this.player.setMoving(true);
             } else {
                 this.player.setPosition(
