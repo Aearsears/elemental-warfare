@@ -1,60 +1,53 @@
 export class StatsUI {
     constructor(player) {
         this.player = player;
+        this.loadStyles();
         this.container = this.createContainer();
         this.statsElements = {};
         this.initializeUI();
     }
 
+    loadStyles() {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './src/ui/styles/stats.css';
+        document.head.appendChild(link);
+    }
+
     createContainer() {
         const container = document.createElement('div');
-        container.style.position = 'fixed';
-        container.style.bottom = '20px';
-        container.style.left = '20px';
-        container.style.padding = '15px';
-        container.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-        container.style.borderRadius = '5px';
-        container.style.color = 'white';
-        container.style.fontFamily = 'Arial, sans-serif';
-        container.style.minWidth = '200px';
+        container.className = 'stats-container';
         document.body.appendChild(container);
         return container;
     }
 
     initializeUI() {
+        // Create stats container
+        const statsContainer = document.createElement('div');
+        statsContainer.className = 'stats-group';
+
         // Create stat elements
         const stats = ['health', 'mana', 'level', 'experience'];
 
         stats.forEach((stat) => {
             const statContainer = document.createElement('div');
-            statContainer.style.marginBottom = '5px';
+            statContainer.className = 'stat-item';
 
-            // Create label
             const label = document.createElement('span');
             label.textContent = `${
                 stat.charAt(0).toUpperCase() + stat.slice(1)
             }: `;
 
-            // Create value
             const value = document.createElement('span');
             this.statsElements[stat] = value;
 
-            // Create progress bar for health and mana
             if (stat === 'health' || stat === 'mana') {
                 const barContainer = document.createElement('div');
-                barContainer.style.width = '100%';
-                barContainer.style.height = '10px';
-                barContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-                barContainer.style.borderRadius = '5px';
-                barContainer.style.marginTop = '2px';
+                barContainer.className = 'bar-container';
 
                 const bar = document.createElement('div');
-                bar.style.height = '100%';
-                bar.style.borderRadius = '5px';
-                bar.style.backgroundColor =
-                    stat === 'health' ? '#ff4444' : '#4444ff';
-                bar.style.width = '100%';
-                bar.style.transition = 'width 0.3s';
+                bar.className = `${stat}-bar`;
                 this.statsElements[`${stat}Bar`] = bar;
 
                 barContainer.appendChild(bar);
@@ -66,8 +59,35 @@ export class StatsUI {
                 statContainer.appendChild(value);
             }
 
-            this.container.appendChild(statContainer);
+            statsContainer.appendChild(statContainer);
         });
+
+        // Create abilities container
+        const abilitiesContainer = document.createElement('div');
+        abilitiesContainer.className = 'abilities-container';
+
+        // Initialize ability slots
+        ['Q', 'W', 'E', 'R'].forEach((key) => {
+            const abilitySlot = document.createElement('div');
+            abilitySlot.className = 'ability-slot';
+
+            const keyBind = document.createElement('div');
+            keyBind.className = 'key-bind';
+            keyBind.textContent = key;
+
+            const cooldownOverlay = document.createElement('div');
+            cooldownOverlay.className = 'cooldown-overlay';
+
+            abilitySlot.appendChild(keyBind);
+            abilitySlot.appendChild(cooldownOverlay);
+            abilitiesContainer.appendChild(abilitySlot);
+
+            this.statsElements[`ability${key}`] = abilitySlot;
+            this.statsElements[`cooldown${key}`] = cooldownOverlay;
+        });
+
+        this.container.appendChild(statsContainer);
+        this.container.appendChild(abilitiesContainer);
     }
 
     update() {
@@ -93,5 +113,28 @@ export class StatsUI {
         this.statsElements.experience.textContent = `${
             this.player.experience
         }/${this.player.level * 100}`;
+
+        // Update ability cooldowns
+        if (this.player.champion) {
+            Object.entries(this.player.champion.abilities).forEach(
+                ([key, ability]) => {
+                    const cooldownOverlay =
+                        this.statsElements[`cooldown${key}`];
+                    const currentTime = Date.now();
+                    const timeSinceUsed =
+                        (currentTime - ability.lastUsed) / 1000;
+
+                    if (timeSinceUsed < ability.cooldown) {
+                        cooldownOverlay.style.display = 'flex';
+                        cooldownOverlay.textContent = Math.ceil(
+                            ability.cooldown - timeSinceUsed
+                        );
+                    } else {
+                        cooldownOverlay.style.display = 'none';
+                        cooldownOverlay.textContent = '';
+                    }
+                }
+            );
+        }
     }
 }
