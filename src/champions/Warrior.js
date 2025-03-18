@@ -13,7 +13,9 @@ export class Warrior extends Champion {
             mana: 50,
             speed: 0.15,
             attackDamage: 15,
-            attackRange: 10
+            attackRange: 10,
+            healthRegenRate: 3, // 3 health per second
+            manaRegenRate: 0.5 // 0.5 mana per second
         });
 
         // Initialize abilities

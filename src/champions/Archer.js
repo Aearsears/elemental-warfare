@@ -13,7 +13,9 @@ export class Archer extends Champion {
             mana: 80,
             speed: 0.2,
             attackDamage: 12,
-            attackRange: 15
+            attackRange: 15,
+            healthRegenRate: 2, // 2 health per second
+            manaRegenRate: 1 // 1 mana per second
         });
 
         // Initialize abilities

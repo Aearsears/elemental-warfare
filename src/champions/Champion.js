@@ -7,8 +7,10 @@ export class Champion {
         this.mesh = this.createModel();
         this.isMoving = false;
         this.movementTime = 0;
-        this.health = config.health || 100;
-        this.mana = config.mana || 100;
+        this.maxHealth = config.health || 100;
+        this.maxMana = config.mana || 100;
+        this.health = this.maxHealth;
+        this.mana = this.maxMana;
         this.speed = config.speed || 0.2;
         this.attackDamage = config.attackDamage || 10;
         this.attackRange = config.attackRange || 2;
@@ -16,6 +18,10 @@ export class Champion {
         this.attackAnimationTime = 0;
         this.attackDuration = 0.5;
         this.abilities = {};
+
+        // Add regeneration rates (per second)
+        this.healthRegenRate = config.healthRegenRate || 0;
+        this.manaRegenRate = config.manaRegenRate || 0;
 
         // Add health bar
         this.healthBar = new HealthBar(this.health, 1.5, 0.15);
@@ -69,6 +75,9 @@ export class Champion {
             // Reset to idle animation
         }
 
+        // Apply regeneration
+        this.regenerateResources(delta);
+
         // Update health bar
         this.healthBar.update(this.health, window.camera);
 
@@ -76,6 +85,24 @@ export class Champion {
         Object.values(this.abilities).forEach((ability) =>
             ability.update?.(delta)
         );
+    }
+
+    regenerateResources(delta) {
+        // Health regeneration
+        if (this.health < this.maxHealth) {
+            this.health = Math.min(
+                this.maxHealth,
+                this.health + this.healthRegenRate * delta
+            );
+        }
+
+        // Mana regeneration
+        if (this.mana < this.maxMana) {
+            this.mana = Math.min(
+                this.maxMana,
+                this.mana + this.manaRegenRate * delta
+            );
+        }
     }
 
     setPosition(x, y, z) {

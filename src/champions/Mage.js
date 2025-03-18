@@ -13,7 +13,9 @@ export class Mage extends Champion {
             mana: 120,
             speed: 0.12,
             attackDamage: 8,
-            attackRange: 12
+            attackRange: 12,
+            healthRegenRate: 1.5, // 1.5 health per second
+            manaRegenRate: 2 // 2 mana per second
         });
 
         // Initialize abilities
