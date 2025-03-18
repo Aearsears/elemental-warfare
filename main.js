@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { PlayerController } from './src/controls.js';
 import { Environment } from './src/environment.js';
 import { Player } from './src/player.js';
+import { Warrior } from './src/champions/Warrior.js';
 
 const debug = document.createElement('div');
 debug.style.position = 'fixed';
@@ -67,8 +68,8 @@ ground.receiveShadow = true;
 scene.add(ground);
 
 // Player
-const player = new Player();
-scene.add(player.mesh);
+const player = new Player('archer'); // or 'mage' or 'archer'
+scene.add(player.getMesh());
 
 // Add environment
 const environment = new Environment(scene);
