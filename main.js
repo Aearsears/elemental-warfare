@@ -16,9 +16,6 @@ const camera = new THREE.PerspectiveCamera(
     0.1,
     1000
 );
-// Remove these lines as the PlayerController will handle initial position
-camera.position.set(0, 20, 20);
-camera.lookAt(0, 0, 0);
 
 // Renderer setup
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -67,7 +64,7 @@ const playerController = new PlayerController(
 
 // Create UI
 const statsUI = new StatsUI(player);
-const debugUI = new DebugUI(camera, environment);
+const debugUI = new DebugUI(camera, environment, player);
 
 // Handle window resize
 window.addEventListener('resize', () => {
