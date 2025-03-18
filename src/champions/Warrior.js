@@ -6,17 +6,15 @@ import { ShieldBlock } from '../abilities/warrior/ShieldBlock.js';
 import { BerserkerRage } from '../abilities/warrior/BerserkerRage.js';
 
 export class Warrior extends Champion {
-    constructor() {
+    constructor(scene) {
         super({
+            scene,
             health: 150,
             mana: 50,
             speed: 0.15,
             attackDamage: 15,
             attackRange: 10
         });
-        this.isAttacking = false;
-        this.attackAnimationTime = 0;
-        this.attackDuration = 0.5; // seconds
 
         // Initialize abilities
         this.abilities = {
@@ -25,6 +23,11 @@ export class Warrior extends Champion {
             E: new ShieldBlock(),
             R: new BerserkerRage()
         };
+
+        // Initialize each ability with scene
+        Object.values(this.abilities).forEach((ability) =>
+            ability.initialize(scene)
+        );
 
         // Add key listeners
         this.initializeAbilities();

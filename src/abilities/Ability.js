@@ -7,7 +7,10 @@ export class Ability {
         this.manaCost = config.manaCost;
         this.lastUsed = 0;
         this.particles = [];
-        this.scene = window.scene;
+    }
+
+    initialize(scene) {
+        this.scene = scene;
     }
 
     canUse(champion) {
