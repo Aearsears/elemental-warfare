@@ -3,25 +3,7 @@ import { PlayerController } from './src/Controls.js';
 import { Environment } from './src/environment/Environment.js';
 import { Player } from './src/Player.js';
 import { StatsUI } from './src/ui/StatsUI.js';
-
-const debug = document.createElement('div');
-debug.style.position = 'fixed';
-debug.style.top = '10px';
-debug.style.left = '10px';
-debug.style.color = 'white';
-debug.style.backgroundColor = 'rgba(0,0,0,0.5)';
-debug.style.padding = '10px';
-document.body.appendChild(debug);
-
-function updateDebug() {
-    debug.textContent = `
-        Camera: ${camera.position.x.toFixed(2)}, ${camera.position.y.toFixed(
-        2
-    )}, ${camera.position.z.toFixed(2)}
-        FPS: ${Math.round(1000 / 16)}
-        Trees: ${environment.trees.length}
-    `;
-}
+import { DebugUI } from './src/ui/DebugUI.js';
 
 // Scene setup
 const scene = new THREE.Scene();
@@ -85,6 +67,7 @@ const playerController = new PlayerController(
 
 // Create UI
 const statsUI = new StatsUI(player);
+const debugUI = new DebugUI(camera, environment);
 
 // Handle window resize
 window.addEventListener('resize', () => {
@@ -100,7 +83,7 @@ function animate() {
     playerController.update();
     player.update(delta);
     environment.update(delta);
-    updateDebug();
+    debugUI.update();
     statsUI.update();
     renderer.render(scene, camera);
 }
