@@ -22,12 +22,15 @@ export class Ability {
     }
 
     use(champion) {
-        if (this.canUse(champion)) {
-            this.lastUsed = Date.now();
-            champion.mana -= this.manaCost;
-            return true;
+        this.lastAttempted = Date.now();
+
+        if (!this.canUse(champion)) {
+            return false;
         }
-        return false;
+
+        this.lastUsed = Date.now();
+        champion.mana -= this.manaCost;
+        return true;
     }
 
     update(delta) {

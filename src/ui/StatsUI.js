@@ -79,16 +79,35 @@ export class StatsUI {
             const cooldownOverlay = document.createElement('div');
             cooldownOverlay.className = 'cooldown-overlay';
 
+            // Add error message container
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'ability-error';
+
             abilitySlot.appendChild(keyBind);
             abilitySlot.appendChild(cooldownOverlay);
+            abilitySlot.appendChild(errorMessage);
             abilitiesContainer.appendChild(abilitySlot);
 
             this.statsElements[`ability${key}`] = abilitySlot;
             this.statsElements[`cooldown${key}`] = cooldownOverlay;
+            this.statsElements[`error${key}`] = errorMessage;
         });
 
         this.container.appendChild(statsContainer);
         this.container.appendChild(abilitiesContainer);
+    }
+
+    showAbilityError(key, message) {
+        const errorElement = this.statsElements[`error${key}`];
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+
+            // Hide the message after 1.5 seconds
+            setTimeout(() => {
+                errorElement.classList.remove('show');
+            }, 1500);
+        }
     }
 
     update() {
@@ -117,7 +136,7 @@ export class StatsUI {
         this.statsElements.experience.textContent = `${this.player.experience}/${expForNextLevel}`;
         this.statsElements.experienceBar.style.width = `${expPercentage}%`;
 
-        // Update ability cooldowns
+        // Update ability cooldowns and mana requirements
         if (this.player.champion) {
             Object.entries(this.player.champion.abilities).forEach(
                 ([key, ability]) => {
@@ -127,6 +146,19 @@ export class StatsUI {
                     const timeSinceUsed =
                         (currentTime - ability.lastUsed) / 1000;
 
+                    // Check for ability usage errors
+                    if (
+                        ability.lastAttempted &&
+                        currentTime - ability.lastAttempted < 1000
+                    ) {
+                        if (timeSinceUsed < ability.cooldown) {
+                            this.showAbilityError(key, 'On Cooldown');
+                        } else if (champion.mana < ability.manaCost) {
+                            this.showAbilityError(key, 'Not Enough Mana');
+                        }
+                    }
+
+                    // Update cooldown display
                     if (timeSinceUsed < ability.cooldown) {
                         cooldownOverlay.style.display = 'flex';
                         cooldownOverlay.textContent = Math.ceil(

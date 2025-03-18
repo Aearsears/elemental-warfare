@@ -92,3 +92,22 @@
     align-items: center;
     border-radius: 5px;
 }
+
+.ability-error {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #ff4444;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.ability-error.show {
+    opacity: 1;
+    transform: translateY(-30px);
+}
