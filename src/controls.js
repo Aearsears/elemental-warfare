@@ -123,21 +123,36 @@ export class PlayerController {
         }
 
         // Update player position based on right-click target
+        this.updatePlayerPosition();
+
+        this.updateCameraPosition();
+    }
+
+    updatePlayerPosition() {
         if (this.targetPosition) {
             const direction = this.targetPosition
                 .clone()
-                .sub(this.player.position);
+                .sub(this.player.getPosition());
             if (direction.length() > this.playerSpeed) {
                 direction.normalize();
-                this.player.position.add(
-                    direction.multiplyScalar(this.playerSpeed)
+                this.player.setPosition(
+                    this.player.getPosition().x +
+                        direction.x * this.playerSpeed,
+                    this.player.getPosition().y,
+                    this.player.getPosition().z + direction.z * this.playerSpeed
                 );
+                this.player.setMoving(true);
             } else {
-                this.player.position.copy(this.targetPosition);
+                this.player.setPosition(
+                    this.targetPosition.x,
+                    this.player.getPosition().y,
+                    this.targetPosition.z
+                );
                 this.targetPosition = null;
+                this.player.setMoving(false);
             }
+        } else {
+            this.player.setMoving(false);
         }
-
-        this.updateCameraPosition();
     }
 }

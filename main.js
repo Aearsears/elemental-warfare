@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { PlayerController } from './src/controls.js';
 import { Environment } from './src/environment.js';
+import { Player } from './src/player.js';
 
 const debug = document.createElement('div');
 debug.style.position = 'fixed';
@@ -65,13 +66,8 @@ ground.receiveShadow = true;
 scene.add(ground);
 
 // Player
-const playerGeometry = new THREE.BoxGeometry(1, 2, 1);
-const playerMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
-const player = new THREE.Mesh(playerGeometry, playerMaterial);
-player.position.y = 1;
-player.castShadow = true;
-player.receiveShadow = true;
-scene.add(player);
+const player = new Player();
+scene.add(player.mesh);
 
 // Add environment
 const environment = new Environment(scene);
@@ -88,9 +84,14 @@ window.addEventListener('resize', () => {
 
 // Animation loop
 function animate() {
+    const delta = clock.getDelta();
     requestAnimationFrame(animate);
     playerController.update();
+    player.update(delta);
     updateDebug();
     renderer.render(scene, camera);
 }
+
+// Add clock for animation timing
+const clock = new THREE.Clock();
 animate();
