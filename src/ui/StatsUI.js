@@ -144,22 +144,22 @@ export class StatsUI {
                         this.statsElements[`cooldown${key}`];
                     const currentTime = Date.now();
                     const timeSinceUsed =
-                        (currentTime - ability.lastUsed) / 1000;
+                        (currentTime - (ability.lastUsed || 0)) / 1000;
 
-                    // Check for ability usage errors
+                    // Check for ability usage errors only on recent attempts
                     if (
                         ability.lastAttempted &&
                         currentTime - ability.lastAttempted < 1000
                     ) {
                         if (timeSinceUsed < ability.cooldown) {
-                            this.showAbilityError(key, 'On Cooldown');
+                            this.showAbilityError(key, `On cooldown`);
                         } else if (champion.mana < ability.manaCost) {
                             this.showAbilityError(key, 'Not Enough Mana');
                         }
                     }
 
-                    // Update cooldown display
-                    if (ability.lastUsed && timeSinceUsed < ability.cooldown) {
+                    // Update cooldown overlay
+                    if (timeSinceUsed < ability.cooldown) {
                         cooldownOverlay.style.display = 'flex';
                         cooldownOverlay.textContent = Math.ceil(
                             ability.cooldown - timeSinceUsed
