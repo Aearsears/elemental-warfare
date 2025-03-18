@@ -12,9 +12,10 @@ export class Fireball extends Ability {
 
     use(champion) {
         if (super.use(champion)) {
-            const direction = new THREE.Vector3(0, 0, 1).applyQuaternion(
-                champion.mesh.quaternion
-            );
+            const direction = new THREE.Vector3(0, 0, 1)
+                .applyQuaternion(champion.mesh.quaternion)
+                .normalize()
+                .multiplyScalar(10); // Set initial speed
 
             const fireball = new THREE.Mesh(
                 new THREE.SphereGeometry(0.3, 8, 8),
@@ -28,16 +29,15 @@ export class Fireball extends Ability {
             fireball.position.copy(champion.getPosition());
             fireball.position.y += 1;
 
+            // Store velocity in the closure
+            const velocity = direction.clone();
+
             this.particles.push({
                 mesh: fireball,
                 life: 2,
-                velocity: direction.multiplyScalar(10),
                 update: (delta) => {
-                    fireball.position.add(
-                        this.particles[
-                            this.particles.length - 1
-                        ].velocity.multiplyScalar(delta)
-                    );
+                    const movement = velocity.clone().multiplyScalar(delta);
+                    fireball.position.add(movement);
                     this.createFireTrail(fireball.position);
                 }
             });

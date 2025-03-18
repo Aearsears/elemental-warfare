@@ -48,7 +48,7 @@ ground.receiveShadow = true;
 scene.add(ground);
 
 // Player
-const player = new Player('warrior', scene); // Add scene as second parameter
+const player = new Player('mage', scene); // Add scene as second parameter
 scene.add(player.getMesh());
 
 // Add environment
