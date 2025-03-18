@@ -25,18 +25,54 @@ export class DebugUI {
         this.sandboxButton.style.border = '1px solid #666';
         this.sandboxButton.style.cursor = 'pointer';
 
-        this.sandboxButton.addEventListener('click', () => {
-            this.sandboxMode = !this.sandboxMode;
-            this.sandboxButton.style.backgroundColor = this.sandboxMode
-                ? '#080'
-                : '#444';
-            this.sandboxButton.textContent = `Sandbox Mode: ${
-                this.sandboxMode ? 'ON' : 'OFF'
-            }`;
-        });
+        // Use the handleSandboxToggle method for click events
+        this.sandboxButton.addEventListener('click', () =>
+            this.handleSandboxToggle()
+        );
 
         this.debug.appendChild(this.sandboxButton);
         document.body.appendChild(this.debug);
+    }
+
+    handleSandboxToggle() {
+        this.sandboxMode = !this.sandboxMode;
+
+        // Update button appearance
+        this.sandboxButton.style.backgroundColor = this.sandboxMode
+            ? '#080'
+            : '#444';
+        this.sandboxButton.textContent = `Sandbox Mode: ${
+            this.sandboxMode ? 'ON' : 'OFF'
+        }`;
+
+        // Apply sandbox effects
+        if (this.player && this.player.champion) {
+            if (this.sandboxMode) {
+                // Store original values
+                this.originalValues = {
+                    mana: this.player.champion.mana,
+                    maxMana: this.player.champion.maxMana,
+                    manaRegenRate: this.player.champion.manaRegenRate
+                };
+
+                // Set infinite mana
+                // TOOD: FIX
+                this.player.champion.mana = Infinity;
+                this.player.champion.maxMana = Infinity;
+                this.player.champion.manaRegenRate = Infinity;
+            } else {
+                // Restore original values
+                if (this.originalValues) {
+                    this.player.champion.mana = this.originalValues.mana;
+                    this.player.champion.maxMana = this.originalValues.maxMana;
+                    this.player.champion.manaRegenRate =
+                        this.originalValues.manaRegenRate;
+                }
+            }
+        }
+
+        // Force an update of the debug display
+        this.update();
     }
 
     update() {
@@ -65,7 +101,7 @@ export class DebugUI {
             )}`,
             `Destructibles: ${this.environment.destructibles.length}`,
             `Sandbox Mode: ${this.sandboxMode ? 'ON' : 'OFF'}`
-        ].join('\n');
+        ].join('</br>');
 
         // Re-append the button after updating innerHTML
         this.debug.appendChild(this.sandboxButton);

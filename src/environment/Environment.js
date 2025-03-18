@@ -202,4 +202,15 @@ export class Environment {
             }
         });
     }
+
+    getTargetableObjects() {
+        return [
+            ...this.destructibles,
+            ...this.jungleCamps.flatMap((camp) =>
+                camp.monsterInstances
+                    .filter((monster) => monster.isAlive)
+                    .map((monster) => monster.mesh)
+            )
+        ];
+    }
 }

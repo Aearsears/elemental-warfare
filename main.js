@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { PlayerController } from './src/Controls.js';
+import { PlayerController } from './src/controls/PlayerController.js';
 import { Environment } from './src/environment/Environment.js';
 import { Player } from './src/Player.js';
 import { StatsUI } from './src/ui/StatsUI.js';
