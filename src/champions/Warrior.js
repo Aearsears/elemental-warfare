@@ -1,6 +1,9 @@
 import { Champion } from './Champion.js';
 import * as THREE from 'three';
-import { Ability } from '../abilities/Ability.js';
+import { WhirlwindSlash } from '../abilities/warrior/WhirlwindSlash.js';
+import { BattleShout } from '../abilities/warrior/BattleShout.js';
+import { ShieldBlock } from '../abilities/warrior/ShieldBlock.js';
+import { BerserkerRage } from '../abilities/warrior/BerserkerRage.js';
 
 export class Warrior extends Champion {
     constructor() {
