@@ -93,6 +93,7 @@ function animate() {
     requestAnimationFrame(animate);
     playerController.update();
     player.update(delta);
+    environment.update(delta);
     updateDebug();
     statsUI.update();
     renderer.render(scene, camera);
