@@ -18,8 +18,17 @@ export class PlayerController {
         this.zoomSpeed = 1;
         this.currentZoom = 20;
 
-        // Initialize camera position
-        this.cameraOffset = new THREE.Vector3(0, this.currentZoom * 0.8, 0);
+        // Add camera angle configuration
+        this.cameraAngle = Math.PI / 6; // 30-degree tilt
+        this.cameraDistance = 20; // Distance behind and above the view target
+
+        // Initialize camera position for top-down view
+        const initialHeight = this.currentZoom;
+        this.cameraOffset = new THREE.Vector3(
+            0,
+            initialHeight,
+            initialHeight * Math.tan(this.cameraAngle)
+        );
 
         this.initializeControls();
         this.updateCameraPosition();
@@ -78,17 +87,40 @@ export class PlayerController {
     }
 
     updateCameraPosition() {
-        // Update camera position based on current offset
+        // Calculate camera height and distance based on zoom
+        const height = this.currentZoom;
+        const distance = height * Math.tan(this.cameraAngle);
+
+        // Update camera position with tilt
+        this.cameraOffset.y = height;
         this.camera.position.copy(this.cameraOffset);
-        this.camera.lookAt(this.player.position);
+
+        // Calculate look-at point in front of the camera
+        const lookAtPoint = new THREE.Vector3(
+            this.cameraOffset.x,
+            0,
+            this.cameraOffset.z + distance
+        );
+
+        this.camera.lookAt(lookAtPoint);
     }
 
     update() {
-        // Update camera position based on WASD
-        if (this.keys['w']) this.cameraOffset.z -= this.cameraSpeed;
-        if (this.keys['s']) this.cameraOffset.z += this.cameraSpeed;
-        if (this.keys['a']) this.cameraOffset.x -= this.cameraSpeed;
-        if (this.keys['d']) this.cameraOffset.x += this.cameraSpeed;
+        // Update camera position in 2D plane
+        const movementVector = new THREE.Vector2(0, 0);
+
+        // Reversed the signs to fix inverted controls
+        if (this.keys['w']) movementVector.y += this.cameraSpeed; // Changed from -=
+        if (this.keys['s']) movementVector.y -= this.cameraSpeed; // Changed from +=
+        if (this.keys['a']) movementVector.x += this.cameraSpeed; // Changed from -=
+        if (this.keys['d']) movementVector.x -= this.cameraSpeed; // Changed from +=
+
+        // Apply diagonal movement normalization
+        if (movementVector.length() > 0) {
+            movementVector.normalize().multiplyScalar(this.cameraSpeed);
+            this.cameraOffset.x += movementVector.x;
+            this.cameraOffset.z += movementVector.y;
+        }
 
         // Update player position based on right-click target
         if (this.targetPosition) {
