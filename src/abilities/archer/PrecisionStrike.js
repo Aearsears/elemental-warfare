@@ -1,6 +1,7 @@
 import { Ability } from '../Ability.js';
 import * as THREE from 'three';
 
+// TODO: fix bug, only fires once arrow and next arrow is not fired
 export class PrecisionStrike extends Ability {
     constructor() {
         super({
