@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { PlayerController } from './src/controls/PlayerController.js';
 import { Environment } from './src/environment/Environment.js';
+import { Ground } from './src/environment/Ground.js';
 import { Player } from './src/champions/Player.js';
 import { StatsUI } from './src/ui/StatsUI.js';
 import { DebugUI } from './src/ui/DebugUI.js';
@@ -37,15 +38,8 @@ dirLight.shadow.mapSize.height = 2048;
 scene.add(dirLight);
 
 // Ground
-const groundGeometry = new THREE.PlaneGeometry(50, 50);
-const groundMaterial = new THREE.MeshPhongMaterial({
-    color: 0x228b22,
-    side: THREE.DoubleSide
-});
-const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-ground.rotation.x = -Math.PI / 2;
-ground.receiveShadow = true;
-scene.add(ground);
+const ground = new Ground();
+scene.add(ground.getMesh());
 
 // Player
 const player = new Player('warrior', scene); // Add scene as second parameter
@@ -57,7 +51,7 @@ const environment = new Environment(scene);
 // Initialize player controller
 const playerController = new PlayerController(
     player,
-    ground,
+    ground.getMesh(),
     camera,
     environment,
     scene
