@@ -13,9 +13,37 @@ export class Environment {
         this.towers = [];
         this.jungleCamps = [];
         this.trees = [];
-        this.destructibles = []; // Add this line to track destructible objects
+        this.destructibles = [];
+        this.monsters = []; // Add array to track monsters
 
         this.initializeEnvironment();
+
+        // Listen for monster deaths
+        document.addEventListener('monsterDeath', (event) => {
+            const deadMonster = event.detail.monster;
+
+            // Remove from parent (JungleCamp's monster group)
+            if (deadMonster.mesh.parent) {
+                deadMonster.mesh.parent.remove(deadMonster.mesh);
+            }
+
+            // Remove health bar
+            deadMonster.mesh.remove(deadMonster.healthBar.container);
+
+            // Dispose of geometries and materials
+            deadMonster.mesh.traverse((child) => {
+                if (child instanceof THREE.Mesh) {
+                    child.geometry.dispose();
+                    child.material.dispose();
+                }
+            });
+
+            // Remove from monsters array
+            const index = this.monsters.indexOf(deadMonster);
+            if (index > -1) {
+                this.monsters.splice(index, 1);
+            }
+        });
     }
 
     initializeEnvironment() {
@@ -88,6 +116,11 @@ export class Environment {
             this.jungleCamps.push(jungleCamp);
             this.scene.add(jungleCamp.mesh); // Add camp marker
             this.scene.add(jungleCamp.monsters); // Add monster group
+
+            // Add monsters to tracking array
+            jungleCamp.monsterInstances.forEach((monster) => {
+                this.monsters.push(monster);
+            });
         });
     }
 

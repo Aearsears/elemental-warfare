@@ -13,8 +13,6 @@ export class CombatController {
         target.getWorldPosition(worldPosition);
         this.createHitEffect(worldPosition);
 
-        console.log(target);
-
         if (target.parent?.userData.type === 'monster') {
             this.handleMonsterAttack(target);
         } else if (target.userData.isDestructible) {

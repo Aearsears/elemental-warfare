@@ -155,11 +155,15 @@ export class Monster {
 
     takeDamage(amount) {
         this.health -= amount;
-        console.log(`Monster health: ${this.health}`);
 
         if (this.health <= 0 && this.isAlive) {
             this.isAlive = false;
-            this.mesh.remove(this.healthBar.container);
+
+            // Dispatch custom event for monster death before cleanup
+            const event = new CustomEvent('monsterDeath', {
+                detail: { monster: this }
+            });
+            document.dispatchEvent(event);
         }
     }
 }
