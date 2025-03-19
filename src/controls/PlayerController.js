@@ -5,6 +5,7 @@ import { MovementController } from './MovementController.js';
 import { CombatController } from './CombatController.js';
 import { HoverEffect } from '../effects/HoverEffect.js';
 import { CollisionManager } from '../physics/CollisionManager.js';
+import { Monster } from '../environment/jungle/Monster.js';
 export class PlayerController {
     constructor(player, ground, camera, environment, scene) {
         this.inputHandler = new InputHandler();
@@ -64,7 +65,7 @@ export class PlayerController {
 
         if (intersects.length > 0) {
             const targetObject = intersects[0].object;
-            const monster = targetObject.userData.parent;
+            const monster = targetObject.parent.userData.parent;
 
             if (monster && monster instanceof Monster) {
                 this.hoverEffect.addOutline(targetObject);
@@ -80,8 +81,6 @@ export class PlayerController {
     }
 
     handleLeftClick() {
-        console.log('Left click detected'); // Debug log
-
         this.inputHandler.raycaster.setFromCamera(
             this.inputHandler.mouse,
             this.cameraController.camera
@@ -91,8 +90,6 @@ export class PlayerController {
             this.environment.getTargetableObjects(),
             true
         );
-
-        console.log('Intersects:', intersects); // Debug log
 
         if (intersects.length > 0) {
             const target = intersects[0].object;
