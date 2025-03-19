@@ -124,7 +124,9 @@ export class Environment {
 
     createLanes() {
         const lanes = new Lanes();
-        lanes.lanes.forEach((lane) => this.scene.add(lane));
+        lanes.getLanes().forEach((lane) => {
+            this.scene.add(lane);
+        });
     }
 
     createTowers() {
