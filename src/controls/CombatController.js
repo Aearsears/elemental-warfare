@@ -44,23 +44,69 @@ export class CombatController {
     }
 
     createHitEffect(position) {
-        console.log('Hit effect at', position);
+        // Create a particle burst effect
+        const particleCount = 8;
+        const particles = [];
 
-        // Create a simple hit effect
-        const geometry = new THREE.SphereGeometry(0.5, 8, 8);
-        const material = new THREE.MeshBasicMaterial({
-            color: 0xff0000,
-            transparent: true,
-            opacity: 0.5
-        });
-        const hitEffect = new THREE.Mesh(geometry, material);
-        hitEffect.position.copy(position);
+        for (let i = 0; i < particleCount; i++) {
+            const particle = new THREE.Mesh(
+                new THREE.SphereGeometry(0.2, 8, 8),
+                new THREE.MeshPhongMaterial({
+                    color: 0xff4400,
+                    emissive: 0xff2200,
+                    emissiveIntensity: 1,
+                    transparent: true,
+                    opacity: 0.8
+                })
+            );
 
-        // Add to scene and remove after animation
-        this.scene.add(hitEffect);
-        setTimeout(() => {
-            this.scene.remove(hitEffect);
-        }, 200);
+            // Set initial position
+            particle.position.copy(position);
+
+            // Random direction for particle
+            const angle = ((Math.PI * 2) / particleCount) * i;
+            particle.velocity = new THREE.Vector3(
+                Math.cos(angle) * 5,
+                3,
+                Math.sin(angle) * 5
+            );
+
+            particles.push(particle);
+            this.scene.add(particle);
+        }
+
+        // Animate particles
+        let elapsed = 0;
+        const animate = () => {
+            elapsed += 0.016; // Approximate delta time
+
+            particles.forEach((particle) => {
+                // Update position
+                particle.position.x += particle.velocity.x * 0.016;
+                particle.position.y += particle.velocity.y * 0.016;
+                particle.position.z += particle.velocity.z * 0.016;
+
+                // Apply gravity
+                particle.velocity.y -= 9.8 * 0.016;
+
+                // Fade out
+                particle.material.opacity = Math.max(0, 0.8 * (1 - elapsed));
+                particle.scale.multiplyScalar(0.95);
+            });
+
+            if (elapsed < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                // Clean up particles
+                particles.forEach((particle) => {
+                    this.scene.remove(particle);
+                    particle.geometry.dispose();
+                    particle.material.dispose();
+                });
+            }
+        };
+
+        animate();
     }
 
     destroyObject(destructibleGroup) {
