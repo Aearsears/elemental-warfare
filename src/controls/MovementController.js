@@ -34,16 +34,33 @@ export class MovementController {
         // Normalize and scale by speed
         direction.normalize().multiplyScalar(this.playerSpeed);
 
-        // Update position if no collision
+        // Store original position before attempting move
+        const originalPosition = currentPos.clone();
         const newPosition = currentPos.clone().add(direction);
-        if (!this.collisionManager.checkCollisions(this.player)) {
-            this.player.setPosition(
-                newPosition.x,
-                newPosition.y,
-                newPosition.z
+
+        // Set new position
+        this.player.setPosition(newPosition.x, newPosition.y, newPosition.z);
+
+        // Check for collisions
+        if (this.collisionManager.checkCollisions(this.player)) {
+            // Try to slide along obstacles
+            const adjustedPosition = this.handleCollision(
+                direction,
+                newPosition,
+                originalPosition
             );
-        } else {
-            this.isMoving = false;
+
+            // If we couldn't slide, return to original position
+            if (adjustedPosition.equals(originalPosition)) {
+                this.isMoving = false;
+            }
+
+            // Update to adjusted position
+            this.player.setPosition(
+                adjustedPosition.x,
+                adjustedPosition.y,
+                adjustedPosition.z
+            );
         }
     }
 
@@ -78,17 +95,27 @@ export class MovementController {
     }
 
     handleCollision(movement, newPosition, originalPosition) {
+        // Try sliding along both possible directions
         const slideDirections = [
-            new THREE.Vector3(-movement.z, 0, movement.x),
-            new THREE.Vector3(movement.z, 0, -movement.x)
+            new THREE.Vector3(-movement.z, 0, movement.x), // Slide right
+            new THREE.Vector3(movement.z, 0, -movement.x) // Slide left
         ];
 
+        // Return player to original position first
+        this.player.setPosition(
+            originalPosition.x,
+            originalPosition.y,
+            originalPosition.z
+        );
+
+        // Try each slide direction
         for (const slideDir of slideDirections) {
             const slideMovement = slideDir
                 .normalize()
                 .multiplyScalar(this.playerSpeed);
-            const slidePosition = newPosition.clone().add(slideMovement);
+            const slidePosition = originalPosition.clone().add(slideMovement);
 
+            // Test slide position
             this.player.setPosition(
                 slidePosition.x,
                 slidePosition.y,
@@ -98,8 +125,16 @@ export class MovementController {
             if (!this.collisionManager.checkCollisions(this.player)) {
                 return slidePosition;
             }
+
+            // Reset position for next attempt
+            this.player.setPosition(
+                originalPosition.x,
+                originalPosition.y,
+                originalPosition.z
+            );
         }
 
+        // If no valid slide found, return original position
         return originalPosition;
     }
 

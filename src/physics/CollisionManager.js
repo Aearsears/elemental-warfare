@@ -61,8 +61,11 @@ export class CollisionManager {
 
         // Check collisions with trees
         for (const tree of this.environment.trees) {
-            if (tree instanceof THREE.Object3D) {
-                const treeBoundingBox = new THREE.Box3().setFromObject(tree);
+            if (tree && tree.mesh) {
+                // Check both tree and its mesh exist
+                const treeBoundingBox = new THREE.Box3().setFromObject(
+                    tree.mesh
+                );
                 if (playerBoundingBox.intersectsBox(treeBoundingBox)) {
                     return true;
                 }

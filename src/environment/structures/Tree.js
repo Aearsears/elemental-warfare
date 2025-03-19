@@ -4,6 +4,21 @@ export class Tree {
     constructor(position) {
         this.mesh = this.createTree();
         this.mesh.position.copy(position);
+
+        // Add collision data
+        this.mesh.userData.isCollidable = true;
+        this.mesh.userData.type = 'tree';
+
+        // Create collision cylinder
+        const collisionGeometry = new THREE.CylinderGeometry(0.3, 0.3, 2, 8);
+        const collisionMaterial = new THREE.MeshBasicMaterial({
+            visible: false
+        });
+        this.collisionMesh = new THREE.Mesh(
+            collisionGeometry,
+            collisionMaterial
+        );
+        this.mesh.add(this.collisionMesh);
     }
 
     createTree() {

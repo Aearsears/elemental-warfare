@@ -16,7 +16,7 @@ export class Environment {
         this.bases = [];
         this.towers = [];
         this.jungleCamps = [];
-        this.trees = [];
+        this.trees = []; // Store Tree instances, not just meshes
         this.destructibles = [];
         this.monsters = []; // Add array to track monsters
         this.destructionEffect = new DestructionEffect(scene);
@@ -233,14 +233,14 @@ export class Environment {
                     const z = camp.z + Math.sin(angle) * radius;
 
                     const isTooClose = this.trees.some((tree) => {
-                        const dx = tree.position.x - x;
-                        const dz = tree.position.z - z;
+                        const dx = tree.mesh.position.x - x;
+                        const dz = tree.mesh.position.z - z;
                         return Math.sqrt(dx * dx + dz * dz) < minTreeDistance;
                     });
 
                     if (!isTooClose) {
                         const tree = new Tree(new THREE.Vector3(x, 0, z));
-                        this.trees.push(tree.mesh);
+                        this.trees.push(tree); // Store the Tree instance
                         this.scene.add(tree.mesh);
                         break;
                     }
