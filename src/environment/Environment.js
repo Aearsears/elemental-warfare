@@ -4,6 +4,7 @@ import { Tower } from './structures/Tower.js';
 import { Water } from './Water.js';
 import { JungleCamp } from './jungle/JungleCamp.js';
 import { Lanes } from './terrain/Lanes.js';
+import { DestructionEffect } from '../effects/DestructionEffect.js';
 
 export class Environment {
     constructor(scene, cssRenderer) {
@@ -16,6 +17,7 @@ export class Environment {
         this.trees = [];
         this.destructibles = [];
         this.monsters = []; // Add array to track monsters
+        this.destructionEffect = new DestructionEffect(scene);
 
         this.initializeEnvironment();
 
@@ -63,7 +65,7 @@ export class Environment {
                 // Create destruction effect at the destructible's position
                 const worldPosition = new THREE.Vector3();
                 destructible.getWorldPosition(worldPosition);
-                this.createDestructionEffect(worldPosition);
+                this.destructionEffect.create(worldPosition);
 
                 // Remove from scene
                 if (destructible.parent) {
@@ -308,66 +310,5 @@ export class Environment {
                     .map((monster) => monster.mesh)
             )
         ];
-    }
-
-    createDestructionEffect(position) {
-        // Create particle burst effect for destruction
-        const particleCount = 12;
-
-        for (let i = 0; i < particleCount; i++) {
-            const particle = new THREE.Mesh(
-                new THREE.BoxGeometry(0.2, 0.2, 0.2),
-                new THREE.MeshPhongMaterial({
-                    color: 0x8b4513,
-                    emissive: 0x3d2008,
-                    emissiveIntensity: 0.5
-                })
-            );
-
-            particle.position.copy(position);
-
-            // Random direction for particle
-            const angle = ((Math.PI * 2) / particleCount) * i;
-            const speed = 2 + Math.random() * 3;
-            particle.velocity = new THREE.Vector3(
-                Math.cos(angle) * speed,
-                4 + Math.random() * 2,
-                Math.sin(angle) * speed
-            );
-
-            this.scene.add(particle);
-
-            // Animate particle
-            let elapsed = 0;
-            const animate = () => {
-                elapsed += 0.016;
-
-                // Update position
-                particle.position.x += particle.velocity.x * 0.016;
-                particle.position.y += particle.velocity.y * 0.016;
-                particle.position.z += particle.velocity.z * 0.016;
-
-                // Apply gravity
-                particle.velocity.y -= 9.8 * 0.016;
-
-                // Rotate particle
-                particle.rotation.x += 0.1;
-                particle.rotation.y += 0.1;
-
-                // Fade out
-                particle.material.opacity = Math.max(0, 1 - elapsed);
-                particle.scale.multiplyScalar(0.97);
-
-                if (elapsed < 1) {
-                    requestAnimationFrame(animate);
-                } else {
-                    this.scene.remove(particle);
-                    particle.geometry.dispose();
-                    particle.material.dispose();
-                }
-            };
-
-            animate();
-        }
     }
 }
