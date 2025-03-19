@@ -6,6 +6,7 @@ import { JungleCamp } from './jungle/JungleCamp.js';
 import { Lanes } from './terrain/Lanes.js';
 import { DestructionEffect } from '../effects/DestructionEffect.js';
 import { Destructible } from './structures/Destructible.js';
+import { Tree } from './structures/Tree.js';
 
 export class Environment {
     constructor(scene, cssRenderer) {
@@ -217,23 +218,20 @@ export class Environment {
         ];
 
         jungleCamps.forEach((camp) => {
-            const areaRadius = 5; // Increased area for random placement
+            const areaRadius = 5;
             const treesPerArea = 8;
-            const minTreeDistance = 1.5; // Minimum distance between trees
+            const minTreeDistance = 1.5;
 
-            // Try to place trees in the area
             for (let i = 0; i < treesPerArea; i++) {
                 let attempts = 0;
                 const maxAttempts = 20;
 
                 while (attempts < maxAttempts) {
-                    // Generate random position within the circular area
                     const angle = Math.random() * Math.PI * 2;
                     const radius = Math.random() * areaRadius;
                     const x = camp.x + Math.cos(angle) * radius;
                     const z = camp.z + Math.sin(angle) * radius;
 
-                    // Check distance from other trees
                     const isTooClose = this.trees.some((tree) => {
                         const dx = tree.position.x - x;
                         const dz = tree.position.z - z;
@@ -241,9 +239,9 @@ export class Environment {
                     });
 
                     if (!isTooClose) {
-                        const tree = this.createTree(x, z);
-                        this.trees.push(tree);
-                        this.scene.add(tree);
+                        const tree = new Tree(new THREE.Vector3(x, 0, z));
+                        this.trees.push(tree.mesh);
+                        this.scene.add(tree.mesh);
                         break;
                     }
 
@@ -251,32 +249,6 @@ export class Environment {
                 }
             }
         });
-    }
-
-    createTree(x, z) {
-        // Create tree trunk
-        const trunkGeometry = new THREE.CylinderGeometry(0.2, 0.3, 2, 8);
-        const trunkMaterial = new THREE.MeshPhongMaterial({ color: 0x4a2f21 });
-        const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-        trunk.castShadow = true;
-        trunk.receiveShadow = true;
-
-        // Create tree leaves
-        const leavesGeometry = new THREE.ConeGeometry(1, 2, 8);
-        const leavesMaterial = new THREE.MeshPhongMaterial({ color: 0x2d5a27 });
-        const leaves = new THREE.Mesh(leavesGeometry, leavesMaterial);
-        leaves.position.y = 2;
-        leaves.castShadow = true;
-        leaves.receiveShadow = true;
-
-        // Group trunk and leaves
-        const tree = new THREE.Group();
-        tree.add(trunk);
-        tree.add(leaves);
-
-        // Position the tree
-        tree.position.set(x, 0, z);
-        return tree;
     }
 
     addDestructibles() {
