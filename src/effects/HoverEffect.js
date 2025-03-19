@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Monster } from '../environment/jungle/Monster.js';
 
 export class HoverEffect {
     constructor(scene) {
@@ -7,7 +8,7 @@ export class HoverEffect {
             color: 0xff0000,
             side: THREE.BackSide
         });
-        this.currentOutline = null;
+        this.currentOutlines = [];
         this.targetObject = null;
     }
 
@@ -15,31 +16,58 @@ export class HoverEffect {
         if (this.targetObject === object) return;
         this.removeOutline();
 
-        // Create outline mesh
-        const outlineGeometry = object.geometry.clone();
-        const outlineMesh = new THREE.Mesh(
-            outlineGeometry,
-            this.outlineMaterial
-        );
+        const monster = object.parent?.userData.parent;
+        if (monster && monster instanceof Monster) {
+            // For monsters, outline the entire monster group
+            object.parent.traverse((child) => {
+                if (child instanceof THREE.Mesh) {
+                    const outlineGeometry = child.geometry.clone();
+                    const outlineMesh = new THREE.Mesh(
+                        outlineGeometry,
+                        this.outlineMaterial
+                    );
 
-        // Scale it slightly larger
-        outlineMesh.scale.multiplyScalar(1.05);
+                    // Scale slightly larger
+                    outlineMesh.scale.multiplyScalar(1.05);
 
-        // Copy position and rotation
-        outlineMesh.position.copy(object.position);
-        outlineMesh.rotation.copy(object.rotation);
+                    // Copy position and rotation
+                    outlineMesh.position.copy(child.position);
+                    outlineMesh.rotation.copy(child.rotation);
+                    outlineMesh.quaternion.copy(child.quaternion);
+                    outlineMesh.matrix.copy(child.matrix);
+                    outlineMesh.matrixWorld.copy(child.matrixWorld);
 
-        // Add to object
-        object.add(outlineMesh);
+                    // Add to the same parent as the original mesh
+                    child.parent.add(outlineMesh);
+                    this.currentOutlines.push(outlineMesh);
+                }
+            });
+        } else {
+            // For other objects, use the existing single outline logic
+            const outlineGeometry = object.geometry.clone();
+            const outlineMesh = new THREE.Mesh(
+                outlineGeometry,
+                this.outlineMaterial
+            );
 
-        this.currentOutline = outlineMesh;
+            outlineMesh.scale.multiplyScalar(1.05);
+            outlineMesh.position.copy(object.position);
+            outlineMesh.rotation.copy(object.rotation);
+            object.add(outlineMesh);
+            this.currentOutlines.push(outlineMesh);
+        }
+
         this.targetObject = object;
     }
 
     removeOutline() {
-        if (this.currentOutline && this.targetObject) {
-            this.targetObject.remove(this.currentOutline);
-            this.currentOutline = null;
+        if (this.currentOutlines.length > 0) {
+            this.currentOutlines.forEach((outline) => {
+                if (outline.parent) {
+                    outline.parent.remove(outline);
+                }
+            });
+            this.currentOutlines = [];
             this.targetObject = null;
         }
     }

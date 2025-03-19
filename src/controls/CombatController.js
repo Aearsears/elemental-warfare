@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 export class CombatController {
     constructor(player, environment, scene) {
         this.player = player;
@@ -31,18 +32,11 @@ export class CombatController {
     applyDamage(destructibleGroup, target) {
         // TODO: FIX ATTACKING AND WHERE TO HANDLE ATTCK
         destructibleGroup.userData.health -= this.player.attackDamage;
-        this.showDamageEffect(target);
+        this.createHitEffect(target.position);
 
         if (destructibleGroup.userData.health <= 0) {
             this.destroyObject(destructibleGroup);
         }
-    }
-
-    showDamageEffect(target) {
-        target.material.emissive.setHex(0xff0000);
-        setTimeout(() => {
-            target.material.emissive.setHex(0x000000);
-        }, 100);
     }
 
     createHitEffect(position) {
