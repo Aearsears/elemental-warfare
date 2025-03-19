@@ -96,8 +96,11 @@ export class PlayerController {
             const worldPosition = new THREE.Vector3();
             target.getWorldPosition(worldPosition);
 
+            const isTargetable =
+                target.userData.isTargetable ||
+                target.parent?.userData?.isTargetable;
             if (
-                target.userData.isTargetable &&
+                isTargetable &&
                 this.combatController.isTargetInRange(worldPosition)
             ) {
                 this.combatController.handleAttack(target);
