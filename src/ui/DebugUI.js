@@ -196,10 +196,7 @@ export class DebugUI {
             )}, ${playerPos.z.toFixed(2)})`,
             `FPS: ${this.fps}`,
             `Trees: ${this.environment.trees.length}`,
-            `Monsters: ${this.environment.jungleCamps.reduce(
-                (sum, camp) => sum + camp.monsterInstances.length,
-                0
-            )}`,
+            `Monsters: ${this.environment.monsters.length}`,
             `Destructibles: ${this.environment.destructibles.length}`,
             `Unlimited Mana: ${this.isUnlimitedMana ? 'ON' : 'OFF'}`,
             `No Cooldown: ${this.isNoCooldown ? 'ON' : 'OFF'}`

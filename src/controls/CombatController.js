@@ -34,12 +34,14 @@ export class CombatController {
         }
     }
 
-    applyDamage(destructibleGroup, target) {
-        // TODO: FIX ATTACKING AND WHERE TO HANDLE ATTCK
-        destructibleGroup.userData.health -= this.player.attackDamage;
+    applyDamage(destructibleGroup) {
+        destructibleGroup.userData.health -= this.player.champion.attackDamage;
 
         if (destructibleGroup.userData.health <= 0) {
-            this.destroyObject(destructibleGroup);
+            const event = new CustomEvent('destructibleDestroyed', {
+                detail: { destructibleGroup }
+            });
+            document.dispatchEvent(event);
         }
     }
 
@@ -107,14 +109,6 @@ export class CombatController {
         };
 
         animate();
-    }
-
-    destroyObject(destructibleGroup) {
-        this.createDestructionEffect(destructibleGroup.position);
-        this.scene.remove(destructibleGroup);
-        this.environment.destructibles = this.environment.destructibles.filter(
-            (d) => d !== destructibleGroup
-        );
     }
 
     isTargetInRange(targetPosition) {
