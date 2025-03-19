@@ -82,6 +82,11 @@ export class Champion {
         Object.values(this.abilities).forEach((ability) =>
             ability.update?.(delta)
         );
+        this.updateAnimation(delta);
+    }
+
+    updateAnimation(delta) {
+        // Base animation that all champions will override
     }
 
     regenerateResources(delta) {

@@ -6,6 +6,7 @@ export class CombatController {
     }
 
     handleAttack(target) {
+        this.player.champion.attack();
         if (target.userData.type === 'monster') {
             this.handleMonsterAttack(target);
         } else if (target.userData.isDestructible) {
@@ -44,6 +45,24 @@ export class CombatController {
         }, 100);
     }
 
+    createHitEffect(position) {
+        // Create a simple hit effect
+        const geometry = new THREE.SphereGeometry(0.5, 8, 8);
+        const material = new THREE.MeshBasicMaterial({
+            color: 0xff0000,
+            transparent: true,
+            opacity: 0.5
+        });
+        const hitEffect = new THREE.Mesh(geometry, material);
+        hitEffect.position.copy(position);
+
+        // Add to scene and remove after animation
+        this.scene.add(hitEffect);
+        setTimeout(() => {
+            this.scene.remove(hitEffect);
+        }, 200);
+    }
+
     destroyObject(destructibleGroup) {
         this.createDestructionEffect(destructibleGroup.position);
         this.scene.remove(destructibleGroup);
@@ -58,6 +77,6 @@ export class CombatController {
             Math.pow(playerPos.x - targetPosition.x, 2) +
                 Math.pow(playerPos.z - targetPosition.z, 2)
         );
-        return distance <= this.player.attackRange;
+        return distance <= this.player.champion.attackRange;
     }
 }

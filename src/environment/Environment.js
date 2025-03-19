@@ -176,6 +176,7 @@ export class Environment {
         group.userData.isDestructible = true;
         group.userData.health = 100;
         barrel.userData.isTargetable = true;
+        barrel.userData.isDestructible = true;
         barrel.userData.parentGroup = group;
 
         group.add(barrel);

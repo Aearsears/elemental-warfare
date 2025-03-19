@@ -1,10 +1,10 @@
+import * as THREE from 'three';
 import { InputHandler } from './InputHandler.js';
 import { CameraController } from './CameraController.js';
 import { MovementController } from './MovementController.js';
 import { CombatController } from './CombatController.js';
 import { HoverEffect } from '../effects/HoverEffect.js';
 import { CollisionManager } from '../physics/CollisionManager.js';
-
 export class PlayerController {
     constructor(player, ground, camera, environment, scene) {
         this.inputHandler = new InputHandler();
@@ -96,14 +96,13 @@ export class PlayerController {
 
         if (intersects.length > 0) {
             const target = intersects[0].object;
-            console.log('Target:', target); // Debug log
-            console.log('Target userData:', target.userData); // Debug log
+            const worldPosition = new THREE.Vector3();
+            target.getWorldPosition(worldPosition);
 
             if (
                 target.userData.isTargetable &&
-                this.combatController.isTargetInRange(target.position)
+                this.combatController.isTargetInRange(worldPosition)
             ) {
-                console.log('Attack conditions met'); // Debug log
                 this.combatController.handleAttack(target);
             }
         }
