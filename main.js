@@ -31,10 +31,25 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
 const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-dirLight.position.set(10, 20, 10);
+dirLight.position.set(20, 30, 20);
 dirLight.castShadow = true;
-dirLight.shadow.mapSize.width = 2048;
-dirLight.shadow.mapSize.height = 2048;
+
+// Configure shadow properties
+dirLight.shadow.mapSize.width = 4096;
+dirLight.shadow.mapSize.height = 4096;
+
+// Adjust shadow camera to cover entire map
+dirLight.shadow.camera.left = -50;
+dirLight.shadow.camera.right = 50;
+dirLight.shadow.camera.top = 50;
+dirLight.shadow.camera.bottom = -50;
+dirLight.shadow.camera.near = 0.1;
+dirLight.shadow.camera.far = 100;
+
+// Optional: Add shadow camera helper for debugging
+// const shadowHelper = new THREE.CameraHelper(dirLight.shadow.camera);
+// scene.add(shadowHelper);
+
 scene.add(dirLight);
 
 // Ground
