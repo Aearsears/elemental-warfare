@@ -72,23 +72,27 @@ export class Archer extends Champion {
         if (this.isAttacking) {
             // Attack animation
             this.attackAnimationTime += delta;
-            // Bow drawing animation
-            this.bow.scale.z =
-                1 -
-                Math.sin(
-                    (this.attackAnimationTime / this.attackDuration) * Math.PI
-                ) *
-                    0.3;
+
+            // Enhanced bow drawing animation
+            const animationProgress =
+                this.attackAnimationTime / this.attackDuration;
+
+            // Increase scale change from 0.3 to 0.6 for more visible effect
+            this.bow.scale.z = 1 - Math.sin(animationProgress * Math.PI) * 0.6;
+
+            // Add slight rotation for more dynamic feel
+            this.bow.rotation.x = Math.sin(animationProgress * Math.PI) * 0.2;
 
             if (this.attackAnimationTime >= this.attackDuration) {
                 this.isAttacking = false;
                 this.attackAnimationTime = 0;
                 this.bow.scale.z = 1;
+                this.bow.rotation.x = 0;
             }
         } else if (this.isMoving) {
-            // Walking animation
+            // Enhanced walking animation
             this.movementTime += delta * 5;
-            this.bow.position.y = 1.2 + Math.sin(this.movementTime) * 0.1;
+            this.bow.position.y = 1.2 + Math.sin(this.movementTime) * 0.15; // Increased bob amount
         } else {
             this.resetAnimation();
         }
@@ -102,5 +106,6 @@ export class Archer extends Champion {
     resetAnimation() {
         this.bow.scale.z = 1;
         this.bow.position.y = 1.2;
+        this.bow.rotation.x = 0;
     }
 }
