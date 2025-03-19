@@ -31,23 +31,9 @@ export class Environment {
             );
 
             if (camp) {
-                // Remove from camp's monster instances
-                camp.monsterInstances = camp.monsterInstances.filter(
-                    (m) => m !== deadMonster
-                );
-
-                // Remove from scene
-                if (deadMonster.mesh && deadMonster.mesh.parent) {
-                    deadMonster.mesh.parent.remove(deadMonster.mesh);
-                }
-
-                // Remove health bar if it exists
-                if (deadMonster.healthBar) {
-                    deadMonster.healthBar.remove();
-                }
-
-                // Dispose of geometries and materials
+                // Remove from scene first
                 if (deadMonster.mesh) {
+                    this.scene.remove(deadMonster.mesh); // Remove directly from scene
                     deadMonster.mesh.traverse((child) => {
                         if (child.geometry) child.geometry.dispose();
                         if (child.material) {
@@ -59,6 +45,16 @@ export class Environment {
                         }
                     });
                 }
+
+                // Remove health bar if it exists
+                if (deadMonster.healthBar) {
+                    deadMonster.healthBar.remove();
+                }
+
+                // Remove from camp's monster instances
+                camp.monsterInstances = camp.monsterInstances.filter(
+                    (m) => m !== deadMonster
+                );
 
                 // Clear any references
                 deadMonster.mesh = null;
@@ -343,10 +339,16 @@ export class Environment {
         });
         // Clean up dead monsters from jungleCamps
         this.jungleCamps.forEach((camp) => {
-            camp.monsterInstances = camp.monsterInstances.filter(
-                (monster) =>
-                    monster.isAlive && monster.mesh && monster.mesh.parent
-            );
+            camp.monsterInstances = camp.monsterInstances.filter((monster) => {
+                if (!monster.isAlive) {
+                    // Ensure monster is removed from scene
+                    if (monster.mesh && monster.mesh.parent) {
+                        this.scene.remove(monster.mesh);
+                    }
+                    return false;
+                }
+                return true;
+            });
         });
 
         // Update remaining monsters
