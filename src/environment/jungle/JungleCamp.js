@@ -107,6 +107,14 @@ export class JungleCamp {
                 const ring = this.respawnText.children[1];
                 ring.scale.set(progress, progress, 1);
 
+                // Update number display
+                const numberMesh = this.respawnText.children[2];
+                const newGeometry = this.createNumberGeometry(
+                    Math.ceil(this.respawnTimer)
+                );
+                numberMesh.geometry.dispose();
+                numberMesh.geometry = newGeometry;
+
                 // Make timer face camera
                 if (window.camera) {
                     const camPos = window.camera.position.clone();
@@ -158,7 +166,6 @@ export class JungleCamp {
             this.mesh.remove(this.respawnText);
         }
 
-        // Create timer group
         this.respawnText = new THREE.Group();
 
         // Create circle background
@@ -182,19 +189,122 @@ export class JungleCamp {
         });
 
         const ring = new THREE.Mesh(ringGeometry, ringMaterial);
-        ring.position.z = 0.01; // Slight offset to prevent z-fighting
+        ring.position.z = 0.01;
 
-        // Add meshes to group
+        // Create number display using shapes
+        const numberGeometry = this.createNumberGeometry(
+            Math.ceil(this.respawnTimer)
+        );
+        const numberMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            side: THREE.DoubleSide
+        });
+
+        const numberMesh = new THREE.Mesh(numberGeometry, numberMaterial);
+        numberMesh.scale.set(0.5, 0.5, 1);
+        numberMesh.position.z = 0.02;
+
+        // Add all meshes to group
         this.respawnText.add(circle);
         this.respawnText.add(ring);
+        this.respawnText.add(numberMesh);
 
-        // Position timer above camp
+        // Position and rotate timer
         this.respawnText.position.y = 3;
-
-        // Make timer face up initially
         this.respawnText.rotation.x = -Math.PI / 2;
 
         this.mesh.add(this.respawnText);
+    }
+
+    createNumberGeometry(number) {
+        const shapes = [];
+        const numberStr = number.toString();
+        let xOffset = 0;
+
+        for (let i = 0; i < numberStr.length; i++) {
+            const digit = parseInt(numberStr[i]);
+            const shape = new THREE.Shape();
+
+            switch (digit) {
+                case 0:
+                    shape.moveTo(xOffset + 0, 0);
+                    shape.lineTo(xOffset + 0.6, 0);
+                    shape.lineTo(xOffset + 0.6, 1);
+                    shape.lineTo(xOffset + 0, 1);
+                    shape.lineTo(xOffset + 0, 0);
+                    break;
+                case 1:
+                    shape.moveTo(xOffset + 0.3, 0);
+                    shape.lineTo(xOffset + 0.3, 1);
+                    break;
+                case 2:
+                    shape.moveTo(xOffset + 0, 0);
+                    shape.lineTo(xOffset + 0.6, 0);
+                    shape.lineTo(xOffset + 0.6, 0.5);
+                    shape.lineTo(xOffset + 0, 0.5);
+                    shape.lineTo(xOffset + 0, 1);
+                    shape.lineTo(xOffset + 0.6, 1);
+                    break;
+                case 3:
+                    shape.moveTo(xOffset + 0, 0);
+                    shape.lineTo(xOffset + 0.6, 0);
+                    shape.lineTo(xOffset + 0.6, 1);
+                    shape.lineTo(xOffset + 0, 1);
+                    shape.moveTo(xOffset + 0, 0.5);
+                    shape.lineTo(xOffset + 0.6, 0.5);
+                    break;
+                case 4:
+                    shape.moveTo(xOffset + 0, 1);
+                    shape.lineTo(xOffset + 0, 0.5);
+                    shape.lineTo(xOffset + 0.6, 0.5);
+                    shape.moveTo(xOffset + 0.6, 1);
+                    shape.lineTo(xOffset + 0.6, 0);
+                    break;
+                case 5:
+                    shape.moveTo(xOffset + 0.6, 1);
+                    shape.lineTo(xOffset + 0, 1);
+                    shape.lineTo(xOffset + 0, 0.5);
+                    shape.lineTo(xOffset + 0.6, 0.5);
+                    shape.lineTo(xOffset + 0.6, 0);
+                    shape.lineTo(xOffset + 0, 0);
+                    break;
+                case 6:
+                    shape.moveTo(xOffset + 0.6, 1);
+                    shape.lineTo(xOffset + 0, 1);
+                    shape.lineTo(xOffset + 0, 0);
+                    shape.lineTo(xOffset + 0.6, 0);
+                    shape.lineTo(xOffset + 0.6, 0.5);
+                    shape.lineTo(xOffset + 0, 0.5);
+                    break;
+                case 7:
+                    shape.moveTo(xOffset + 0, 1);
+                    shape.lineTo(xOffset + 0.6, 1);
+                    shape.lineTo(xOffset + 0.6, 0);
+                    break;
+                case 8:
+                    shape.moveTo(xOffset + 0, 0);
+                    shape.lineTo(xOffset + 0.6, 0);
+                    shape.lineTo(xOffset + 0.6, 1);
+                    shape.lineTo(xOffset + 0, 1);
+                    shape.lineTo(xOffset + 0, 0);
+                    shape.moveTo(xOffset + 0, 0.5);
+                    shape.lineTo(xOffset + 0.6, 0.5);
+                    break;
+                case 9:
+                    shape.moveTo(xOffset + 0.6, 0);
+                    shape.lineTo(xOffset + 0.6, 1);
+                    shape.lineTo(xOffset + 0, 1);
+                    shape.lineTo(xOffset + 0, 0.5);
+                    shape.lineTo(xOffset + 0.6, 0.5);
+                    break;
+            }
+            shapes.push(shape);
+            xOffset += 0.8; // Space between numbers
+        }
+
+        const geometry = new THREE.ShapeGeometry(shapes);
+        geometry.center();
+        return geometry;
     }
 
     createRespawnIndicator() {
