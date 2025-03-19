@@ -1,13 +1,14 @@
 import * as THREE from 'three';
 import { HealthBar } from '../../ui/HealthBar.js';
+import { Destructible } from '../structures/Destructible.js';
 
-export class Monster {
+export class Monster extends Destructible {
     constructor(config) {
-        this.health = config.health || 100;
+        super(config.position, config);
+        this.config = config; // Store config for use in other methods
         this.damage = config.damage || 10;
         this.isAlive = true;
-        this.mesh = this.createModel(config);
-        this.mesh.userData.isTargetable = true;
+        this.health = config.health || 100; // Override parent health
         this.mesh.userData.type = 'monster';
         this.mesh.userData.parent = this;
         this.boundingBox = new THREE.Box3();
@@ -19,9 +20,9 @@ export class Monster {
         this.mesh.add(this.healthBar.container);
     }
 
-    createModel(config) {
+    createMesh(config) {
         const monsterGroup = new THREE.Group();
-        const scale = config.scale || 1;
+        const scale = config.scale || 1; // Use this.config instead of config
 
         // Body (main body segment)
         const bodyGeometry = new THREE.SphereGeometry(0.5 * scale, 16, 16);
@@ -122,15 +123,6 @@ export class Monster {
         return monsterGroup;
     }
 
-    updateBoundingBox() {
-        this.boundingBox.setFromObject(this.mesh);
-    }
-
-    checkCollision(otherBox) {
-        this.updateBoundingBox();
-        return this.boundingBox.intersectsBox(otherBox);
-    }
-
     update(delta) {
         if (this.isAlive) {
             // Idle animation - body bobbing
@@ -155,63 +147,42 @@ export class Monster {
 
     takeDamage(amount) {
         if (!this.isAlive) return;
+        super.takeDamage(amount);
 
-        this.health -= amount;
-        if (this.health <= 0) {
-            this.die();
-        } else if (this.healthBar) {
+        if (this.health > 0 && this.healthBar) {
             this.healthBar.update(this.health, window.camera);
         }
     }
 
-    die() {
+    destroy() {
         if (!this.isAlive) return;
-
         this.isAlive = false;
 
-        if (this.mesh) {
-            // Remove monster from raycaster targets
-            this.mesh.userData.isTargetable = false;
-            this.mesh.userData.type = null;
-            this.mesh.userData.parent = null;
-
-            // Remove health bar first (since it's a child of mesh)
-            if (this.healthBar) {
-                this.healthBar.remove();
-                this.healthBar = null;
-            }
-
-            // Remove from parent if it exists
-            if (this.mesh.parent) {
-                this.mesh.parent.remove(this.mesh);
-            }
-
-            // Clean up all child meshes
-            this.mesh.traverse((child) => {
-                if (child.geometry) {
-                    child.geometry.dispose();
-                }
-                if (child.material) {
-                    if (Array.isArray(child.material)) {
-                        child.material.forEach((mat) => mat.dispose());
-                    } else {
-                        child.material.dispose();
-                    }
-                }
-            });
-
-            // Clear all references
-            this.mesh.clear(); // Remove all children
-            this.mesh = null;
+        // Clean up health bar
+        if (this.healthBar) {
+            this.healthBar.remove();
+            this.healthBar = null;
         }
 
         // Clear bounding box
         this.boundingBox = null;
 
-        // Dispatch death event after cleanup
+        // Dispatch monster-specific death event
         const deathEvent = new CustomEvent('monsterDeath', {
             detail: { monster: this }
         });
         document.dispatchEvent(deathEvent);
+
+        // Call parent destroy
+        super.destroy();
+    }
+
+    updateBoundingBox() {
+        this.boundingBox.setFromObject(this.mesh);
+    }
+
+    checkCollision(otherBox) {
+        this.updateBoundingBox();
+        return this.boundingBox.intersectsBox(otherBox);
     }
 }

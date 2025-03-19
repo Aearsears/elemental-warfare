@@ -57,7 +57,8 @@ export class JungleCamp {
             color: 0xff0000,
             emissiveColor: 0xff0000,
             emissiveIntensity: 0.2,
-            scale: 2
+            scale: 2,
+            position: this.position
         });
 
         buffMonster.mesh.position.y = 1;
@@ -79,7 +80,8 @@ export class JungleCamp {
                 damage: 10,
                 color: colors[index],
                 emissiveColor: colors[index],
-                scale: 1
+                scale: 1,
+                position: this.position
             });
 
             monster.mesh.position.copy(pos);

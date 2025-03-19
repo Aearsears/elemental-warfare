@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 
 export class Destructible {
-    constructor(position) {
-        this.mesh = this.createMesh();
+    constructor(position, config) {
+        this.mesh = this.createMesh(config);
         this.mesh.position.copy(position);
         this.mesh.position.y = 0.5;
         this.health = 100;
