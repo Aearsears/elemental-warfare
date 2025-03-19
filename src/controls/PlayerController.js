@@ -114,9 +114,12 @@ export class PlayerController {
             this.cameraController.camera
         );
 
-        const intersects = this.inputHandler.raycaster.intersectObject(
-            this.ground,
-            true
+        // Filter out any removed or dead monster meshes
+        const objects = [this.ground];
+
+        const intersects = this.inputHandler.raycaster.intersectObjects(
+            objects,
+            false // Set to false to only check the ground, not its children
         );
 
         if (intersects.length > 0) {

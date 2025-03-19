@@ -6,26 +6,44 @@ export class MovementController {
         this.collisionManager = collisionManager;
         this.playerSpeed = speed;
         this.targetPosition = null;
+        this.isMoving = false;
     }
 
     setTargetPosition(position) {
-        this.targetPosition = position;
+        // Ensure target position is on the ground plane
+        this.targetPosition = new THREE.Vector3(
+            position.x,
+            0, // Lock to ground level
+            position.z
+        );
+        this.isMoving = true;
     }
 
     update() {
-        if (!this.targetPosition) {
-            this.player.setMoving(false);
+        if (!this.isMoving) return;
+
+        const currentPos = this.player.getPosition();
+        const direction = this.targetPosition.clone().sub(currentPos);
+
+        // Stop if we're close enough
+        if (direction.length() < 0.1) {
+            this.isMoving = false;
             return;
         }
 
-        const direction = this.targetPosition
-            .clone()
-            .sub(this.player.getPosition());
+        // Normalize and scale by speed
+        direction.normalize().multiplyScalar(this.playerSpeed);
 
-        if (direction.length() > this.playerSpeed) {
-            this.handleMovement(direction);
+        // Update position if no collision
+        const newPosition = currentPos.clone().add(direction);
+        if (!this.collisionManager.checkCollisions(this.player)) {
+            this.player.setPosition(
+                newPosition.x,
+                newPosition.y,
+                newPosition.z
+            );
         } else {
-            this.finalizeMovement();
+            this.isMoving = false;
         }
     }
 

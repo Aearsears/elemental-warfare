@@ -154,16 +154,64 @@ export class Monster {
     }
 
     takeDamage(amount) {
+        if (!this.isAlive) return;
+
         this.health -= amount;
-
-        if (this.health <= 0 && this.isAlive) {
-            this.isAlive = false;
-
-            // Dispatch custom event for monster death before cleanup
-            const event = new CustomEvent('monsterDeath', {
-                detail: { monster: this }
-            });
-            document.dispatchEvent(event);
+        if (this.health <= 0) {
+            this.die();
+        } else if (this.healthBar) {
+            this.healthBar.update(this.health, window.camera);
         }
+    }
+
+    die() {
+        if (!this.isAlive) return;
+
+        this.isAlive = false;
+
+        if (this.mesh) {
+            // Remove monster from raycaster targets
+            this.mesh.userData.isTargetable = false;
+            this.mesh.userData.type = null;
+            this.mesh.userData.parent = null;
+
+            // Remove health bar first (since it's a child of mesh)
+            if (this.healthBar) {
+                this.healthBar.remove();
+                this.healthBar = null;
+            }
+
+            // Remove from parent if it exists
+            if (this.mesh.parent) {
+                this.mesh.parent.remove(this.mesh);
+            }
+
+            // Clean up all child meshes
+            this.mesh.traverse((child) => {
+                if (child.geometry) {
+                    child.geometry.dispose();
+                }
+                if (child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach((mat) => mat.dispose());
+                    } else {
+                        child.material.dispose();
+                    }
+                }
+            });
+
+            // Clear all references
+            this.mesh.clear(); // Remove all children
+            this.mesh = null;
+        }
+
+        // Clear bounding box
+        this.boundingBox = null;
+
+        // Dispatch death event after cleanup
+        const deathEvent = new CustomEvent('monsterDeath', {
+            detail: { monster: this }
+        });
+        document.dispatchEvent(deathEvent);
     }
 }

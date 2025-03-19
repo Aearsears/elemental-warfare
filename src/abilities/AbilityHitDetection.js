@@ -13,14 +13,25 @@ export class AbilityHitDetection {
         // Check monsters
         if (targetTypes.includes('monster')) {
             this.environment.jungleCamps.forEach((camp) => {
-                camp.monsterInstances.forEach((monster) => {
-                    if (
-                        monster.isAlive &&
-                        this.checkCollision(hitSphere, monster.mesh)
-                    ) {
-                        hitTargets.push(monster);
+                camp.monsterInstances = camp.monsterInstances.filter(
+                    (monster) => {
+                        if (!monster.isAlive) {
+                            // Clean up dead monster
+                            if (monster.mesh && monster.mesh.parent) {
+                                monster.mesh.parent.remove(monster.mesh);
+                            }
+                            return false;
+                        }
+
+                        if (
+                            monster.isAlive &&
+                            this.checkCollision(hitSphere, monster.mesh)
+                        ) {
+                            hitTargets.push(monster);
+                        }
+                        return true;
                     }
-                });
+                );
             });
         }
 

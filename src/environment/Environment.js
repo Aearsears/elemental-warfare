@@ -25,35 +25,49 @@ export class Environment {
         document.addEventListener('monsterDeath', (event) => {
             const deadMonster = event.detail.monster;
 
-            // Remove from parent (JungleCamp's monster group)
-            if (deadMonster.mesh.parent) {
-                deadMonster.mesh.parent.remove(deadMonster.mesh);
-            }
-
-            // Remove health bar
-            deadMonster.mesh.remove(deadMonster.healthBar.container);
-
-            // Dispose of geometries and materials
-            deadMonster.mesh.traverse((child) => {
-                if (child instanceof THREE.Mesh) {
-                    child.geometry.dispose();
-                    child.material.dispose();
-                }
-            });
-
-            // Remove from monsters array
-            const index = this.monsters.indexOf(deadMonster);
-            if (index > -1) {
-                this.monsters.splice(index, 1);
-            }
-
-            // Check if all monsters in the camp are dead
+            // Find the camp that owns this monster
             const camp = this.jungleCamps.find((camp) =>
                 camp.monsterInstances.includes(deadMonster)
             );
 
-            if (camp && camp.monsterInstances.every((m) => !m.isAlive)) {
-                camp.startRespawnTimer();
+            if (camp) {
+                // Remove from camp's monster instances
+                camp.monsterInstances = camp.monsterInstances.filter(
+                    (m) => m !== deadMonster
+                );
+
+                // Remove from scene
+                if (deadMonster.mesh && deadMonster.mesh.parent) {
+                    deadMonster.mesh.parent.remove(deadMonster.mesh);
+                }
+
+                // Remove health bar if it exists
+                if (deadMonster.healthBar) {
+                    deadMonster.healthBar.remove();
+                }
+
+                // Dispose of geometries and materials
+                if (deadMonster.mesh) {
+                    deadMonster.mesh.traverse((child) => {
+                        if (child.geometry) child.geometry.dispose();
+                        if (child.material) {
+                            if (Array.isArray(child.material)) {
+                                child.material.forEach((mat) => mat.dispose());
+                            } else {
+                                child.material.dispose();
+                            }
+                        }
+                    });
+                }
+
+                // Clear any references
+                deadMonster.mesh = null;
+                deadMonster.healthBar = null;
+
+                // Check if all monsters in camp are dead for respawn
+                if (camp.monsterInstances.length === 0) {
+                    camp.startRespawnTimer();
+                }
             }
         });
 
@@ -88,7 +102,13 @@ export class Environment {
             }
         });
     }
-
+    cleanupDeadMonster(monster) {
+        if (monster.mesh && monster.mesh.parent) {
+            monster.mesh.parent.remove(monster.mesh);
+            monster.mesh.geometry.dispose();
+            monster.mesh.material.dispose();
+        }
+    }
     initializeEnvironment() {
         // Add bases
         this.createBases();
@@ -321,16 +341,34 @@ export class Environment {
                 );
             }
         });
+        // Clean up dead monsters from jungleCamps
+        this.jungleCamps.forEach((camp) => {
+            camp.monsterInstances = camp.monsterInstances.filter(
+                (monster) =>
+                    monster.isAlive && monster.mesh && monster.mesh.parent
+            );
+        });
+
+        // Update remaining monsters
+        this.jungleCamps.forEach((camp) => {
+            camp.monsterInstances.forEach((monster) => {
+                if (monster.update) monster.update(delta);
+            });
+        });
     }
 
     getTargetableObjects() {
-        return [
+        const targetableObjects = [
             ...this.destructibles,
-            ...this.jungleCamps.flatMap((camp) =>
-                camp.monsterInstances
-                    .filter((monster) => monster.isAlive)
-                    .map((monster) => monster.mesh)
-            )
+            ...this.jungleCamps
+                .flatMap((camp) =>
+                    camp.monsterInstances
+                        .filter((monster) => monster.isAlive && monster.mesh)
+                        .map((monster) => monster.mesh)
+                )
+                .filter(Boolean)
         ];
+
+        return targetableObjects;
     }
 }
