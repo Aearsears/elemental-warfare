@@ -5,6 +5,7 @@ import { Water } from './Water.js';
 import { JungleCamp } from './jungle/JungleCamp.js';
 import { Lanes } from './terrain/Lanes.js';
 import { DestructionEffect } from '../effects/DestructionEffect.js';
+import { Destructible } from './structures/Destructible.js';
 
 export class Environment {
     constructor(scene, cssRenderer) {
@@ -22,6 +23,7 @@ export class Environment {
         this.initializeEnvironment();
 
         // Listen for monster deaths
+        // todo : fix bug where monsters are not removed from scene and players cant move
         document.addEventListener('monsterDeath', (event) => {
             const deadMonster = event.detail.monster;
 
@@ -286,39 +288,10 @@ export class Environment {
         ];
 
         destructiblePositions.forEach((position) => {
-            const destructible = this.createDestructible(position);
+            const destructible = new Destructible(position);
             this.destructibles.push(destructible);
-            this.scene.add(destructible);
+            this.scene.add(destructible.mesh);
         });
-    }
-
-    createDestructible(position) {
-        const group = new THREE.Group();
-
-        // Create barrel/crate
-        const geometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 8);
-        const material = new THREE.MeshPhongMaterial({
-            color: 0x8b4513,
-            shininess: 30,
-            specular: 0x444444
-        });
-
-        const barrel = new THREE.Mesh(geometry, material);
-        barrel.castShadow = true;
-        barrel.receiveShadow = true;
-
-        // Mark both the group and the mesh as targetable
-        group.userData.isDestructible = true;
-        group.userData.health = 100;
-        barrel.userData.isTargetable = true;
-        barrel.userData.isDestructible = true;
-        barrel.userData.parentGroup = group;
-
-        group.add(barrel);
-        group.position.copy(position);
-        group.position.y = 0.5;
-
-        return group;
     }
 
     update(delta) {
@@ -329,14 +302,14 @@ export class Environment {
         if (this.water.update) this.water.update(delta);
 
         // Update destructibles if needed
-        this.destructibles.forEach((destructible) => {
-            if (destructible.userData.health <= 0) {
-                this.scene.remove(destructible);
-                this.destructibles = this.destructibles.filter(
-                    (d) => d !== destructible
-                );
+        this.destructibles = this.destructibles.filter((destructible) => {
+            if (destructible.health <= 0) {
+                this.scene.remove(destructible.mesh);
+                return false;
             }
+            return true;
         });
+
         // Clean up dead monsters from jungleCamps
         this.jungleCamps.forEach((camp) => {
             camp.monsterInstances = camp.monsterInstances.filter((monster) => {
@@ -361,7 +334,7 @@ export class Environment {
 
     getTargetableObjects() {
         const targetableObjects = [
-            ...this.destructibles,
+            ...this.destructibles.map((d) => d.mesh),
             ...this.jungleCamps
                 .flatMap((camp) =>
                     camp.monsterInstances

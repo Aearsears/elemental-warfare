@@ -16,31 +16,42 @@ export class CollisionManager {
             return true;
         }
 
-        const playerBoundingBox = new THREE.Box3().setFromObject(
-            player.getMesh()
-        );
+        const playerMesh = player.getMesh();
+        if (!playerMesh) return false;
+
+        const playerBoundingBox = new THREE.Box3().setFromObject(playerMesh);
 
         // Check collisions with structures (bases)
         for (const base of this.environment.bases) {
-            const baseBoundingBox = new THREE.Box3().setFromObject(base.mesh);
-            if (playerBoundingBox.intersectsBox(baseBoundingBox)) {
-                return true;
+            if (base.mesh) {
+                const baseBoundingBox = new THREE.Box3().setFromObject(
+                    base.mesh
+                );
+                if (playerBoundingBox.intersectsBox(baseBoundingBox)) {
+                    return true;
+                }
             }
         }
 
         // Check collisions with towers
         for (const tower of this.environment.towers) {
-            const towerBoundingBox = new THREE.Box3().setFromObject(tower.mesh);
-            if (playerBoundingBox.intersectsBox(towerBoundingBox)) {
-                return true;
+            if (tower.mesh) {
+                const towerBoundingBox = new THREE.Box3().setFromObject(
+                    tower.mesh
+                );
+                if (playerBoundingBox.intersectsBox(towerBoundingBox)) {
+                    return true;
+                }
             }
         }
 
         // Check collisions with monsters
         for (const camp of this.environment.jungleCamps) {
             for (const monster of camp.monsterInstances) {
-                if (monster.isAlive) {
-                    const monsterBoundingBox = monster.boundingBox;
+                if (monster.isAlive && monster.mesh) {
+                    const monsterBoundingBox = new THREE.Box3().setFromObject(
+                        monster.mesh
+                    );
                     if (playerBoundingBox.intersectsBox(monsterBoundingBox)) {
                         return true;
                     }
@@ -50,19 +61,23 @@ export class CollisionManager {
 
         // Check collisions with trees
         for (const tree of this.environment.trees) {
-            const treeBoundingBox = new THREE.Box3().setFromObject(tree);
-            if (playerBoundingBox.intersectsBox(treeBoundingBox)) {
-                return true;
+            if (tree instanceof THREE.Object3D) {
+                const treeBoundingBox = new THREE.Box3().setFromObject(tree);
+                if (playerBoundingBox.intersectsBox(treeBoundingBox)) {
+                    return true;
+                }
             }
         }
 
         // Check collisions with destructibles
         for (const destructible of this.environment.destructibles) {
-            const destructibleBoundingBox = new THREE.Box3().setFromObject(
-                destructible
-            );
-            if (playerBoundingBox.intersectsBox(destructibleBoundingBox)) {
-                return true;
+            if (destructible.mesh) {
+                const destructibleBoundingBox = new THREE.Box3().setFromObject(
+                    destructible.mesh
+                );
+                if (playerBoundingBox.intersectsBox(destructibleBoundingBox)) {
+                    return true;
+                }
             }
         }
 
