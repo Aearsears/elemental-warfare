@@ -13,7 +13,9 @@ export class CombatController {
         target.getWorldPosition(worldPosition);
         this.createHitEffect(worldPosition);
 
-        if (target.userData.type === 'monster') {
+        console.log(target);
+
+        if (target.parent?.userData.type === 'monster') {
             this.handleMonsterAttack(target);
         } else if (target.userData.isDestructible) {
             this.handleDestructibleAttack(target);
@@ -21,9 +23,9 @@ export class CombatController {
     }
 
     handleMonsterAttack(target) {
-        const monster = target.userData.parent;
+        const monster = target.parent?.userData.parent;
         if (monster.isAlive) {
-            monster.takeDamage(this.player.attackDamage);
+            monster.takeDamage(this.player.champion.attackDamage);
         }
     }
 
