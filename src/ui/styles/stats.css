@@ -1,34 +1,37 @@
 .stats-container {
     position: fixed;
-    bottom: 20px;
+    bottom: 2vh; /* Use viewport height instead of fixed pixels */
     left: 50%;
     transform: translateX(-50%);
-    padding: 15px;
     background-color: rgba(0, 0, 0, 0.7);
+    padding: 0.5vw; /* Use viewport width for padding */
     border-radius: 5px;
-    color: white;
-    font-family: Arial, sans-serif;
-    min-width: 400px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    width: 25vw; /* Use viewport width instead of fixed width */
+    min-width: 200px; /* Minimum width to prevent too small UI */
+    max-width: 400px; /* Maximum width to prevent too large UI */
 }
 
 .stats-group {
-    width: 100%;
-    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3vw;
 }
 
 .stat-item {
-    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    color: white;
+    font-size: clamp(10px, 1vw, 14px); /* Responsive font size with limits */
+    margin-bottom: 0.2vw;
 }
 
 .bar-container {
-    width: 100%;
-    height: 10px;
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 5px;
-    margin-top: 2px;
+    flex-grow: 1;
+    height: clamp(8px, 1vh, 12px); /* Responsive height with limits */
+    background-color: #333;
+    border-radius: 3px;
+    margin-left: 0.5vw;
+    overflow: hidden;
 }
 
 .health-bar {
@@ -57,32 +60,28 @@
 
 .abilities-container {
     display: flex;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
+    gap: 0.5vw;
+    margin-top: 0.5vw;
 }
 
 .ability-slot {
-    width: 50px;
-    height: 50px;
-    background-color: rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    width: clamp(25px, 2.5vw, 35px); /* Responsive width with limits */
+    height: clamp(25px, 2.5vw, 35px); /* Responsive height with limits */
+    background-color: #333;
+    border-radius: 3px;
     position: relative;
 }
 
 .key-bind {
+    font-size: clamp(8px, 0.8vw, 12px);
     position: absolute;
     top: 2px;
     left: 2px;
-    font-size: 12px;
-    opacity: 0.7;
+    color: white;
 }
 
 .cooldown-overlay {
+    font-size: clamp(10px, 1vw, 14px);
     position: absolute;
     width: 100%;
     height: 100%;
@@ -94,6 +93,7 @@
 }
 
 .ability-error {
+    font-size: clamp(8px, 0.8vw, 12px);
     position: absolute;
     background-color: rgba(0, 0, 0, 0.8);
     color: #ff4444;
