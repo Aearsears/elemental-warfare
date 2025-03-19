@@ -51,7 +51,7 @@ scene.add(ground);
 const player = new Player('warrior', scene); // Add scene as second parameter
 scene.add(player.getMesh());
 
-// Add environment
+// Pass CSS renderer to environment
 const environment = new Environment(scene);
 
 // Initialize player controller

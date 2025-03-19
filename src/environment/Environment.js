@@ -6,8 +6,9 @@ import { JungleCamp } from './jungle/JungleCamp.js';
 import { Lanes } from './terrain/Lanes.js';
 
 export class Environment {
-    constructor(scene) {
+    constructor(scene, cssRenderer) {
         this.scene = scene;
+        this.cssRenderer = cssRenderer; // Add CSS renderer reference
         this.structures = [];
         this.bases = [];
         this.towers = [];
@@ -42,6 +43,15 @@ export class Environment {
             const index = this.monsters.indexOf(deadMonster);
             if (index > -1) {
                 this.monsters.splice(index, 1);
+            }
+
+            // Check if all monsters in the camp are dead
+            const camp = this.jungleCamps.find((camp) =>
+                camp.monsterInstances.includes(deadMonster)
+            );
+
+            if (camp && camp.monsterInstances.every((m) => !m.isAlive)) {
+                camp.startRespawnTimer();
             }
         });
 
