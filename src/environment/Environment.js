@@ -7,6 +7,7 @@ import { Lanes } from './terrain/Lanes.js';
 import { DestructionEffect } from '../effects/DestructionEffect.js';
 import { Destructible } from './structures/Destructible.js';
 import { Tree } from './structures/Tree.js';
+import { Barrel } from './structures/Barrel.js';
 
 export class Environment {
     constructor(scene, cssRenderer) {
@@ -260,7 +261,7 @@ export class Environment {
         ];
 
         destructiblePositions.forEach((position) => {
-            const destructible = new Destructible(position);
+            const destructible = new Barrel(position);
             this.destructibles.push(destructible);
             this.scene.add(destructible.mesh);
         });

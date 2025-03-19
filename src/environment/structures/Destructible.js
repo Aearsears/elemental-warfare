@@ -9,29 +9,8 @@ export class Destructible {
     }
 
     createMesh() {
-        const group = new THREE.Group();
-
-        // Create barrel/crate
-        const geometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 8);
-        const material = new THREE.MeshPhongMaterial({
-            color: 0x8b4513,
-            shininess: 30,
-            specular: 0x444444
-        });
-
-        const barrel = new THREE.Mesh(geometry, material);
-        barrel.castShadow = true;
-        barrel.receiveShadow = true;
-
-        // Mark both the group and the mesh as targetable
-        group.userData.isDestructible = true;
-        group.userData.health = this.health;
-        barrel.userData.isTargetable = true;
-        barrel.userData.isDestructible = true;
-        barrel.userData.parentGroup = group;
-
-        group.add(barrel);
-        return group;
+        // This should be overridden by child classes
+        throw new Error('createMesh must be implemented by child class');
     }
 
     takeDamage(amount) {
