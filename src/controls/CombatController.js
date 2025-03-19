@@ -8,6 +8,11 @@ export class CombatController {
 
     handleAttack(target) {
         this.player.champion.attack();
+
+        const worldPosition = new THREE.Vector3();
+        target.getWorldPosition(worldPosition);
+        this.createHitEffect(worldPosition);
+
         if (target.userData.type === 'monster') {
             this.handleMonsterAttack(target);
         } else if (target.userData.isDestructible) {
@@ -32,7 +37,6 @@ export class CombatController {
     applyDamage(destructibleGroup, target) {
         // TODO: FIX ATTACKING AND WHERE TO HANDLE ATTCK
         destructibleGroup.userData.health -= this.player.attackDamage;
-        this.createHitEffect(target.position);
 
         if (destructibleGroup.userData.health <= 0) {
             this.destroyObject(destructibleGroup);
@@ -40,6 +44,8 @@ export class CombatController {
     }
 
     createHitEffect(position) {
+        console.log('Hit effect at', position);
+
         // Create a simple hit effect
         const geometry = new THREE.SphereGeometry(0.5, 8, 8);
         const material = new THREE.MeshBasicMaterial({
