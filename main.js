@@ -75,6 +75,7 @@ function animate() {
     playerController.update();
     player.update(delta);
     environment.update(delta);
+    environment.water.update(delta);
     debugUI.update();
     statsUI.update();
     renderer.render(scene, camera);

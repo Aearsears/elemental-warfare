@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 export class Ground {
     constructor() {
-        const groundGeometry = new THREE.PlaneGeometry(50, 50);
+        const groundGeometry = new THREE.PlaneGeometry(500, 500);
         const groundMaterial = new THREE.MeshPhongMaterial({
             color: 0x228b22,
             side: THREE.DoubleSide
