@@ -1,71 +1,82 @@
 import * as THREE from 'three';
+import { Destructible } from './Destructible.js';
 
-export class Base {
+export class Base extends Destructible {
     constructor(position, teamColor) {
-        this.mesh = this.createBase(position, teamColor);
-        this.health = 5000;
-        this.team = teamColor;
+        super(position);
+        this.teamColor = teamColor;
+        this.health = 1000; // Bases have the most health
+        this.mesh.userData.type = 'base';
     }
 
-    createBase(position, teamColor) {
-        const baseGroup = new THREE.Group();
+    createMesh() {
+        const group = new THREE.Group();
 
-        // Main structure
-        const baseGeometry = new THREE.CylinderGeometry(5, 6, 4, 8);
+        // Create main structure
+        const baseGeometry = new THREE.BoxGeometry(5, 4, 5);
         const baseMaterial = new THREE.MeshPhongMaterial({
-            color: teamColor,
-            shininess: 60,
-            specular: 0x444444
+            color: this.teamColor,
+            shininess: 30
         });
         const baseStructure = new THREE.Mesh(baseGeometry, baseMaterial);
         baseStructure.position.y = 2;
         baseStructure.castShadow = true;
         baseStructure.receiveShadow = true;
 
-        // Add defensive wall segments
-        this.addWalls(baseGroup, teamColor);
-
-        // Add spawn point marker
-        this.addSpawnPoint(baseGroup, teamColor);
-
-        baseGroup.position.copy(position);
-        return baseGroup;
-    }
-
-    addWalls(baseGroup, teamColor) {
-        const wallGeometry = new THREE.BoxGeometry(2, 3, 12);
-        const wallMaterial = new THREE.MeshPhongMaterial({
-            color: teamColor,
-            shininess: 60,
-            specular: 0x444444
+        // Create decorative elements
+        const towerGeometry = new THREE.CylinderGeometry(0.5, 0.5, 6, 8);
+        const towerMaterial = new THREE.MeshPhongMaterial({
+            color: 0x888888,
+            shininess: 40
         });
 
-        // Add walls in a defensive formation
-        for (let i = 0; i < 4; i++) {
-            const wall = new THREE.Mesh(wallGeometry, wallMaterial);
-            wall.position.y = 1.5;
-            wall.rotation.y = (Math.PI / 2) * i;
-            wall.position.x = Math.cos(wall.rotation.y) * 8;
-            wall.position.z = Math.sin(wall.rotation.y) * 8;
-            wall.castShadow = true;
-            wall.receiveShadow = true;
-            baseGroup.add(wall);
-        }
-    }
+        // Add four corner towers
+        const positions = [
+            [-2, -2],
+            [2, -2],
+            [-2, 2],
+            [2, 2]
+        ];
 
-    addSpawnPoint(baseGroup, teamColor) {
-        const spawnGeometry = new THREE.CircleGeometry(3, 32);
-        const spawnMaterial = new THREE.MeshPhongMaterial({
-            color: teamColor,
-            transparent: true,
-            opacity: 0.3,
-            emissive: teamColor,
-            emissiveIntensity: 0.5
+        positions.forEach(([x, z]) => {
+            const tower = new THREE.Mesh(towerGeometry, towerMaterial);
+            tower.position.set(x, 3, z);
+            tower.castShadow = true;
+            tower.receiveShadow = true;
+            group.add(tower);
         });
 
-        const spawnPoint = new THREE.Mesh(spawnGeometry, spawnMaterial);
-        spawnPoint.rotation.x = -Math.PI / 2;
-        spawnPoint.position.y = 0.1;
-        baseGroup.add(spawnPoint);
+        // Add collision data
+        const collisionGeometry = new THREE.BoxGeometry(5, 4, 5);
+        const collisionMaterial = new THREE.MeshBasicMaterial({
+            visible: false
+        });
+        this.collisionMesh = new THREE.Mesh(
+            collisionGeometry,
+            collisionMaterial
+        );
+        this.collisionMesh.position.y = 2;
+
+        // Set up targeting data
+        group.userData.isDestructible = true;
+        group.userData.health = this.health;
+        group.userData.type = 'base';
+        baseStructure.userData.isTargetable = true;
+        baseStructure.userData.parentGroup = group;
+
+        group.add(baseStructure);
+        group.add(this.collisionMesh);
+
+        return group;
+    }
+
+    destroy() {
+        // Add game-ending logic here since base destruction should end the game
+        const gameOverEvent = new CustomEvent('gameOver', {
+            detail: {
+                losingTeam: this.teamColor
+            }
+        });
+        document.dispatchEvent(gameOverEvent);
     }
 }
