@@ -5,6 +5,7 @@ import { Ground } from './src/environment/Ground.js';
 import { Player } from './src/champions/Player.js';
 import { StatsUI } from './src/ui/StatsUI.js';
 import { DebugUI } from './src/ui/DebugUI.js';
+import { CONFIG } from './config.js';
 
 // Scene setup
 const scene = new THREE.Scene();
@@ -74,7 +75,12 @@ const playerController = new PlayerController(
 
 // Create UI
 const statsUI = new StatsUI(player);
-const debugUI = new DebugUI(camera, environment, player);
+
+// Only create debug UI in development
+let debugUI;
+if (CONFIG.isDev) {
+    debugUI = new DebugUI(camera, environment, player);
+}
 
 // Handle window resize
 window.addEventListener('resize', () => {
@@ -91,7 +97,9 @@ function animate() {
     player.update(delta);
     environment.update(delta);
     environment.water.update(delta);
-    debugUI.update();
+    if (CONFIG.isDev) {
+        debugUI.update();
+    }
     statsUI.update();
     renderer.render(scene, camera);
 }
