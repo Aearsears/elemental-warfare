@@ -8,11 +8,11 @@ import { DestructionEffect } from '../effects/DestructionEffect.js';
 import { Destructible } from './structures/Destructible.js';
 import { Tree } from './structures/Tree.js';
 import { Barrel } from './structures/Barrel.js';
+import { EnvironmentCleanup } from './cleanup/EnvironmentCleanup.js';
 
 export class Environment {
     constructor(scene, cssRenderer) {
         this.scene = scene;
-        this.cssRenderer = cssRenderer; // Add CSS renderer reference
         this.structures = [];
         this.bases = [];
         this.towers = [];
@@ -22,93 +22,10 @@ export class Environment {
         this.monsters = []; // Add array to track monsters
         this.destructionEffect = new DestructionEffect(scene);
 
+        this.cleanup = new EnvironmentCleanup(scene, this);
         this.initializeEnvironment();
-
-        // Listen for monster deaths
-        // todo : fix bug where monsters are not removed from scene and players cant move
-        document.addEventListener('monsterDeath', (event) => {
-            const deadMonster = event.detail.monster;
-
-            // Find the camp that owns this monster
-            const camp = this.jungleCamps.find((camp) =>
-                camp.monsterInstances.includes(deadMonster)
-            );
-
-            if (camp) {
-                // Remove from scene first
-                if (deadMonster.mesh) {
-                    this.scene.remove(deadMonster.mesh); // Remove directly from scene
-                    deadMonster.mesh.traverse((child) => {
-                        if (child.geometry) child.geometry.dispose();
-                        if (child.material) {
-                            if (Array.isArray(child.material)) {
-                                child.material.forEach((mat) => mat.dispose());
-                            } else {
-                                child.material.dispose();
-                            }
-                        }
-                    });
-                }
-
-                // Remove health bar if it exists
-                if (deadMonster.healthBar) {
-                    deadMonster.healthBar.remove();
-                }
-
-                // Remove from camp's monster instances
-                camp.monsterInstances = camp.monsterInstances.filter(
-                    (m) => m !== deadMonster
-                );
-
-                // Clear any references
-                deadMonster.mesh = null;
-                deadMonster.healthBar = null;
-
-                // Check if all monsters in camp are dead for respawn
-                if (camp.monsterInstances.length === 0) {
-                    camp.startRespawnTimer();
-                }
-            }
-        });
-
-        // Listen for destructible object destruction
-        document.addEventListener('destructibleDestroyed', (event) => {
-            const destructible = event.detail.destructibleGroup;
-
-            if (destructible) {
-                // Create destruction effect at the destructible's position
-                const worldPosition = new THREE.Vector3();
-                destructible.getWorldPosition(worldPosition);
-                this.destructionEffect.create(worldPosition);
-
-                // Remove from scene
-                if (destructible.parent) {
-                    destructible.parent.remove(destructible);
-                }
-
-                // Dispose of geometries and materials
-                destructible.traverse((child) => {
-                    if (child instanceof THREE.Mesh) {
-                        child.geometry.dispose();
-                        child.material.dispose();
-                    }
-                });
-
-                // Remove from destructibles array
-                const index = this.destructibles.indexOf(destructible);
-                if (index > -1) {
-                    this.destructibles.splice(index, 1);
-                }
-            }
-        });
     }
-    cleanupDeadMonster(monster) {
-        if (monster.mesh && monster.mesh.parent) {
-            monster.mesh.parent.remove(monster.mesh);
-            monster.mesh.geometry.dispose();
-            monster.mesh.material.dispose();
-        }
-    }
+
     initializeEnvironment() {
         // Add bases
         this.createBases();
@@ -274,28 +191,8 @@ export class Environment {
         this.jungleCamps.forEach((camp) => camp.update(delta));
         if (this.water.update) this.water.update(delta);
 
-        // Update destructibles if needed
-        this.destructibles = this.destructibles.filter((destructible) => {
-            if (destructible.health <= 0) {
-                this.scene.remove(destructible.mesh);
-                return false;
-            }
-            return true;
-        });
-
-        // Clean up dead monsters from jungleCamps
-        this.jungleCamps.forEach((camp) => {
-            camp.monsterInstances = camp.monsterInstances.filter((monster) => {
-                if (!monster.isAlive) {
-                    // Ensure monster is removed from scene
-                    if (monster.mesh && monster.mesh.parent) {
-                        this.scene.remove(monster.mesh);
-                    }
-                    return false;
-                }
-                return true;
-            });
-        });
+        // Clean up dead entities
+        this.cleanup.cleanupDeadMonsters();
 
         // Update remaining monsters
         this.jungleCamps.forEach((camp) => {
