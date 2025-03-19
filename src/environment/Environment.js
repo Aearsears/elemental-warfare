@@ -150,32 +150,33 @@ export class Environment {
 
     addJungleCamps() {
         const campLocations = [
-            // Moved camps away from tower positions
-            // Red side jungle camps
+            // Red side jungle camps (left side)
             {
-                pos: new THREE.Vector3(-15, 0, -10),
+                pos: new THREE.Vector3(-20, 0, -10), // Moved further from top tower
                 type: 'buff'
             },
             {
-                pos: new THREE.Vector3(-15, 0, 10),
+                pos: new THREE.Vector3(-20, 0, 10), // Moved further from bottom tower
                 type: 'normal'
             },
-            // Blue side jungle camps
+
+            // Blue side jungle camps (right side)
             {
-                pos: new THREE.Vector3(15, 0, -10),
+                pos: new THREE.Vector3(20, 0, -10), // Moved further from top tower
                 type: 'normal'
             },
             {
-                pos: new THREE.Vector3(15, 0, 10),
+                pos: new THREE.Vector3(20, 0, 10), // Moved further from bottom tower
                 type: 'buff'
             },
+
             // Center jungle camps
             {
-                pos: new THREE.Vector3(0, 0, -15),
+                pos: new THREE.Vector3(0, 0, -25), // Moved further from center
                 type: 'normal'
             },
             {
-                pos: new THREE.Vector3(0, 0, 15),
+                pos: new THREE.Vector3(0, 0, 25), // Moved further from center
                 type: 'normal'
             }
         ];
@@ -189,7 +190,7 @@ export class Environment {
     }
 
     createJungle() {
-        // Create jungle camps and decorative elements
+        // Define jungle camp areas
         const jungleCamps = [
             { x: -10, z: 5 },
             { x: 10, z: -5 },
@@ -198,17 +199,38 @@ export class Environment {
         ];
 
         jungleCamps.forEach((camp) => {
-            const radius = 3;
-            const treeCount = 6;
+            const areaRadius = 5; // Increased area for random placement
+            const treesPerArea = 8;
+            const minTreeDistance = 1.5; // Minimum distance between trees
 
-            // Create circle of trees around camp
-            for (let i = 0; i < treeCount; i++) {
-                const angle = (i / treeCount) * Math.PI * 2;
-                const x = camp.x + Math.cos(angle) * radius;
-                const z = camp.z + Math.sin(angle) * radius;
-                const tree = this.createTree(x, z);
-                this.trees.push(tree);
-                this.scene.add(tree);
+            // Try to place trees in the area
+            for (let i = 0; i < treesPerArea; i++) {
+                let attempts = 0;
+                const maxAttempts = 20;
+
+                while (attempts < maxAttempts) {
+                    // Generate random position within the circular area
+                    const angle = Math.random() * Math.PI * 2;
+                    const radius = Math.random() * areaRadius;
+                    const x = camp.x + Math.cos(angle) * radius;
+                    const z = camp.z + Math.sin(angle) * radius;
+
+                    // Check distance from other trees
+                    const isTooClose = this.trees.some((tree) => {
+                        const dx = tree.position.x - x;
+                        const dz = tree.position.z - z;
+                        return Math.sqrt(dx * dx + dz * dz) < minTreeDistance;
+                    });
+
+                    if (!isTooClose) {
+                        const tree = this.createTree(x, z);
+                        this.trees.push(tree);
+                        this.scene.add(tree);
+                        break;
+                    }
+
+                    attempts++;
+                }
             }
         });
     }

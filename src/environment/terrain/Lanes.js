@@ -14,15 +14,28 @@ export class Lanes {
             side: THREE.DoubleSide
         });
 
+        // Define tower positions for path connections
         const lanesPaths = [
-            this.createLanePath(-22, -22, 22, 22, 0), // Mid path through forest
-            this.createLanePath(-22, -22, 22, -22, -15), // Northern forest path
-            this.createLanePath(-22, -22, -22, 22, 15) // Southern forest path
+            // Mid lane - connects base towers through mid towers
+            this.createLanePath(-22, -22, -15, -5, 0), // Base to first tower
+            this.createLanePath(-15, -5, 15, 5, 0), // First tower to second tower
+            this.createLanePath(15, 5, 22, 22, 0), // Second tower to base
+
+            // Top lane
+            this.createLanePath(-22, -22, -15, -15, 0), // Base to first tower
+            this.createLanePath(-15, -15, 15, -15, 0), // First tower to second tower
+            this.createLanePath(15, -15, 22, -22, 0), // Second tower to base
+
+            // Bottom lane
+            this.createLanePath(-22, -22, -15, 15, 0), // Base to first tower
+            this.createLanePath(-15, 15, 15, 15, 0), // First tower to second tower
+            this.createLanePath(15, 15, 22, 22, 0) // Second tower to base
         ];
 
         lanesPaths.forEach((points) => {
             const curve = new THREE.CatmullRomCurve3(points);
-            const geometry = new THREE.PlaneGeometry(2, curve.getLength());
+            // Increased lane width from 3 to 6 units
+            const geometry = new THREE.PlaneGeometry(6, curve.getLength());
             const lane = new THREE.Mesh(geometry, laneMaterial);
 
             // Position the lane
@@ -51,7 +64,8 @@ export class Lanes {
         const points = [];
         points.push(new THREE.Vector3(startX, 0, startZ));
 
-        const segments = 3;
+        // Create smoother paths with more segments
+        const segments = 5;
         for (let i = 1; i < segments; i++) {
             const t = i / segments;
             const x = startX + (endX - startX) * t;
