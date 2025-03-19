@@ -146,22 +146,41 @@ export class Environment {
 
     addJungleCamps() {
         const campLocations = [
-            { pos: new THREE.Vector3(-15, 0, 0), type: 'buff' },
-            { pos: new THREE.Vector3(15, 0, 0), type: 'buff' },
-            { pos: new THREE.Vector3(0, 0, 15), type: 'normal' },
-            { pos: new THREE.Vector3(0, 0, -15), type: 'normal' }
+            // Moved camps away from tower positions
+            // Red side jungle camps
+            {
+                pos: new THREE.Vector3(-15, 0, -10),
+                type: 'buff'
+            },
+            {
+                pos: new THREE.Vector3(-15, 0, 10),
+                type: 'normal'
+            },
+            // Blue side jungle camps
+            {
+                pos: new THREE.Vector3(15, 0, -10),
+                type: 'normal'
+            },
+            {
+                pos: new THREE.Vector3(15, 0, 10),
+                type: 'buff'
+            },
+            // Center jungle camps
+            {
+                pos: new THREE.Vector3(0, 0, -15),
+                type: 'normal'
+            },
+            {
+                pos: new THREE.Vector3(0, 0, 15),
+                type: 'normal'
+            }
         ];
 
         campLocations.forEach((camp) => {
             const jungleCamp = new JungleCamp(camp.pos, camp.type);
             this.jungleCamps.push(jungleCamp);
-            this.scene.add(jungleCamp.mesh); // Add camp marker
-            this.scene.add(jungleCamp.monsters); // Add monster group
-
-            // Add monsters to tracking array
-            jungleCamp.monsterInstances.forEach((monster) => {
-                this.monsters.push(monster);
-            });
+            this.scene.add(jungleCamp.mesh);
+            this.scene.add(jungleCamp.monsters);
         });
     }
 
