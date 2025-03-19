@@ -4,25 +4,25 @@ import { Mage } from './Mage.js';
 import { Archer } from './Archer.js';
 
 export class Player {
-    constructor(championType = 'warrior', scene) {
+    constructor(championType = 'warrior', scene, environment) {
         this.scene = scene;
-        this.champion = this.createChampion(championType);
+        this.champion = this.createChampion(championType, environment);
         this.score = 0;
         this.level = 1;
         this.experience = 0;
         this.isMoving = false;
     }
 
-    createChampion(type) {
+    createChampion(type, environment) {
         switch (type.toLowerCase()) {
             case 'warrior':
-                return new Warrior(this.scene);
+                return new Warrior(this.scene, environment);
             case 'mage':
-                return new Mage(this.scene);
+                return new Mage(this.scene, environment);
             case 'archer':
-                return new Archer(this.scene);
+                return new Archer(this.scene, environment);
             default:
-                return new Warrior(this.scene);
+                return new Warrior(this.scene, environment);
         }
     }
 

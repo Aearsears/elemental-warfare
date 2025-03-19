@@ -6,9 +6,10 @@ import { ShieldBlock } from '../abilities/warrior/ShieldBlock.js';
 import { BerserkerRage } from '../abilities/warrior/BerserkerRage.js';
 
 export class Warrior extends Champion {
-    constructor(scene) {
+    constructor(scene, environment) {
         super({
             scene,
+            environment,
             health: 150,
             mana: 50,
             speed: 0.15,

@@ -6,28 +6,32 @@ export class IceBarrier extends Ability {
         super({
             name: 'Ice Barrier',
             cooldown: 15,
-            manaCost: 35
+            manaCost: 35,
+            damage: 20 // Added small damage for when crystals hit enemies
         });
+        this.shieldDuration = 6000;
     }
 
     use(champion) {
         if (super.use(champion)) {
+            const hitTargets = new Set();
             const crystalCount = 8;
+
             for (let i = 0; i < crystalCount; i++) {
                 const angle = (i / crystalCount) * Math.PI * 2;
-                this.createIceCrystal(champion, angle);
+                this.createIceCrystal(champion, angle, hitTargets);
             }
 
             // Add shield effect to champion
             champion.defense *= 1.5;
-            setTimeout(() => (champion.defense /= 1.5), 6000);
+            setTimeout(() => (champion.defense /= 1.5), this.shieldDuration);
 
             return true;
         }
         return false;
     }
 
-    createIceCrystal(champion, angle) {
+    createIceCrystal(champion, angle, hitTargets) {
         const crystal = new THREE.Mesh(
             new THREE.ConeGeometry(0.15, 0.8, 4),
             new THREE.MeshPhongMaterial({
@@ -64,9 +68,27 @@ export class IceBarrier extends Ability {
                 crystal.rotation.y =
                     -this.particles[this.particles.length - 1].angle;
 
+                // Add hit detection
+                const hits = this.hitDetection.detectHits(
+                    crystal.position,
+                    0.4,
+                    ['monster', 'tower']
+                );
+
+                for (const target of hits) {
+                    if (!hitTargets.has(target.id)) {
+                        hitTargets.add(target.id);
+                        if (target.takeDamage) {
+                            target.takeDamage(this.damage);
+                            this.createFrostEffect(target.mesh.position);
+                        }
+                    }
+                }
+
                 if (crystal.life < 1) {
                     crystal.material.opacity -= delta;
                 }
+                return true;
             }
         });
 

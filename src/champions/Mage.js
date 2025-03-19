@@ -6,9 +6,10 @@ import { ArcaneBlast } from '../abilities/mage/ArcaneBlast.js';
 import { Meteor } from '../abilities/mage/Meteor.js';
 
 export class Mage extends Champion {
-    constructor(scene) {
+    constructor(scene, environment) {
         super({
             scene,
+            environment,
             health: 80,
             mana: 120,
             speed: 0.12,

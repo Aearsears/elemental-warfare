@@ -27,12 +27,15 @@ export class Champion {
         this.healthBar = new HealthBar(this.health, 1.5, 0.15);
         this.healthBar.container.position.y = 2.5;
         this.mesh.add(this.healthBar.container);
+
+        this.environment = config.environment;
+        this.initializeAbilities();
     }
 
     initializeAbilities() {
-        // Initialize each ability with scene
+        // Initialize each ability with scene and environment
         Object.values(this.abilities).forEach((ability) =>
-            ability.initialize(this.scene)
+            ability.initialize(this.scene, this.environment)
         );
 
         // Add key listeners

@@ -6,9 +6,10 @@ import { EvasiveShot } from '../abilities/archer/EvasiveShot.js';
 import { PrecisionStrike } from '../abilities/archer/PrecisionStrike.js';
 
 export class Archer extends Champion {
-    constructor(scene) {
+    constructor(scene, environment) {
         super({
             scene,
+            environment,
             health: 100,
             mana: 100,
             speed: 0.2,

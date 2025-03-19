@@ -6,8 +6,10 @@ export class Meteor extends Ability {
         super({
             name: 'Meteor',
             cooldown: 60,
-            manaCost: 100
+            manaCost: 100,
+            damage: 120 // High damage for ultimate ability
         });
+        this.impactRadius = 5;
     }
 
     use(champion) {
@@ -43,15 +45,21 @@ export class Meteor extends Ability {
             meteor.position.copy(champion.getPosition());
             meteor.position.y = 30;
 
+            const hitTargets = new Set();
             const particle = {
                 mesh: meteor,
                 life: 3,
                 velocity: new THREE.Vector3(0, -15, 0),
-                hasImpacted: false
+                hasImpacted: false,
+                update: (delta) =>
+                    this.updateMeteor(
+                        meteor,
+                        delta,
+                        champion,
+                        particle,
+                        hitTargets
+                    )
             };
-
-            particle.update = (delta) =>
-                this.updateMeteor(meteor, delta, champion, particle);
 
             this.particles.push(particle);
             this.scene.add(meteor);
@@ -60,7 +68,7 @@ export class Meteor extends Ability {
         return false;
     }
 
-    updateMeteor(meteor, delta, champion, particle) {
+    updateMeteor(meteor, delta, champion, particle, hitTargets) {
         if (!particle.hasImpacted) {
             // Update meteor position
             meteor.position.add(
@@ -74,9 +82,28 @@ export class Meteor extends Ability {
             if (meteor.position.y <= 0.5) {
                 particle.hasImpacted = true;
                 this.createExplosion(meteor.position);
+
+                // Add hit detection on impact
+                const hits = this.hitDetection.detectHits(
+                    meteor.position,
+                    this.impactRadius,
+                    ['monster', 'tower']
+                );
+
+                hits.forEach((target) => {
+                    if (!hitTargets.has(target.id)) {
+                        hitTargets.add(target.id);
+                        if (target.takeDamage) {
+                            target.takeDamage(this.damage);
+                            this.createBurnEffect(target.mesh.position);
+                        }
+                    }
+                });
+
                 meteor.visible = false;
             }
         }
+        return true;
     }
 
     createFireParticle(position) {

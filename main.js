@@ -57,12 +57,12 @@ scene.add(dirLight);
 const ground = new Ground();
 scene.add(ground.getMesh());
 
-// Player
-const player = new Player('warrior', scene); // Add scene as second parameter
-scene.add(player.getMesh());
-
-// Pass CSS renderer to environment
+// Create environment first
 const environment = new Environment(scene);
+
+// Then create player with environment
+const player = new Player('mage', scene, environment);
+scene.add(player.getMesh());
 
 // Initialize player controller
 const playerController = new PlayerController(

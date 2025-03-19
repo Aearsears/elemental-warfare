@@ -1,17 +1,23 @@
 import * as THREE from 'three';
+import { AbilityHitDetection } from './AbilityHitDetection.js';
 
 export class Ability {
-    constructor(config) {
+    constructor(config = {}) {
         this.name = config.name;
         this.cooldown = config.cooldown || 0;
         this.manaCost = config.manaCost || 0;
         this.lastUsed = 0; // Initialize lastUsed to 0
         this.lastAttempted = 0;
         this.particles = [];
+        this.scene = null;
+        this.environment = null;
+        this.hitDetection = null;
     }
 
-    initialize(scene) {
+    initialize(scene, environment) {
         this.scene = scene;
+        this.environment = environment;
+        this.hitDetection = new AbilityHitDetection(scene, environment);
     }
 
     canUse(champion) {
@@ -41,6 +47,31 @@ export class Ability {
         this.lastUsed = currentTime;
         champion.mana -= this.manaCost;
         return true;
+    }
+
+    applyDamage(targets, damage) {
+        targets.forEach((target) => {
+            if (target.takeDamage) {
+                target.takeDamage(damage);
+            }
+        });
+    }
+
+    castAreaEffect(origin, radius, damage) {
+        const hitTargets = this.hitDetection.detectHits(origin, radius);
+        this.applyDamage(hitTargets, damage);
+        return hitTargets;
+    }
+
+    castDirectional(start, direction, length, width, damage) {
+        const hitTargets = this.hitDetection.detectLineHits(
+            start,
+            direction,
+            length,
+            width
+        );
+        this.applyDamage(hitTargets, damage);
+        return hitTargets;
     }
 
     update(delta) {
