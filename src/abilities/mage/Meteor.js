@@ -172,4 +172,55 @@ export class Meteor extends Ability {
             this.scene.add(debris);
         }
     }
+
+    createBurnEffect(position) {
+        const particleCount = 20;
+        const duration = 2;
+
+        for (let i = 0; i < particleCount; i++) {
+            const ember = new THREE.Mesh(
+                new THREE.SphereGeometry(0.15, 4, 4),
+                new THREE.MeshPhongMaterial({
+                    color: 0xff3300,
+                    emissive: 0xff2200,
+                    emissiveIntensity: 1,
+                    transparent: true,
+                    opacity: 0.8
+                })
+            );
+
+            ember.position.copy(position);
+            ember.position.y += 0.5; // Start slightly above the target
+
+            // Create spiral upward motion
+            let angle = (i / particleCount) * Math.PI * 2; // Changed to let
+            const radius = 0.5;
+            const upwardSpeed = 1 + Math.random();
+            const rotationSpeed = 2 + Math.random();
+
+            this.particles.push({
+                mesh: ember,
+                life: duration,
+                initialLife: duration,
+                update: (delta) => {
+                    // Spiral upward motion
+                    ember.position.y += upwardSpeed * delta;
+                    ember.position.x = position.x + Math.cos(angle) * radius;
+                    ember.position.z = position.z + Math.sin(angle) * radius;
+
+                    // Rotate the ember
+                    angle += rotationSpeed * delta;
+
+                    // Fade out and shrink
+                    const fadeProgress = ember.userData.life / duration;
+                    ember.material.opacity = fadeProgress * 0.8;
+                    ember.scale.setScalar(fadeProgress);
+
+                    return true;
+                }
+            });
+
+            this.scene.add(ember);
+        }
+    }
 }
