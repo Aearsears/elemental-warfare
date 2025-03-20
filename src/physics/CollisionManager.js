@@ -85,6 +85,16 @@ export class CollisionManager {
             }
         }
 
+        // Check collisions with NPCs
+        for (const npc of this.environment.npcs) {
+            if (npc.isAlive && npc.mesh) {
+                const npcBoundingBox = new THREE.Box3().setFromObject(npc.mesh);
+                if (playerBoundingBox.intersectsBox(npcBoundingBox)) {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 

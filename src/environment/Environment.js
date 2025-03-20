@@ -9,6 +9,7 @@ import { Destructible } from './structures/Destructible.js';
 import { Tree } from './structures/Tree.js';
 import { Barrel } from './structures/Barrel.js';
 import { EnvironmentCleanup } from './cleanup/EnvironmentCleanup.js';
+import { NPC } from '../entities/NPC.js';
 
 export class Environment {
     constructor(scene) {
@@ -21,9 +22,11 @@ export class Environment {
         this.destructibles = [];
         this.monsters = []; // Add array to track monsters
         this.destructionEffect = new DestructionEffect(scene);
+        this.npcs = [];
 
         this.cleanup = new EnvironmentCleanup(scene, this);
         this.initializeEnvironment();
+        this.spawnNPCs();
     }
 
     initializeEnvironment() {
@@ -164,6 +167,31 @@ export class Environment {
         });
     }
 
+    spawnNPCs() {
+        const npcCount = 10;
+        const minDistance = 15;
+        const maxDistance = 40;
+
+        for (let i = 0; i < npcCount; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const distance =
+                minDistance + Math.random() * (maxDistance - minDistance);
+
+            const x = distance * Math.cos(angle);
+            const z = distance * Math.sin(angle);
+
+            const npc = new NPC({
+                health: 100,
+                color: 0x666666,
+                position: new THREE.Vector3(x, 0, z)
+            });
+
+            npc.mesh.position.set(x, 1, z);
+            this.npcs.push(npc);
+            this.scene.add(npc.mesh);
+        }
+    }
+
     update(delta) {
         // Update all environmental elements
         this.towers.forEach((tower) => tower.update(delta));
@@ -179,6 +207,12 @@ export class Environment {
             camp.monsterInstances.forEach((monster) => {
                 if (monster.update) monster.update(delta);
             });
+        });
+
+        this.npcs.forEach((npc) => {
+            if (npc.isAlive) {
+                npc.update(delta);
+            }
         });
     }
 
