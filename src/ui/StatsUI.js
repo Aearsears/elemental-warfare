@@ -145,34 +145,34 @@ export class StatsUI {
                     const currentTime = Date.now();
                     const timeSinceUsed =
                         (currentTime - (ability.lastUsed || 0)) / 1000;
+                    const remainingCooldown = ability.cooldown - timeSinceUsed;
 
-                    // Check for ability usage errors only on recent attempts
+                    if (timeSinceUsed < ability.cooldown) {
+                        cooldownOverlay.style.display = 'flex';
+                        cooldownOverlay.textContent =
+                            Math.ceil(remainingCooldown);
+                    } else {
+                        cooldownOverlay.style.display = 'none';
+                        cooldownOverlay.textContent = '';
+                    }
+
+                    // Check for ability usage errors
                     if (
                         ability.lastAttempted &&
                         currentTime - ability.lastAttempted < 1000
                     ) {
-                        // Only show error if this was a failed attempt
                         if (
                             !ability.lastUsed ||
                             ability.lastAttempted > ability.lastUsed
                         ) {
                             if (timeSinceUsed < ability.cooldown) {
                                 this.showAbilityError(key, `On Cooldown`);
-                            } else if (champion.mana < ability.manaCost) {
+                            } else if (
+                                this.player.champion.mana < ability.manaCost
+                            ) {
                                 this.showAbilityError(key, 'Not Enough Mana');
                             }
                         }
-                    }
-
-                    // Update cooldown overlay
-                    if (timeSinceUsed < ability.cooldown) {
-                        cooldownOverlay.style.display = 'flex';
-                        cooldownOverlay.textContent = Math.ceil(
-                            ability.cooldown - timeSinceUsed
-                        );
-                    } else {
-                        cooldownOverlay.style.display = 'none';
-                        cooldownOverlay.textContent = '';
                     }
                 }
             );
