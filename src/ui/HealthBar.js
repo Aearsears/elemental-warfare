@@ -43,4 +43,26 @@ export class HealthBar {
         // Make health bar face camera
         this.container.quaternion.copy(camera.quaternion);
     }
+
+    remove() {
+        // Remove meshes from container
+        this.container.remove(this.background);
+        this.container.remove(this.healthBar);
+
+        // Dispose of geometries and materials
+        this.background.geometry.dispose();
+        this.background.material.dispose();
+        this.healthBar.geometry.dispose();
+        this.healthBar.material.dispose();
+
+        // Remove container from parent if it exists
+        if (this.container.parent) {
+            this.container.parent.remove(this.container);
+        }
+
+        // Clear references
+        this.background = null;
+        this.healthBar = null;
+        this.container = null;
+    }
 }

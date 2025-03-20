@@ -37,19 +37,13 @@ export class EnvironmentCleanup {
     }
 
     cleanupMonster(monster) {
-        console.log('cleanupMonster');
-
         if (monster.mesh) {
+            console.log('cleanupMonster');
             this.scene.remove(monster.mesh);
             this.disposeObject(monster.mesh);
         }
-
-        if (monster.healthBar) {
-            monster.healthBar.remove();
-        }
-
         monster.mesh = null;
-        monster.healthBar = null;
+        monster.destroy();
     }
 
     updateCampMonsters(camp, deadMonster) {

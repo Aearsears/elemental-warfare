@@ -11,7 +11,7 @@ import { Barrel } from './structures/Barrel.js';
 import { EnvironmentCleanup } from './cleanup/EnvironmentCleanup.js';
 
 export class Environment {
-    constructor(scene, cssRenderer) {
+    constructor(scene) {
         this.scene = scene;
         this.structures = [];
         this.bases = [];

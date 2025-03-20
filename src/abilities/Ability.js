@@ -6,6 +6,7 @@ export class Ability {
         this.name = config.name;
         this.cooldown = config.cooldown || 0;
         this.manaCost = config.manaCost || 0;
+        this.damage = config.damage || 0;
         this.lastUsed = 0; // Initialize lastUsed to 0
         this.lastAttempted = 0;
         this.particles = [];
