@@ -37,6 +37,8 @@ export class EnvironmentCleanup {
     }
 
     cleanupMonster(monster) {
+        console.log('cleanupMonster');
+
         if (monster.mesh) {
             this.scene.remove(monster.mesh);
             this.disposeObject(monster.mesh);

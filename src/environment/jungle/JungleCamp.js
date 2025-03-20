@@ -58,12 +58,13 @@ export class JungleCamp {
             emissiveColor: 0xff0000,
             emissiveIntensity: 0.2,
             scale: 2,
-            position: this.position
+            position: new THREE.Vector3(0, 0, 0) // Center position relative to camp
         });
 
-        buffMonster.mesh.position.y = 1;
+        buffMonster.mesh.position.y = 1; // Height above ground
         this.monsters.add(buffMonster.mesh);
         this.monsterInstances = [buffMonster];
+        this.mesh.add(this.monsters); // Add monster group to camp mesh
     }
 
     addNormalMonsters() {
