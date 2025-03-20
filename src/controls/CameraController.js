@@ -7,7 +7,7 @@ export class CameraController {
         this.minZoom = 5;
         this.maxZoom = 20;
         this.zoomSpeed = 1;
-        this.currentZoom = 10;
+        this.currentZoom = 18;
         this.cameraAngle = Math.PI / 6;
         this.cameraOffset = new THREE.Vector3();
     }
