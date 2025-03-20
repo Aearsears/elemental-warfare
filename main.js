@@ -20,6 +20,9 @@ const camera = new THREE.PerspectiveCamera(
 );
 window.camera = camera;
 
+// Update camera position for larger view
+camera.position.set(0, 40, 60);
+
 // Renderer setup
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -40,10 +43,10 @@ dirLight.shadow.mapSize.width = 4096;
 dirLight.shadow.mapSize.height = 4096;
 
 // Adjust shadow camera to cover entire map
-dirLight.shadow.camera.left = -50;
-dirLight.shadow.camera.right = 50;
-dirLight.shadow.camera.top = 50;
-dirLight.shadow.camera.bottom = -50;
+dirLight.shadow.camera.left = -60;
+dirLight.shadow.camera.right = 60;
+dirLight.shadow.camera.top = 60;
+dirLight.shadow.camera.bottom = -60;
 dirLight.shadow.camera.near = 0.1;
 dirLight.shadow.camera.far = 100;
 
@@ -96,7 +99,6 @@ function animate() {
     playerController.update();
     player.update(delta);
     environment.update(delta);
-    environment.water.update(delta);
     if (CONFIG.isDev) {
         debugUI.update();
     }

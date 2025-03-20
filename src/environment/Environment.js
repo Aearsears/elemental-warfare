@@ -28,16 +28,16 @@ export class Environment {
 
     initializeEnvironment() {
         // Add bases
-        this.createBases();
+        // this.createBases();
 
         // Add towers
-        this.createTowers();
+        // this.createTowers();
 
-        this.createLanes();
+        // this.createLanes();
 
         // Add river
-        this.water = new Water();
-        this.scene.add(this.water.mesh);
+        // this.water = new Water();
+        // this.scene.add(this.water.mesh);
 
         // Add jungle camps
         this.addJungleCamps();
@@ -50,8 +50,8 @@ export class Environment {
 
     createBases() {
         const basePositions = [
-            { pos: new THREE.Vector3(-22, 0, -22), color: 0x0044ff },
-            { pos: new THREE.Vector3(22, 0, 22), color: 0xff0000 }
+            { pos: new THREE.Vector3(-40, 0, -40), color: 0x0044ff },
+            { pos: new THREE.Vector3(40, 0, 40), color: 0xff0000 }
         ];
 
         basePositions.forEach((baseInfo) => {
@@ -127,46 +127,26 @@ export class Environment {
     }
 
     createJungle() {
-        // Define jungle camp areas
-        const jungleCamps = [
-            { x: -10, z: 5 },
-            { x: 10, z: -5 },
-            { x: 0, z: 10 },
-            { x: 0, z: -10 }
-        ];
+        // Define jungle camp areas in a circular pattern
+        const campCount = 8;
+        const campRadius = 30; // Adjusted for larger map
 
-        jungleCamps.forEach((camp) => {
-            const areaRadius = 5;
-            const treesPerArea = 8;
-            const minTreeDistance = 1.5;
+        for (let i = 0; i < campCount; i++) {
+            const angle = (i * 2 * Math.PI) / campCount;
+            const x = campRadius * Math.cos(angle);
+            const z = campRadius * Math.sin(angle);
 
-            for (let i = 0; i < treesPerArea; i++) {
-                let attempts = 0;
-                const maxAttempts = 20;
+            // Alternate between buff and normal camps
+            const campType = i % 2 === 0 ? 'buff' : 'normal';
 
-                while (attempts < maxAttempts) {
-                    const angle = Math.random() * Math.PI * 2;
-                    const radius = Math.random() * areaRadius;
-                    const x = camp.x + Math.cos(angle) * radius;
-                    const z = camp.z + Math.sin(angle) * radius;
+            const camp = new JungleCamp({
+                position: new THREE.Vector3(x, 0, z),
+                type: campType
+            });
 
-                    const isTooClose = this.trees.some((tree) => {
-                        const dx = tree.mesh.position.x - x;
-                        const dz = tree.mesh.position.z - z;
-                        return Math.sqrt(dx * dx + dz * dz) < minTreeDistance;
-                    });
-
-                    if (!isTooClose) {
-                        const tree = new Tree(new THREE.Vector3(x, 0, z));
-                        this.trees.push(tree); // Store the Tree instance
-                        this.scene.add(tree.mesh);
-                        break;
-                    }
-
-                    attempts++;
-                }
-            }
-        });
+            this.jungleCamps.push(camp);
+            this.scene.add(camp.mesh);
+        }
     }
 
     addDestructibles() {
@@ -189,7 +169,7 @@ export class Environment {
         this.towers.forEach((tower) => tower.update(delta));
         this.structures.forEach((structure) => structure.update(delta));
         this.jungleCamps.forEach((camp) => camp.update(delta));
-        if (this.water.update) this.water.update(delta);
+        // if (this.water.update) this.water.update(delta);
 
         // Clean up dead entities
         this.cleanup.cleanupDeadMonsters();
