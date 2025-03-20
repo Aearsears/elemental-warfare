@@ -28,7 +28,7 @@ export class StatsUI {
         statsContainer.className = 'stats-group';
 
         // Create stat elements
-        const stats = ['health', 'mana', 'level', 'experience'];
+        const stats = ['level', 'health', 'mana', 'experience'];
 
         stats.forEach((stat) => {
             const statContainer = document.createElement('div');
