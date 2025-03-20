@@ -50,7 +50,6 @@ export class JungleCamp {
     }
 
     addBuffMonster() {
-        // Create a new monster at origin position
         const buffMonster = new Monster({
             health: 200,
             damage: 20,
@@ -59,11 +58,11 @@ export class JungleCamp {
             emissiveColor: 0xff0000,
             emissiveIntensity: 0.2,
             scale: 2,
-            position: new THREE.Vector3(0, 0, 0) // Start at origin
+            position: new THREE.Vector3(0, 0, 0) // Keep at origin relative to monsters group
         });
 
-        // Set height above ground
-        buffMonster.mesh.position.y = 1;
+        // Set height above ground but keep x,z at origin
+        buffMonster.mesh.position.set(0, 1, 0);
 
         // Clear any existing monsters
         this.monsters.clear();
@@ -71,9 +70,6 @@ export class JungleCamp {
         // Add new monster to the group
         this.monsters.add(buffMonster.mesh);
         this.monsterInstances = [buffMonster];
-
-        // Position the monster group at camp location
-        this.monsters.position.copy(this.position);
 
         // Add monster group to camp mesh if not already added
         if (!this.mesh.children.includes(this.monsters)) {
@@ -163,6 +159,7 @@ export class JungleCamp {
     }
 
     respawnMonsters() {
+        // TOOD: fix bug where the respawned monsters are not centered around the camp
         // Clear old monster instances
         this.monsterInstances.forEach((monster) => {
             if (monster.mesh.parent) {
@@ -175,6 +172,11 @@ export class JungleCamp {
 
         // Create new monsters based on camp type
         this.createMonsters();
+
+        // Ensure monster group is attached to camp mesh
+        if (!this.mesh.children.includes(this.monsters)) {
+            this.mesh.add(this.monsters);
+        }
     }
 
     createRespawnText() {
