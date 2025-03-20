@@ -23,7 +23,7 @@ export class Ground {
             side: THREE.DoubleSide
         });
         this.ring = new THREE.Mesh(ringGeometry, ringMaterial);
-        this.ring.rotation.x = -Math.PI / 2;
+        this.ring.rotation.x = -Math.PI / 100;
         this.ring.receiveShadow = true;
         this.mesh.add(this.ring);
 
@@ -32,7 +32,7 @@ export class Ground {
     }
 
     addBoundaryTrees() {
-        const treeCount = 60; // Number of trees around the boundary
+        const treeCount = 60;
         const treeSpacing = (2 * Math.PI) / treeCount;
 
         for (let i = 0; i < treeCount; i++) {
@@ -40,30 +40,56 @@ export class Ground {
             const x = (this.radius - 2) * Math.cos(angle);
             const z = (this.radius - 2) * Math.sin(angle);
 
-            // Add random offset to make it look more natural
             const randOffset = Math.random() * 1 - 0.5;
             const randScale = 0.8 + Math.random() * 0.4;
 
-            const treeGeometry = new THREE.CylinderGeometry(
-                0,
-                1.5 * randScale,
-                4 * randScale,
+            // Create tree trunk
+            const trunkGeometry = new THREE.CylinderGeometry(
+                0.3 * randScale,
+                0.4 * randScale,
+                2 * randScale,
                 8
             );
-            const treeMaterial = new THREE.MeshPhongMaterial({
+            const trunkMaterial = new THREE.MeshPhongMaterial({
+                color: 0x4a2f21
+            });
+            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+            trunk.castShadow = true;
+            trunk.receiveShadow = true;
+
+            // Position trunk halfway up its height
+            trunk.position.y = 1 * randScale;
+
+            // Create tree leaves
+            const leavesGeometry = new THREE.ConeGeometry(
+                1.5 * randScale,
+                3 * randScale,
+                8
+            );
+            const leavesMaterial = new THREE.MeshPhongMaterial({
                 color: 0x2d5a27
             });
-            const tree = new THREE.Mesh(treeGeometry, treeMaterial);
+            const leaves = new THREE.Mesh(leavesGeometry, leavesMaterial);
 
-            tree.position.set(
-                x + randOffset * Math.cos(angle + Math.PI / 2),
-                2 * randScale,
-                z + randOffset * Math.sin(angle + Math.PI / 2)
+            // Position leaves above trunk
+            leaves.position.y = 3 * randScale;
+            leaves.castShadow = true;
+            leaves.receiveShadow = true;
+
+            // Create tree group
+            const treeGroup = new THREE.Group();
+            treeGroup.add(trunk);
+            treeGroup.add(leaves);
+
+            // Position the tree group
+            treeGroup.position.set(
+                x + randOffset * Math.cos(angle + Math.PI / 100),
+                0, // Set to ground level
+                z + randOffset * Math.sin(angle + Math.PI / 100)
             );
 
-            tree.castShadow = true;
-            tree.receiveShadow = true;
-            this.mesh.add(tree);
+            // Add tree to scene without rotation
+            this.mesh.add(treeGroup);
         }
     }
 
