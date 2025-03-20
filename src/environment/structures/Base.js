@@ -4,18 +4,31 @@ import { Destructible } from './Destructible.js';
 export class Base extends Destructible {
     constructor(position, teamColor) {
         super(position);
-        this.teamColor = teamColor;
+        this._updateBaseColor(teamColor || 0x0044ff);
         this.health = 1000; // Bases have the most health
         this.mesh.userData.type = 'base';
+    }
+
+    _updateBaseColor(teamColor) {
+        this.teamColor = teamColor;
+        // Update base structure color
+        const baseStructure = this.mesh.children.find(
+            (child) =>
+                child instanceof THREE.Mesh &&
+                child.geometry instanceof THREE.BoxGeometry
+        );
+        if (baseStructure) {
+            baseStructure.material.color.setHex(this.teamColor);
+        }
     }
 
     createMesh() {
         const group = new THREE.Group();
 
-        // Create main structure
+        // Create main structure with default color
         const baseGeometry = new THREE.BoxGeometry(5, 4, 5);
         const baseMaterial = new THREE.MeshPhongMaterial({
-            color: this.teamColor,
+            color: 0x666666, // Default color, will be updated in constructor
             shininess: 30
         });
         const baseStructure = new THREE.Mesh(baseGeometry, baseMaterial);
