@@ -11,6 +11,8 @@ export class RemotePlayer extends Player {
 
     updatePosition(newPosition) {
         if (!this.isInitialized && this.mesh) {
+            console.log('moving remote player position:', newPosition);
+
             this.mesh.position.set(newPosition.x, newPosition.y, newPosition.z);
             this.lastPosition = newPosition;
             this.isInitialized = true;

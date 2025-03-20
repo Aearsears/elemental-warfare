@@ -1,36 +1,47 @@
 import { WebSocketClient } from './WebSocketClient.js';
 import { RemotePlayer } from '../champions/RemotePlayer.js';
 import { NETWORK_CONFIG } from './config.js';
-
+import * as THREE from 'three';
 export class NetworkManager {
     constructor(scene, localPlayer) {
         this.scene = scene;
         this.localPlayer = localPlayer;
         this.wsClient = new WebSocketClient();
-        this.remotePlayers = new Map();
+        this.remotePlayers = new Map(); // Stores player ID -> RemotePlayer instance
         this.lastUpdateTime = 0;
+        this.localPlayerId = null;
 
         // Connect and setup handlers immediately
         this.wsClient.connect();
         this.setupMessageHandlers();
+
+        // Set up position update handler
+        this.wsClient.setPositionUpdateCallback((data) => {
+            const remotePlayer = this.remotePlayers.get(data.id);
+            if (remotePlayer) {
+                remotePlayer.updatePosition(data.position);
+                remotePlayer.updateRotation(data.rotation);
+            }
+        });
     }
 
     setupMessageHandlers() {
         // Handle initial connection and existing players
         this.wsClient.registerHandler('init', (data) => {
-            // Add all existing players
+            this.localPlayerId = data.id;
+            console.log('Initializing with ID:', this.localPlayerId);
+            // Add all existing players except self
             data.players.forEach((playerData) => {
-                this.addRemotePlayer({
-                    id: playerData.id,
-                    champion: playerData.champion,
-                    position: playerData.position,
-                    rotation: playerData.rotation
-                });
+                if (playerData.id !== this.localPlayerId) {
+                    this.addRemotePlayer(playerData);
+                }
             });
         });
 
         this.wsClient.registerHandler('playerJoined', (data) => {
-            this.addRemotePlayer(data);
+            if (data.id !== this.localPlayerId) {
+                this.addRemotePlayer(data);
+            }
         });
 
         this.wsClient.registerHandler('playerLeft', (data) => {
@@ -38,7 +49,14 @@ export class NetworkManager {
         });
 
         this.wsClient.registerHandler('playerPosition', (data) => {
-            this.updateRemotePlayer(data);
+            // Only update position for other players
+            if (data.id !== this.localPlayerId) {
+                const remotePlayer = this.remotePlayers.get(data.id);
+                if (remotePlayer) {
+                    remotePlayer.updatePosition(data.position);
+                    remotePlayer.updateRotation(data.rotation);
+                }
+            }
         });
 
         this.wsClient.registerHandler('abilityUsed', (data) => {
@@ -49,6 +67,7 @@ export class NetworkManager {
     addRemotePlayer(data) {
         if (this.remotePlayers.has(data.id)) return;
 
+        console.log('Adding remote player:', data.id);
         const remotePlayer = new RemotePlayer(
             data.champion || 'mage',
             this.scene
@@ -68,6 +87,7 @@ export class NetworkManager {
     removeRemotePlayer(playerId) {
         const player = this.remotePlayers.get(playerId);
         if (player) {
+            console.log('Removing remote player:', playerId);
             this.scene.remove(player.getMesh());
             this.remotePlayers.delete(playerId);
         }
@@ -76,8 +96,17 @@ export class NetworkManager {
     updateRemotePlayer(data) {
         const player = this.remotePlayers.get(data.id);
         if (player) {
+            console.log('Received position update:', data.position); // Debug log
             player.updatePosition(data.position);
-            player.updateRotation(data.rotation);
+            if (data.rotation) {
+                player.updateRotation(
+                    new THREE.Euler(
+                        data.rotation.x,
+                        data.rotation.y,
+                        data.rotation.z
+                    )
+                );
+            }
         }
     }
 
@@ -89,24 +118,17 @@ export class NetworkManager {
     }
 
     update(delta) {
+        // TODO: fix bug not updating other player position
         const now = Date.now();
-        // Send position updates every 50ms
-        if (now - this.lastUpdateTime > 50) {
+        // Send position updates every 16ms (60fps)
+        if (now - this.lastUpdateTime > 16) {
             const position = this.localPlayer.getPosition();
             const rotation = this.localPlayer.getMesh().rotation;
 
-            this.wsClient.send('playerPosition', {
-                position: {
-                    x: position.x,
-                    y: position.y,
-                    z: position.z
-                },
-                rotation: {
-                    x: rotation.x,
-                    y: rotation.y,
-                    z: rotation.z
-                }
-            });
+            // Debug log to verify data
+            // console.log('Sending position update:', position);
+
+            this.wsClient.updatePlayerPosition(position, rotation);
 
             this.lastUpdateTime = now;
         }
