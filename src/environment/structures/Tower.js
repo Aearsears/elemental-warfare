@@ -4,11 +4,22 @@ import { Destructible } from './Destructible.js';
 export class Tower extends Destructible {
     constructor(position, teamColor) {
         super(position);
-        this.teamColor = teamColor;
+        this._updateTowerColor(teamColor || 0x0044ff);
         this.health = 500; // Towers have more health than regular destructibles
         this.crystals = []; // Move initialization after super()
         this.mesh.userData.type = 'tower';
         this.addFloatingCrystals(); // Add crystals after mesh is created
+    }
+
+    _updateTowerColor(teamColor) {
+        this.teamColor = teamColor;
+        // Update tower body color
+        const towerMesh = this.mesh.children.find(
+            (child) => child instanceof THREE.Mesh && child.position.y === 3.5
+        );
+        if (towerMesh) {
+            towerMesh.material.color.setHex(this.teamColor);
+        }
     }
 
     createMesh() {
@@ -24,10 +35,10 @@ export class Tower extends Destructible {
         base.castShadow = true;
         base.receiveShadow = true;
 
-        // Create tower body
+        // Create tower body with default color
         const towerGeometry = new THREE.CylinderGeometry(1.5, 2, 6, 8);
         const towerMaterial = new THREE.MeshPhongMaterial({
-            color: this.teamColor,
+            color: 0x666666, // Default color, will be updated in constructor
             shininess: 30
         });
         const tower = new THREE.Mesh(towerGeometry, towerMaterial);
