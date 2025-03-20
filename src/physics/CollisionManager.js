@@ -3,9 +3,10 @@ import * as THREE from 'three';
 export class CollisionManager {
     constructor(environment) {
         this.environment = environment;
+        // Update bounds to match ground radius of 50
         this.mapBounds = new THREE.Box3(
-            new THREE.Vector3(-25, -10, -25),
-            new THREE.Vector3(25, 10, 25)
+            new THREE.Vector3(-50, -10, -50),
+            new THREE.Vector3(50, 10, 50)
         );
     }
 
