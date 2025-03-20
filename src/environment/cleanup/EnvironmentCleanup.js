@@ -16,13 +16,21 @@ export class EnvironmentCleanup {
     initializeMonsterDeathListener() {
         document.addEventListener('monsterDeath', (event) => {
             const deadMonster = event.detail.monster;
+            if (!deadMonster) return;
+
             const camp = this.environment.jungleCamps.find((camp) =>
                 camp.monsterInstances.includes(deadMonster)
             );
 
             if (camp) {
+                // Clean up the monster first
                 this.cleanupMonster(deadMonster);
+
+                // Then update camp's monster list
                 this.updateCampMonsters(camp, deadMonster);
+
+                // Force an update of the environment's monster list
+                this.cleanupDeadMonsters();
             }
         });
     }
@@ -37,13 +45,27 @@ export class EnvironmentCleanup {
     }
 
     cleanupMonster(monster) {
+        if (!monster) return;
+
+        // Remove from scene first if still attached
+        if (monster.mesh && monster.mesh.parent) {
+            monster.mesh.parent.remove(monster.mesh);
+        }
+
+        // Dispose of resources
         if (monster.mesh) {
-            console.log('cleanupMonster');
-            this.scene.remove(monster.mesh);
             this.disposeObject(monster.mesh);
         }
+
+        // Clean up health bar if it exists
+        if (monster.healthBar) {
+            monster.healthBar.remove();
+            monster.healthBar = null;
+        }
+
+        // Clear references
         monster.mesh = null;
-        monster.destroy();
+        monster.boundingBox = null;
     }
 
     updateCampMonsters(camp, deadMonster) {

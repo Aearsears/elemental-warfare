@@ -158,7 +158,7 @@ export class Monster extends Destructible {
         if (!this.isAlive) return;
         this.isAlive = false;
 
-        // Clean up health bar
+        // Clean up health bar first
         if (this.healthBar) {
             this.healthBar.remove();
             this.healthBar = null;
@@ -167,13 +167,18 @@ export class Monster extends Destructible {
         // Clear bounding box
         this.boundingBox = null;
 
+        // Remove from scene if still attached
+        if (this.mesh && this.mesh.parent) {
+            this.mesh.parent.remove(this.mesh);
+        }
+
         // Dispatch monster-specific death event
         const deathEvent = new CustomEvent('monsterDeath', {
             detail: { monster: this }
         });
         document.dispatchEvent(deathEvent);
 
-        // Call parent destroy
+        // Call parent destroy last
         super.destroy();
     }
 

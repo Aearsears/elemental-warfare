@@ -10,7 +10,7 @@ export class JungleCamp {
         this.monsters = new THREE.Group();
         this.monsters.position.copy(position); // Position monster group at camp location
         this.createMonsters();
-        this.respawnTime = 60; // 60 seconds respawn timer
+        this.respawnTime = 5; // 60 seconds respawn timer
         this.respawnTimer = 0;
         this.isRespawning = false;
         this.isActive = true;
@@ -50,6 +50,7 @@ export class JungleCamp {
     }
 
     addBuffMonster() {
+        // Create a new monster at origin position
         const buffMonster = new Monster({
             health: 200,
             damage: 20,
@@ -58,13 +59,26 @@ export class JungleCamp {
             emissiveColor: 0xff0000,
             emissiveIntensity: 0.2,
             scale: 2,
-            position: new THREE.Vector3(0, 0, 0) // Center position relative to camp
+            position: new THREE.Vector3(0, 0, 0) // Start at origin
         });
 
-        buffMonster.mesh.position.y = 1; // Height above ground
+        // Set height above ground
+        buffMonster.mesh.position.y = 1;
+
+        // Clear any existing monsters
+        this.monsters.clear();
+
+        // Add new monster to the group
         this.monsters.add(buffMonster.mesh);
         this.monsterInstances = [buffMonster];
-        this.mesh.add(this.monsters); // Add monster group to camp mesh
+
+        // Position the monster group at camp location
+        this.monsters.position.copy(this.position);
+
+        // Add monster group to camp mesh if not already added
+        if (!this.mesh.children.includes(this.monsters)) {
+            this.mesh.add(this.monsters);
+        }
     }
 
     addNormalMonsters() {
