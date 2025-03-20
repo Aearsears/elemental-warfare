@@ -119,7 +119,9 @@ export class Monster extends Destructible {
                 child.receiveShadow = true;
             }
         });
-
+        monsterGroup.userData.type = 'monster';
+        monsterGroup.userData.isTargetable = true;
+        monsterGroup.userData.isDestructible = true;
         return monsterGroup;
     }
 
