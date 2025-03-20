@@ -6,6 +6,7 @@ import { Player } from './src/champions/Player.js';
 import { StatsUI } from './src/ui/StatsUI.js';
 import { DebugUI } from './src/ui/DebugUI.js';
 import { CONFIG } from './config.js';
+import { NetworkManager } from './src/network/NetworkManager.js';
 
 // Scene setup
 const scene = new THREE.Scene();
@@ -76,6 +77,9 @@ const playerController = new PlayerController(
     scene
 );
 
+// Create network manager after player initialization
+const networkManager = new NetworkManager(scene, player);
+
 // Create UI
 const statsUI = new StatsUI(player);
 
@@ -99,6 +103,7 @@ function animate() {
     playerController.update();
     player.update(delta);
     environment.update(delta);
+    networkManager.update(delta); // Add network update
     if (CONFIG.isDev) {
         debugUI.update();
     }
