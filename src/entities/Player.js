@@ -45,6 +45,23 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             this.onAnimationComplete,
             this
         );
+
+        // Create a hitbox for the attack (initially inactive)
+        this.attackHitbox = scene.add
+            .zone(0, 0)
+            .setSize(64, 32)
+            .setVisible(true); // Define size of hitbox and make it visible
+        scene.physics.world.enable(this.attackHitbox); // Enable physics for the hitbox
+        this.attackHitbox.setOrigin(0.5, 0.5); // Set the origin to the center for easier positioning
+        this.attackHitbox.body.setAllowGravity(false); // Disable gravity for hitbox
+
+        // Create the graphics object for the hitbox outline
+        this.hitboxOutline = scene.add.graphics();
+        this.hitboxOutline.lineStyle(2, 0xff0000, 1); // Red outline with 2px thickness
+
+        // Set a very high depth to ensure it’s on top
+        this.attackHitbox.setDepth(1000); // Ensure hitbox is drawn on top
+        this.hitboxOutline.setDepth(1000); // Ensure the outline is also on top
     }
 
     createAnimations() {
@@ -154,8 +171,37 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
+    // Trigger attack
     attack() {
         console.log('Attack triggered!');
-        this.play('player_attack', true); // Play attack animation
+        this.play('player_attack', true); // Play the attack animation
+
+        // Enable and position the hitbox
+        this.attackHitbox.setVisible(true); // Show the hitbox
+        this.attackHitbox.setPosition(this.x + 10, this.y); // Adjust based on attack range
+
+        // Draw the hitbox outline (debugging purposes)
+        this.hitboxOutline.clear(); // Clear any previous outline
+        this.hitboxOutline.strokeRect(
+            this.attackHitbox.x - this.attackHitbox.width / 2,
+            this.attackHitbox.y - this.attackHitbox.height / 2,
+            this.attackHitbox.width,
+            this.attackHitbox.height
+        );
+
+        // Check for collisions with enemies
+        this.scene.physics.world.overlap(
+            this.attackHitbox,
+            this.scene.enemies,
+            this.handleHitDetection,
+            null,
+            this
+        );
+    }
+
+    // Handle hit detection when attack hitbox overlaps with an enemy
+    handleHitDetection(hitbox, enemy) {
+        console.log('Enemy hit!');
+        enemy.takeDamage(this.damage); // Deal damage to the enemy
     }
 }

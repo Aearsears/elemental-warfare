@@ -140,7 +140,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.healthBar.setPosition(this.x - 16, this.y - 20);
 
         // If the enemy is idle (not moving), play the idle animation
-        if (this.body.velocity.x === 0 && this.body.velocity.y === 0) {
+        if (
+            this.body.velocity.x === 0 &&
+            this.body.velocity.y === 0 &&
+            this.health > 0
+        ) {
             this.play('orc_idle', true);
         }
     }
