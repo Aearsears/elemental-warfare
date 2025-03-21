@@ -18,21 +18,46 @@ class DungeonScene extends Phaser.Scene {
 
     preload() {
         // Load textures (images or sprite sheets)
-        this.load.spritesheet('player', 'assets/IDLE.png', {
+        this.load.spritesheet('player', 'assets/player/idle.png', {
             frameWidth: 96,
             frameHeight: 96
         });
-        this.load.spritesheet('player_run', 'assets/RUN.png', {
+        this.load.spritesheet('player_run', 'assets/player/run.png', {
             frameWidth: 96,
             frameHeight: 96
         });
-        this.load.spritesheet('player_hurt', 'assets/HURT.png', {
+        this.load.spritesheet('player_hurt', 'assets/player/hurt.png', {
             frameWidth: 96,
             frameHeight: 96
         });
-        this.load.spritesheet('player_attack', 'assets/ATTACK.png', {
+        this.load.spritesheet('player_attack', 'assets/player/attack.png', {
             frameWidth: 96,
             frameHeight: 96
+        });
+
+        this.load.spritesheet('orc', 'assets/orc/idle.png', {
+            frameWidth: 100,
+            frameHeight: 100
+        });
+        this.load.spritesheet('orc_attack1', 'assets/orc/attack1.png', {
+            frameWidth: 100,
+            frameHeight: 100
+        });
+        this.load.spritesheet('orc_attack2', 'assets/orc/attack2.png', {
+            frameWidth: 100,
+            frameHeight: 100
+        });
+        this.load.spritesheet('orc_walk', 'assets/orc/walk.png', {
+            frameWidth: 100,
+            frameHeight: 100
+        });
+        this.load.spritesheet('orc_hurt', 'assets/orc/hurt.png', {
+            frameWidth: 100,
+            frameHeight: 100
+        });
+        this.load.spritesheet('orc_death', 'assets/orc/death.png', {
+            frameWidth: 100,
+            frameHeight: 100
         });
         // Add more textures if necessary, for example:
         // this.load.image('enemy', 'assets/enemy.png');

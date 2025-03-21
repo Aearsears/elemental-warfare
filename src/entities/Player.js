@@ -11,17 +11,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.level = 1;
         this.inventory = [];
 
-        // Enable physics and add player to scene
+        // Enable physics only for the player sprite
         scene.physics.world.enable(this);
         scene.add.existing(this);
         this.setCollideWorldBounds(true);
 
-        // Health Bar Background
+        // Health Bar Background (No physics needed)
         this.healthBarBg = scene.add.graphics();
         this.healthBarBg.fillStyle(0x333333, 1);
         this.healthBarBg.fillRect(0, 0, 40, 6);
 
-        // Health Bar (Green for HP)
+        // Health Bar (Green for HP) (No physics needed)
         this.healthBar = scene.add.graphics();
         this.updateHealthBar();
 
