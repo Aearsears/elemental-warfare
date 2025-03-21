@@ -31,20 +31,6 @@ export class DungeonGenerator {
             this.dungeon[y][0] = 1; // Left wall
             this.dungeon[y][this.mapWidth - 1] = 1; // Right wall
         }
-        // this.dungeon[this.mapWidth - 1][this.mapHeight - 1] = 1; // Top wall
-        let rooms = 5;
-        for (let i = 0; i < rooms; i++) {
-            let w = Phaser.Math.Between(3, 8);
-            let h = Phaser.Math.Between(3, 8);
-            let x = Phaser.Math.Between(1, this.mapWidth - w - 2);
-            let y = Phaser.Math.Between(1, this.mapHeight - h - 2);
-
-            for (let j = y; j < y + h; j++) {
-                for (let k = x; k < x + w; k++) {
-                    this.dungeon[j][k] = 0; // Mark ground inside rooms
-                }
-            }
-        }
     }
 
     drawDungeon(scene) {
@@ -85,7 +71,8 @@ export class DungeonGenerator {
                 0,
                 0
             ); // Wall layer created with ID 1
-
+            groundLayer.setDepth(0); // Background layer
+            wallLayer.setDepth(1); // Ensure walls are above ground
             // Now, we can iterate over the dungeon data and place the tiles
             for (let y = 0; y < this.mapHeight; y++) {
                 for (let x = 0; x < this.mapWidth; x++) {
