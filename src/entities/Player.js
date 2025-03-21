@@ -16,6 +16,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         scene.add.existing(this);
         this.setCollideWorldBounds(true);
 
+        // Set custom collision box for the player (adjust width/height as needed)
+        this.setSize(24, 32); // Smaller collision box
+        this.setOffset(4, 0); // Offset the collision box to align with the sprite
+
         // Health Bar Background (No physics needed)
         this.healthBarBg = scene.add.graphics();
         this.healthBarBg.fillStyle(0x333333, 1);
