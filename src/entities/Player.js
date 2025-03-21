@@ -32,9 +32,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         // Create animations for run, hurt, and attack
         this.createAnimations();
 
-        // Play the idle animation by default
-        this.play('player_idle');
-
         // Listen for the "A" key input
         this.attackKey = scene.input.keyboard.addKey(
             Phaser.Input.Keyboard.KeyCodes.A
@@ -44,7 +41,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.isAttacking = false;
 
         // Listen for animation completion
-        this.on('animationcomplete', this.onAnimationComplete, this);
+        this.on(
+            Phaser.Animations.Events.SPRITE_ANIMATION_KEY_COMPLETE,
+            this.onAnimationComplete,
+            this
+        );
     }
 
     createAnimations() {
@@ -57,7 +58,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
                     end: 15
                 }),
                 frameRate: 10,
-                repeat: -1
+                repeat: 0
             });
         }
 
@@ -96,16 +97,21 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
                     end: 9
                 }),
                 frameRate: 10,
-                repeat: -1
+                repeat: 0
             });
         }
     }
 
-    onAnimationComplete(animation) {
-        // When the attack animation finishes, set isAttacking to false
+    onAnimationComplete(animation, frame) {
         console.log('Animation complete:', animation.key);
         if (animation.key === 'player_attack') {
-            this.isAttacking = false; // Reset the attacking flag
+            // Delay the resetting of isAttacking to simulate a more accurate attack completion
+            this.scene.time.delayedCall(200, () => {
+                if (this.isAttacking) {
+                    this.isAttacking = false; // Reset the attacking flag after the delay
+                }
+                console.log('Attack finished!');
+            });
         }
     }
 
@@ -146,7 +152,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             this.play('player_idle', true); // Play the idle animation when stationary
         }
 
-        // Trigger attack if the "A" key is pressed and player is not already attacking
         if (
             Phaser.Input.Keyboard.JustDown(this.attackKey) &&
             !this.isAttacking
@@ -160,5 +165,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     attack() {
         console.log('Attack triggered!');
         this.play('player_attack', true); // Play the attack animation
+        console.log('Attackdone!');
     }
 }
