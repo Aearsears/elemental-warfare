@@ -5,16 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Elemental Warfare</title>
     <style>
-        body { 
-            margin: 0; 
-            overflow: hidden;
-        }
-        canvas { 
-            display: block; 
-        }
+    html, body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh; /* Full viewport height */
+        background-color: black; /* Optional */
+    }
+
+    #game-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    canvas {
+        display: block; /* Removes extra spacing */
+    }
     </style>
 </head>
 <body>
+    <body>
+        <div id="game-container"></div>
+    </body>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.86.0/dist/phaser.js"></script>
     <script type="module" src="./main.js"></script>
     <a target="_blank" href="https://jam.pieter.com" style="font-family: 'system-ui', sans-serif; position: fixed; bottom: -1px; right: -1px; padding: 7px; font-size: 14px; font-weight: bold; background: #fff; color: #000; text-decoration: none; z-index: 10; border-top-left-radius: 12px; z-index: 10000; border: 1px solid #fff;">🕹️ Vibe Jam 2025</a>

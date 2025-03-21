@@ -7,8 +7,8 @@ class DungeonScene extends Phaser.Scene {
     constructor() {
         super({ key: 'DungeonScene' });
         this.dungeon = [];
-        this.mapWidth = 100;
-        this.mapHeight = 100;
+        this.mapWidth = 640;
+        this.mapHeight = 400;
         this.enemies = [];
         this.items = [];
         this.collisionHandler = null; // Add this
@@ -216,6 +216,7 @@ const config = {
     type: Phaser.AUTO,
     width: 640,
     height: 400,
+    parent: 'game-container', // Attach the game to the container
     physics: { default: 'arcade', arcade: { debug: false } },
     scene: DungeonScene
 };

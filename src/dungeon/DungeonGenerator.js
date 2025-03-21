@@ -15,21 +15,33 @@ export class DungeonGenerator {
     }
 
     generateDungeon() {
-        // Initialize map with walls (1 for wall, 0 for ground)
+        // Initialize the map with ground (0)
         this.dungeon = Array.from({ length: this.mapHeight }, () =>
-            Array(this.mapWidth).fill(1)
+            Array(this.mapWidth).fill(0)
         );
 
+        // Set up walls along the top and bottom
+        for (let x = 0; x < this.mapWidth; x++) {
+            this.dungeon[0][x] = 1; // Top wall
+            this.dungeon[this.mapHeight - 1][x] = 1; // Bottom wall
+        }
+
+        // Set up walls along the left and right
+        for (let y = 0; y < this.mapHeight; y++) {
+            this.dungeon[y][0] = 1; // Left wall
+            this.dungeon[y][this.mapWidth - 1] = 1; // Right wall
+        }
+        // this.dungeon[this.mapWidth - 1][this.mapHeight - 1] = 1; // Top wall
         let rooms = 5;
         for (let i = 0; i < rooms; i++) {
-            let w = Phaser.Math.Between(5, 10);
-            let h = Phaser.Math.Between(5, 10);
-            let x = Phaser.Math.Between(1, this.mapWidth - w - 1);
-            let y = Phaser.Math.Between(1, this.mapHeight - h - 1);
+            let w = Phaser.Math.Between(3, 8);
+            let h = Phaser.Math.Between(3, 8);
+            let x = Phaser.Math.Between(1, this.mapWidth - w - 2);
+            let y = Phaser.Math.Between(1, this.mapHeight - h - 2);
 
             for (let j = y; j < y + h; j++) {
                 for (let k = x; k < x + w; k++) {
-                    this.dungeon[j][k] = 0; // Marking ground tiles
+                    this.dungeon[j][k] = 0; // Mark ground inside rooms
                 }
             }
         }
@@ -44,7 +56,6 @@ export class DungeonGenerator {
                 width: this.mapWidth,
                 height: this.mapHeight
             });
-            console.log('Tilemap created:', tilemap);
 
             // Load tilesets
             const wallTileset = tilemap.addTilesetImage(
@@ -59,14 +70,6 @@ export class DungeonGenerator {
                 this.tileSize,
                 this.tileSize
             );
-
-            // Debugging: Check if tilesets are loaded correctly
-            if (!wallTileset || !groundTileset) {
-                console.error('Tilesets are not loaded properly.');
-                return;
-            } else {
-                console.log('Tilesets loaded:', wallTileset, groundTileset);
-            }
 
             // Create ground layer (for tiles of type 0 - ground)
             const groundLayer = tilemap.createBlankLayer(
@@ -83,13 +86,6 @@ export class DungeonGenerator {
                 0
             ); // Wall layer created with ID 1
 
-            // Debugging: Check if layers were created
-            if (!groundLayer || !wallLayer) {
-                throw new Error('Tilemap layers not created properly.');
-            } else {
-                console.log('Tilemap layers created:', groundLayer, wallLayer);
-            }
-
             // Now, we can iterate over the dungeon data and place the tiles
             for (let y = 0; y < this.mapHeight; y++) {
                 for (let x = 0; x < this.mapWidth; x++) {
@@ -102,9 +98,6 @@ export class DungeonGenerator {
                     }
                 }
             }
-
-            // Position the tilemap in the scene (optional)
-            tilemap.setPosition(0, 0);
         } catch (error) {
             // Log the error with more detailed information
             console.error(

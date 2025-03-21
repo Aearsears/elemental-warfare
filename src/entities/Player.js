@@ -74,7 +74,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             key: 'idle',
             frames: this.scene.anims.generateFrameNumbers('player', {
                 start: 0,
-                end: 10
+                end: 9
             }), // Adjust the frame range for idle
             frameRate: 10,
             repeat: -1
