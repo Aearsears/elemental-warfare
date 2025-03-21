@@ -44,6 +44,7 @@ export class DungeonGenerator {
                 width: this.mapWidth,
                 height: this.mapHeight
             });
+            console.log('Tilemap created:', tilemap);
 
             // Load tilesets
             const wallTileset = tilemap.addTilesetImage(
@@ -68,9 +69,19 @@ export class DungeonGenerator {
             }
 
             // Create ground layer (for tiles of type 0 - ground)
-            const groundLayer = tilemap.createLayer(0, groundTileset, 0, 0); // Ground layer created with ID 0
+            const groundLayer = tilemap.createBlankLayer(
+                'ground_layer',
+                groundTileset,
+                0,
+                0
+            ); // Ground layer created with ID 0
             // Create wall layer (for tiles of type 1 - walls)
-            const wallLayer = tilemap.createLayer(1, wallTileset, 0, 0); // Wall layer created with ID 1
+            const wallLayer = tilemap.createBlankLayer(
+                'wall_layer',
+                wallTileset,
+                0,
+                0
+            ); // Wall layer created with ID 1
 
             // Debugging: Check if layers were created
             if (!groundLayer || !wallLayer) {
