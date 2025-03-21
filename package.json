@@ -24,6 +24,7 @@
         "live-server": "^1.2.2"
     },
     "dependencies": {
+        "phaser": "^3.88.2",
         "pixi.js": "^8.9.0"
     }
 }
