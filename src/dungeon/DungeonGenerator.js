@@ -15,15 +15,16 @@ export class DungeonGenerator {
     }
 
     generateDungeon() {
+        // to do:make one cell bigger
+        // Calculate how many tiles are in the map width and height
+        const tilesTall = Math.ceil(this.mapHeight / this.tileSize); // Corrected: number of tiles in height
+        const tilesWide = Math.ceil(this.mapWidth / this.tileSize); // Corrected: number of tiles in width
+
         // Initialize the map with ground (0)
         this.dungeon = Array.from(
-            { length: this.mapHeight / this.tileSize },
-            () => Array(this.mapWidth / this.tileSize).fill(0)
+            { length: tilesTall }, // Corrected: height in tiles
+            () => Array(tilesWide).fill(0) // Corrected: width in tiles
         );
-
-        // Calculate how many tiles are in the map width and height
-        const tilesWide = this.mapWidth / this.tileSize; // 40 tiles
-        const tilesTall = this.mapHeight / this.tileSize; // 30 tiles
 
         // Set up walls along the top and bottom
         for (let x = 0; x < tilesWide; x++) {
@@ -44,8 +45,8 @@ export class DungeonGenerator {
             const tilemap = scene.make.tilemap({
                 tileWidth: this.tileSize,
                 tileHeight: this.tileSize,
-                width: this.mapWidth / this.tileSize, // Number of tiles wide
-                height: this.mapHeight / this.tileSize // Number of tiles tall
+                width: this.mapWidth / this.tileSize, // Corrected: number of tiles wide
+                height: this.mapHeight / this.tileSize // Corrected: number of tiles tall
             });
 
             // Load tilesets

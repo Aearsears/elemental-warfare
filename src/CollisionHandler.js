@@ -8,7 +8,7 @@ export class CollisionHandler {
 
     setupCollisions() {
         // Collision between player and walls
-        this.scene.physics.world.setBounds(0, 0, this.height, this.width);
+        this.scene.physics.world.setBounds(0, 0, this.width, this.height);
         this.scene.physics.add.collider(
             this.scene.player,
             this.scene.dungeonLayer
