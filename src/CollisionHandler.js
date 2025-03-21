@@ -1,11 +1,14 @@
 export class CollisionHandler {
-    constructor(scene) {
+    constructor(scene, height, width, tileSize) {
         this.scene = scene;
+        this.height = height;
+        this.width = width;
+        this.tileSize = tileSize;
     }
 
     setupCollisions() {
         // Collision between player and walls
-        this.scene.physics.world.setBounds(0, 0, 640, 400);
+        this.scene.physics.world.setBounds(0, 0, this.height, this.width);
         this.scene.physics.add.collider(
             this.scene.player,
             this.scene.dungeonLayer

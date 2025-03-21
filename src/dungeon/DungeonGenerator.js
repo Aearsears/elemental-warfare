@@ -8,28 +8,33 @@ export class DungeonGenerator {
     ) {
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
-        this.wallTilesetKey = wallTilesetKey; // The key for your wall tileset image
-        this.groundTilesetKey = groundTilesetKey; // The key for your ground tileset image
+        this.wallTilesetKey = wallTilesetKey;
+        this.groundTilesetKey = groundTilesetKey;
         this.tileSize = tileSize;
         this.dungeon = [];
     }
 
     generateDungeon() {
         // Initialize the map with ground (0)
-        this.dungeon = Array.from({ length: this.mapHeight }, () =>
-            Array(this.mapWidth).fill(0)
+        this.dungeon = Array.from(
+            { length: this.mapHeight / this.tileSize },
+            () => Array(this.mapWidth / this.tileSize).fill(0)
         );
 
+        // Calculate how many tiles are in the map width and height
+        const tilesWide = this.mapWidth / this.tileSize; // 40 tiles
+        const tilesTall = this.mapHeight / this.tileSize; // 30 tiles
+
         // Set up walls along the top and bottom
-        for (let x = 0; x < this.mapWidth; x++) {
+        for (let x = 0; x < tilesWide; x++) {
             this.dungeon[0][x] = 1; // Top wall
-            this.dungeon[this.mapHeight - 1][x] = 1; // Bottom wall
+            this.dungeon[tilesTall - 1][x] = 1; // Bottom wall
         }
 
         // Set up walls along the left and right
-        for (let y = 0; y < this.mapHeight; y++) {
+        for (let y = 0; y < tilesTall; y++) {
             this.dungeon[y][0] = 1; // Left wall
-            this.dungeon[y][this.mapWidth - 1] = 1; // Right wall
+            this.dungeon[y][tilesWide - 1] = 1; // Right wall
         }
     }
 
@@ -39,8 +44,8 @@ export class DungeonGenerator {
             const tilemap = scene.make.tilemap({
                 tileWidth: this.tileSize,
                 tileHeight: this.tileSize,
-                width: this.mapWidth,
-                height: this.mapHeight
+                width: this.mapWidth / this.tileSize, // Number of tiles wide
+                height: this.mapHeight / this.tileSize // Number of tiles tall
             });
 
             // Load tilesets
@@ -71,11 +76,13 @@ export class DungeonGenerator {
                 0,
                 0
             ); // Wall layer created with ID 1
+
             groundLayer.setDepth(0); // Background layer
             wallLayer.setDepth(1); // Ensure walls are above ground
+
             // Now, we can iterate over the dungeon data and place the tiles
-            for (let y = 0; y < this.mapHeight; y++) {
-                for (let x = 0; x < this.mapWidth; x++) {
+            for (let y = 0; y < this.mapHeight / this.tileSize; y++) {
+                for (let x = 0; x < this.mapWidth / this.tileSize; x++) {
                     if (this.dungeon[y][x] === 1) {
                         // If it's a wall, place a wall tile (index 1 in the wallTileset)
                         wallLayer.putTileAt(1, x, y); // Place wall tile at index 1

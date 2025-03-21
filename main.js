@@ -7,8 +7,8 @@ class DungeonScene extends Phaser.Scene {
     constructor() {
         super({ key: 'DungeonScene' });
         this.dungeon = [];
-        this.mapWidth = 500;
-        this.mapHeight = 500;
+        this.mapWidth = 480;
+        this.mapHeight = 640;
         this.enemies = [];
         this.items = [];
         this.collisionHandler = null; // Add this
@@ -86,8 +86,26 @@ class DungeonScene extends Phaser.Scene {
         this.createItems();
         this.createControls();
 
-        this.collisionHandler = new CollisionHandler(this);
+        this.collisionHandler = new CollisionHandler(
+            this,
+            this.mapHeight,
+            this.mapWidth,
+            this.tileSize
+        );
         this.collisionHandler.setupCollisions();
+
+        // Set camera to follow the player
+        this.cameras.main.startFollow(this.player);
+        this.cameras.main.setFollowOffset(0, 0); // Optional: to keep the player centered in the camera view
+        this.cameras.main.setDeadzone(0.2); // Optional: to set a deadzone (how much the player can move before the camera starts following)
+
+        // Optional: Set camera bounds if you want the camera not to move outside the dungeon
+        this.cameras.main.setBounds(
+            0,
+            0,
+            this.mapWidth * this.tileSize,
+            this.mapHeight * this.tileSize
+        );
     }
 
     createPlayer() {
@@ -214,7 +232,7 @@ class DungeonScene extends Phaser.Scene {
 }
 const config = {
     type: Phaser.AUTO,
-    width: 640,
+    width: 480,
     height: 640,
     parent: 'game-container', // Attach the game to the container
     physics: { default: 'arcade', arcade: { debug: false } },
