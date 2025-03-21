@@ -2,17 +2,41 @@ import { CollisionHandler } from './src/CollisionHandler.js';
 import { Item } from './src/items/Item.js';
 import { Player } from './src/entities/Player.js';
 import { Enemy } from './src/entities/Enemy.js';
+import { DungeonGenerator } from './src/dungeon/DungeonGenerator.js';
 class DungeonScene extends Phaser.Scene {
     constructor() {
         super({ key: 'DungeonScene' });
         this.dungeon = [];
-        this.mapWidth = 40;
-        this.mapHeight = 25;
+        this.mapWidth = 100;
+        this.mapHeight = 100;
         this.enemies = [];
         this.items = [];
         this.collisionHandler = null; // Add this
         this.playerHealth = 100;
         this.isGameOver = false; // Prevents health from continuously dropping after game over
+    }
+
+    preload() {
+        // Load textures (images or sprite sheets)
+        this.load.spritesheet('player', 'assets/IDLE.png', {
+            frameWidth: 96,
+            frameHeight: 96
+        });
+        this.load.spritesheet('player_run', 'assets/RUN.png', {
+            frameWidth: 96,
+            frameHeight: 96
+        });
+        this.load.spritesheet('player_hurt', 'assets/HURT.png', {
+            frameWidth: 96,
+            frameHeight: 96
+        });
+        this.load.spritesheet('player_attack', 'assets/ATTACK.png', {
+            frameWidth: 96,
+            frameHeight: 96
+        });
+        // Add more textures if necessary, for example:
+        // this.load.image('enemy', 'assets/enemy.png');
+        // this.load.image('item', 'assets/item.png');
     }
 
     create() {
@@ -21,8 +45,14 @@ class DungeonScene extends Phaser.Scene {
         this.enemies = []; // Reset enemies
         this.items = []; // Reset items
 
-        this.generateDungeon();
-        this.drawDungeon();
+        // Create DungeonMap instance and generate the dungeon
+        this.dungeonGenerator = new DungeonGenerator(
+            this.mapWidth,
+            this.mapHeight
+        );
+        this.dungeonGenerator.generateDungeon();
+        this.dungeonGenerator.drawDungeon(this);
+
         this.createPlayer();
         this.createEnemies();
         this.createItems();
@@ -30,46 +60,6 @@ class DungeonScene extends Phaser.Scene {
 
         this.collisionHandler = new CollisionHandler(this);
         this.collisionHandler.setupCollisions();
-    }
-
-    generateDungeon() {
-        // Initialize map with walls
-        this.dungeon = Array.from({ length: this.mapHeight }, () =>
-            Array(this.mapWidth).fill(1)
-        );
-
-        let rooms = 5;
-        for (let i = 0; i < rooms; i++) {
-            let w = Phaser.Math.Between(5, 10);
-            let h = Phaser.Math.Between(5, 10);
-            let x = Phaser.Math.Between(1, this.mapWidth - w - 1);
-            let y = Phaser.Math.Between(1, this.mapHeight - h - 1);
-
-            for (let j = y; j < y + h; j++) {
-                for (let k = x; k < x + w; k++) {
-                    this.dungeon[j][k] = 0;
-                }
-            }
-        }
-    }
-
-    drawDungeon() {
-        this.add.graphics().clear();
-        let tileSize = 16;
-        let graphics = this.add.graphics({ fillStyle: { color: 0x555555 } });
-
-        for (let y = 0; y < this.mapHeight; y++) {
-            for (let x = 0; x < this.mapWidth; x++) {
-                if (this.dungeon[y][x] === 1) {
-                    graphics.fillRect(
-                        x * tileSize,
-                        y * tileSize,
-                        tileSize,
-                        tileSize
-                    );
-                }
-            }
-        }
     }
 
     createPlayer() {
