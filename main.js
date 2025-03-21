@@ -59,9 +59,9 @@ class DungeonScene extends Phaser.Scene {
             frameWidth: 100,
             frameHeight: 100
         });
-        // Add more textures if necessary, for example:
-        // this.load.image('enemy', 'assets/enemy.png');
-        // this.load.image('item', 'assets/item.png');
+
+        this.load.image('background_tileset', 'assets/env/background.png'); // Replace with your tileset path
+        this.load.image('wall_tileset', 'assets/env/walls.png'); // Replace with your tileset path
     }
 
     create() {
@@ -73,7 +73,10 @@ class DungeonScene extends Phaser.Scene {
         // Create DungeonMap instance and generate the dungeon
         this.dungeonGenerator = new DungeonGenerator(
             this.mapWidth,
-            this.mapHeight
+            this.mapHeight,
+            'wall_tileset',
+            'background_tileset',
+            16
         );
         this.dungeonGenerator.generateDungeon();
         this.dungeonGenerator.drawDungeon(this);
