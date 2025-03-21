@@ -31,53 +31,61 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.createAnimations();
 
         // Default animation (e.g., idle)
-        this.play('idle');
+        this.play('orc_idle');
     }
 
     createAnimations() {
-        // Idle animation
-        this.scene.anims.create({
-            key: 'idle',
-            frames: this.scene.anims.generateFrameNumbers('orc', {
-                start: 0,
-                end: 5 // Adjust frame range for idle animation
-            }),
-            frameRate: 5,
-            repeat: -1 // Loop the idle animation
-        });
+        // Idle animation (only create if it doesn't exist)
+        if (!this.scene.anims.get('orc_idle')) {
+            this.scene.anims.create({
+                key: 'orc_idle',
+                frames: this.scene.anims.generateFrameNumbers('orc', {
+                    start: 0,
+                    end: 5 // Adjust frame range for idle animation
+                }),
+                frameRate: 5,
+                repeat: -1 // Loop the idle animation
+            });
+        }
 
-        // Move animation (when enemy is moving)
-        this.scene.anims.create({
-            key: 'move',
-            frames: this.scene.anims.generateFrameNumbers('orc_walk', {
-                start: 0,
-                end: 7 // Adjust frame range for movement animation
-            }),
-            frameRate: 10,
-            repeat: -1
-        });
+        // Move animation (only create if it doesn't exist)
+        if (!this.scene.anims.get('orc_move')) {
+            this.scene.anims.create({
+                key: 'orc_move',
+                frames: this.scene.anims.generateFrameNumbers('orc_walk', {
+                    start: 0,
+                    end: 7 // Adjust frame range for movement animation
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
+        }
 
-        // Hurt animation (when enemy takes damage)
-        this.scene.anims.create({
-            key: 'hurt',
-            frames: this.scene.anims.generateFrameNumbers('orc_hurt', {
-                start: 0,
-                end: 3 // Adjust frame range for hurt animation
-            }),
-            frameRate: 5,
-            repeat: 0 // Don't loop the hurt animation
-        });
+        // Hurt animation (only create if it doesn't exist)
+        if (!this.scene.anims.get('orc_hurt')) {
+            this.scene.anims.create({
+                key: 'orc_hurt',
+                frames: this.scene.anims.generateFrameNumbers('orc_hurt', {
+                    start: 0,
+                    end: 3 // Adjust frame range for hurt animation
+                }),
+                frameRate: 5,
+                repeat: 0 // Don't loop the hurt animation
+            });
+        }
 
-        // Death animation (when enemy dies)
-        this.scene.anims.create({
-            key: 'die',
-            frames: this.scene.anims.generateFrameNumbers('orc_death', {
-                start: 0,
-                end: 3 // Adjust frame range for death animation
-            }),
-            frameRate: 5,
-            repeat: 0 // Don't loop the death animation
-        });
+        // Death animation (only create if it doesn't exist)
+        if (!this.scene.anims.get('orc_die')) {
+            this.scene.anims.create({
+                key: 'orc_die',
+                frames: this.scene.anims.generateFrameNumbers('orc_death', {
+                    start: 0,
+                    end: 3 // Adjust frame range for death animation
+                }),
+                frameRate: 5,
+                repeat: 0 // Don't loop the death animation
+            });
+        }
     }
 
     updateHealthBar() {
@@ -91,7 +99,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.updateHealthBar();
 
         // Play hurt animation when taking damage
-        this.play('hurt', true);
+        this.play('orc_hurt', true);
 
         if (this.health <= 0) {
             this.die();
@@ -110,13 +118,13 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
             );
 
             // Play move animation when moving
-            this.play('move', true);
+            this.play('orc_move', true);
         }
     }
 
     die() {
         // Play death animation
-        this.play('die', true);
+        this.play('orc_die', true);
 
         // Destroy the enemy after death animation is completed
         this.on('animationcomplete', () => {
@@ -133,7 +141,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         // If the enemy is idle (not moving), play the idle animation
         if (this.body.velocity.x === 0 && this.body.velocity.y === 0) {
-            this.play('idle', true);
+            this.play('orc_idle', true);
         }
     }
 }

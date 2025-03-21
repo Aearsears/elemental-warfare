@@ -33,53 +33,82 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.createAnimations();
 
         // Play the idle animation by default
-        this.play('idle');
+        this.play('player_idle');
+
+        // Listen for the "A" key input
+        this.attackKey = scene.input.keyboard.addKey(
+            Phaser.Input.Keyboard.KeyCodes.A
+        );
+
+        // A flag to check if the player is attacking
+        this.isAttacking = false;
+
+        // Listen for animation completion
+        this.on('animationcomplete', this.onAnimationComplete, this);
     }
+
     createAnimations() {
-        // Run animation
-        this.scene.anims.create({
-            key: 'run',
-            frames: this.scene.anims.generateFrameNumbers('player_run', {
-                start: 0,
-                end: 15
-            }), // Adjust the frame range as needed
-            frameRate: 10,
-            repeat: -1
-        });
+        // Check if the 'player_run' animation already exists
+        if (!this.scene.anims.get('player_run')) {
+            this.scene.anims.create({
+                key: 'player_run',
+                frames: this.scene.anims.generateFrameNumbers('player_run', {
+                    start: 0,
+                    end: 15
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
+        }
 
-        // Hurt animation
-        this.scene.anims.create({
-            key: 'hurt',
-            frames: this.scene.anims.generateFrameNumbers('player_hurt', {
-                start: 0,
-                end: 3
-            }), // Adjust the frame range for the hurt animation
-            frameRate: 5,
-            repeat: 0 // Don't loop the hurt animation
-        });
+        // Check if the 'player_hurt' animation already exists
+        if (!this.scene.anims.get('player_hurt')) {
+            this.scene.anims.create({
+                key: 'player_hurt',
+                frames: this.scene.anims.generateFrameNumbers('player_hurt', {
+                    start: 0,
+                    end: 3
+                }),
+                frameRate: 5,
+                repeat: 0 // Don't loop the hurt animation
+            });
+        }
 
-        // Attack animation
-        this.scene.anims.create({
-            key: 'attack',
-            frames: this.scene.anims.generateFrameNumbers('player_attack', {
-                start: 0,
-                end: 6
-            }), // Adjust the frame range for the attack animation
-            frameRate: 8,
-            repeat: 0 // Don't loop the attack animation
-        });
+        // Check if the 'player_attack' animation already exists
+        if (!this.scene.anims.get('player_attack')) {
+            this.scene.anims.create({
+                key: 'player_attack',
+                frames: this.scene.anims.generateFrameNumbers('player_attack', {
+                    start: 0,
+                    end: 6
+                }),
+                frameRate: 10, // Adjust based on your preference
+                repeat: 0 // Don't loop the attack animation
+            });
+        }
 
-        // Idle animation (can be the default)
-        this.scene.anims.create({
-            key: 'idle',
-            frames: this.scene.anims.generateFrameNumbers('player', {
-                start: 0,
-                end: 9
-            }), // Adjust the frame range for idle
-            frameRate: 10,
-            repeat: -1
-        });
+        // Check if the 'player_idle' animation already exists
+        if (!this.scene.anims.get('player_idle')) {
+            this.scene.anims.create({
+                key: 'player_idle',
+                frames: this.scene.anims.generateFrameNumbers('player', {
+                    start: 0,
+                    end: 9
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
+        }
     }
+
+    onAnimationComplete(animation) {
+        // When the attack animation finishes, set isAttacking to false
+        console.log('Animation complete:', animation.key);
+        if (animation.key === 'player_attack') {
+            this.isAttacking = false; // Reset the attacking flag
+        }
+    }
+
     updateHealthBar() {
         this.healthBar.clear();
         this.healthBar.fillStyle(0x00ff00, 1);
@@ -112,20 +141,24 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         // Movement handling: Check if the player is moving
         if (this.body.velocity.x !== 0 || this.body.velocity.y !== 0) {
-            this.play('run', true); // Play the run animation when moving
+            this.play('player_run', true); // Play the run animation when moving
         } else {
-            this.play('idle', true); // Play the idle animation when stationary
+            this.play('player_idle', true); // Play the idle animation when stationary
         }
 
-        // Example: Trigger attack (can be from a button press or other condition)
-        if (this.isAttacking) {
-            this.play('attack', true); // Play the attack animation
-            this.isAttacking = false; // Reset attack flag after animation
+        // Trigger attack if the "A" key is pressed and player is not already attacking
+        if (
+            Phaser.Input.Keyboard.JustDown(this.attackKey) &&
+            !this.isAttacking
+        ) {
+            this.isAttacking = true; // Set the player as attacking
+            this.attack();
         }
     }
 
-    // Trigger attack (you could call this from an input event)
+    // Trigger attack
     attack() {
-        this.isAttacking = true;
+        console.log('Attack triggered!');
+        this.play('player_attack', true); // Play the attack animation
     }
 }
