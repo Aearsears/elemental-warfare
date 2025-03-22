@@ -8,6 +8,7 @@ export class CollisionHandler {
 
     setupCollisions() {
         // Collision between player and walls
+        //TODO: fix bottom layer not colliding
         this.scene.physics.world.setBounds(
             0,
             0,

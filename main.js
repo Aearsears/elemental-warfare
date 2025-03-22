@@ -12,8 +12,8 @@ class DungeonScene extends Phaser.Scene {
         this.enemies = [];
         this.items = [];
         this.collisionHandler = null; // Add this
-        this.playerHealth = 100;
         this.isGameOver = false; // Prevents health from continuously dropping after game over
+        this.isCountdownActive = false; // New flag to control countdown
     }
 
     preload() {
@@ -108,7 +108,6 @@ class DungeonScene extends Phaser.Scene {
 
     create() {
         this.isGameOver = false; // Reset game over state
-        this.playerHealth = 100; // Reset player health
         this.enemies = []; // Reset enemies
         this.items = []; // Reset items
 
@@ -142,16 +141,51 @@ class DungeonScene extends Phaser.Scene {
         this.cameras.main.setDeadzone(0.2); // Optional: to set a deadzone (how much the player can move before the camera starts following)
 
         // Optional: Set camera bounds if you want the camera not to move outside the dungeon
-        this.cameras.main.setBounds(
-            0,
-            0,
-            this.mapWidth * this.tileSize,
-            this.mapHeight * this.tileSize
+        this.cameras.main.setBounds(0, 0, this.mapWidth, this.mapHeight);
+        // Create countdown text (Initially hidden)
+        this.countdownText = this.add.text(
+            this.cameras.main.centerX,
+            this.cameras.main.centerY,
+            '3',
+            {
+                font: '48px Arial',
+                fill: '#ffffff',
+                align: 'center'
+            }
         );
-        this.scale.displaySize.setAspectRatio(this.mapWidth / this.mapHeight);
-        this.scale.refresh();
-    }
+        this.countdownText.setOrigin(0.5, 0.5); // Center the text
 
+        // Start the countdown before the level begins
+        this.startCountdown();
+    }
+    startCountdown() {
+        let countdown = 3; // Start from 3
+
+        // Use a timer event to update countdown every second
+        this.time.addEvent({
+            delay: 1000, // 1 second delay
+            callback: () => {
+                countdown--; // Decrease the countdown number
+                this.countdownText.setText(countdown.toString()); // Update the text
+
+                // Once countdown reaches 0, start the level
+                if (countdown <= 0) {
+                    this.countdownText.setVisible(false); // Hide countdown text
+                    this.isCountdownActive = false; // Set countdown as complete
+                    this.startLevel(); // Start the actual level
+                }
+            },
+            repeat: 2 // Repeat the timer 2 more times (to cover 3, 2, 1)
+        });
+
+        this.isCountdownActive = true; // Set countdown as active
+    }
+    startLevel() {
+        this.player.setVelocity(0, 0);
+        this.enemies.forEach((enemy) => {
+            enemy.setVelocity(0, 0);
+        });
+    }
     createPlayer() {
         this.player = new Player(this, 64, 64, 32); // Adjust starting position
     }
@@ -161,7 +195,7 @@ class DungeonScene extends Phaser.Scene {
             { health: 50, damage: 10, speed: 50, color: 0xff0000 },
             { health: 80, damage: 15, speed: 40, color: 0x00ff00 }
         ];
-
+        const enemyCount = this.level * 2;
         for (let i = 0; i < 3; i++) {
             let x = Phaser.Math.Between(50, 600);
             let y = Phaser.Math.Between(50, 350);
@@ -247,15 +281,22 @@ class DungeonScene extends Phaser.Scene {
             }
             return true;
         });
+        if (this.enemies.length === 0) {
+            this.level++; // Increase the level after completing the current one
+            this.startNextLevel(); // Restart the level with new difficulty
+        }
     }
-
+    startNextLevel() {
+        // Transition to the next level with increased difficulty
+        this.scene.restart(); // Restart the scene, which will trigger a new dungeon generation and enemies with scaling difficulty
+    }
     reducePlayerHealth(amount) {
         if (this.isGameOver) return; // Prevent multiple restarts
 
-        this.playerHealth -= amount;
-        console.log(`Player Health: ${this.playerHealth}`);
+        this.player.health -= amount;
+        console.log(`Player Health: ${this.player.health}`);
 
-        if (this.playerHealth <= 0) {
+        if (this.player.health <= 0) {
             console.log('Game Over!');
             this.isGameOver = true; // Prevent multiple game over triggers
 
