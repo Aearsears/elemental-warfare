@@ -106,6 +106,8 @@ class DungeonScene extends Phaser.Scene {
             this.mapWidth * this.tileSize,
             this.mapHeight * this.tileSize
         );
+        this.scale.displaySize.setAspectRatio(this.mapWidth / this.mapHeight);
+        this.scale.refresh();
     }
 
     createPlayer() {
@@ -234,9 +236,17 @@ const config = {
     type: Phaser.AUTO,
     width: 640,
     height: 480,
-    parent: 'game-container', // Attach the game to the container
+    scale: {
+        parent: 'game-container', // Attach the game to the container
+        mode: Phaser.Scale.FIT, // Scales while maintaining aspect ratio
+        autoCenter: Phaser.Scale.CENTER_BOTH
+    },
     physics: { default: 'arcade', arcade: { debug: false } },
     scene: DungeonScene
 };
 
 const game = new Phaser.Game(config);
+
+window.addEventListener('resize', () => {
+    game.scale.resize(window.innerWidth, window.innerHeight);
+});

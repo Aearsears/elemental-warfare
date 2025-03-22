@@ -28,7 +28,7 @@ export class CollisionHandler {
 
     handlePlayerEnemyCollision(player, enemy) {
         console.log('Player hit by enemy!');
-        this.scene.reducePlayerHealth(enemy.damage);
+        // this.scene.reducePlayerHealth(enemy.damage);
 
         // Optional: Knockback effect (push the player away)
         let knockbackDistance = 10;

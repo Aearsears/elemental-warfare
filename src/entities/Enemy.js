@@ -31,7 +31,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.createAnimations();
 
         // Default animation (e.g., idle)
-        this.play('orc_idle');
+        // this.play('orc_idle');
     }
 
     createAnimations() {
@@ -106,12 +106,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    moveToward(target) {
+    moveToward(target, stopDistance = 100) {
         const dx = target.x - this.x;
         const dy = target.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance > 0) {
+        if (distance > stopDistance) {
             this.setVelocity(
                 (dx / distance) * this.speed,
                 (dy / distance) * this.speed
@@ -119,6 +119,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
             // Play move animation when moving
             this.play('orc_move', true);
+        } else {
+            this.setVelocity(0, 0); // Stop movement
+            this.play('orc_idle', true); // Play idle animation when stopping
         }
     }
 
@@ -126,12 +129,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         // Play death animation
         this.play('orc_die', true);
 
-        // Destroy the enemy after death animation is completed
-        this.on('animationcomplete', () => {
-            this.destroy();
-            this.healthBar.destroy();
-            this.healthBarBg.destroy();
-        });
+        this.destroy();
+        this.healthBar.destroy();
+        this.healthBarBg.destroy();
     }
 
     update() {
