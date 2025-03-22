@@ -32,7 +32,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         // Set collision box
         this.setSize(16, 32);
-        this.setOffset(4, 0);
 
         // Health Bar
         this.healthBarBg = scene.add.graphics();
@@ -54,11 +53,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         );
 
         // Available abilities pool
-        this.abilityPool = [
-            new HealAbility(this),
-            new AttackAbility(this),
-            new ShieldAbility(this)
-        ];
+        this.abilityPool = [];
         this.abilityUI = new UI(scene, this);
         // Update UI for abilities
         this.updateAbilityUI();
@@ -100,6 +95,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // Update the ability UI (Optional: display names, cooldowns, etc.)
     updateAbilityUI() {
         console.log('Selected Abilities: ', this.abilityPool);
+    }
+
+    createAbilityPool(pool) {
+        // this.abilityPool = [
+        //     new HealAbility(this),
+        //     new AttackAbility(this),
+        //     new ShieldAbility(this)
+        // ];
+        this.abilityPool = JSON.parse(JSON.stringify(pool));
     }
 
     createAnimations() {

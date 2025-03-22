@@ -188,6 +188,9 @@ class DungeonScene extends Phaser.Scene {
     }
     createPlayer() {
         this.player = new Player(this, 64, 64, 32); // Adjust starting position
+        if (gameState.selectedAbility) {
+            this.player.createAbilityPool(gameState.abilityPool);
+        }
     }
 
     createEnemies() {
@@ -283,12 +286,12 @@ class DungeonScene extends Phaser.Scene {
         });
         if (this.enemies.length === 0) {
             this.level++; // Increase the level after completing the current one
-            this.startNextLevel(); // Restart the level with new difficulty
+            this.levelComplete(); // Restart the level with new difficulty
         }
     }
-    startNextLevel() {
-        // Transition to the next level with increased difficulty
-        this.scene.restart(); // Restart the scene, which will trigger a new dungeon generation and enemies with scaling difficulty
+    levelComplete() {
+        // Transition to ability selection scene
+        this.scene.start('AbilitySelectionScene');
     }
     reducePlayerHealth(amount) {
         if (this.isGameOver) return; // Prevent multiple restarts
@@ -326,5 +329,8 @@ const config = {
     physics: { default: 'arcade', arcade: { debug: false } },
     scene: DungeonScene
 };
-
+const gameState = {
+    selectedAbility: null,
+    abilityPool: []
+};
 const game = new Phaser.Game(config);
