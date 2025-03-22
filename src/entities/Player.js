@@ -1,3 +1,9 @@
+import {
+    HealAbility,
+    AttackAbility,
+    ShieldAbility
+} from '../abilities/Ability.js';
+import { UI } from '../UI.js';
 export class Player extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, tileSize) {
         super(scene, x, y, 'player');
@@ -40,9 +46,22 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         // Input keys for movement
         this.cursors = scene.input.keyboard.createCursorKeys();
-        this.attackKey = scene.input.keyboard.addKey(
+        this.dashKey = scene.input.keyboard.addKey(
+            Phaser.Input.Keyboard.KeyCodes.SPACE
+        );
+        this.abilityKey = scene.input.keyboard.addKey(
             Phaser.Input.Keyboard.KeyCodes.A
         );
+
+        // Available abilities pool
+        this.abilityPool = [
+            new HealAbility(this),
+            new AttackAbility(this),
+            new ShieldAbility(this)
+        ];
+        this.abilityUI = new UI(scene, this);
+        // Update UI for abilities
+        this.updateAbilityUI();
 
         // Dashing flag
         this.isDashing = false;
@@ -70,6 +89,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         // Set a very high depth to ensure it’s on top
         this.attackHitbox.setDepth(1000); // Ensure hitbox is drawn on top
         this.hitboxOutline.setDepth(1000); // Ensure the outline is also on top
+    }
+
+    // Randomly select three abilities from the pool
+    getRandomAbilities() {
+        const shuffled = Phaser.Utils.Array.Shuffle(this.abilityPool); // Shuffle the ability pool
+        return shuffled.slice(0, 3); // Select the first three after shuffle
+    }
+
+    // Update the ability UI (Optional: display names, cooldowns, etc.)
+    updateAbilityUI() {
+        console.log('Selected Abilities: ', this.abilityPool);
     }
 
     createAnimations() {
@@ -153,9 +183,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     update() {
+        const currentTime = this.scene.time.now;
         // Update health bar position
         this.healthBarBg.setPosition(this.x - 20, this.y - 25);
         this.healthBar.setPosition(this.x - 20, this.y - 25);
+        this.updateHealthBar();
 
         if (this.isDashing) return; // Prevent movement when attacking
 
@@ -178,10 +210,40 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
 
         // Handle attack input
-        if (Phaser.Input.Keyboard.JustDown(this.attackKey) && !this.isDashing) {
+        if (Phaser.Input.Keyboard.JustDown(this.dashKey) && !this.isDashing) {
             this.isDashing = true;
-            this.dash(direction);
+            this.dash(direction ? direction : this.lastDirection);
         }
+
+        if (
+            Phaser.Input.Keyboard.JustDown(this.abilityKey) &&
+            !this.isDashing
+        ) {
+            if (this.abilityPool.length === 0) {
+                console.log('No abilities available!');
+                return;
+            }
+            const ability = Phaser.Utils.Array.GetRandom(this.abilityPool);
+
+            ability.use(currentTime);
+            // Remove the selected ability from the pool
+            Phaser.Utils.Array.Remove(this.abilityPool, ability);
+            this.abilityUI.update();
+        }
+    }
+    heal() {
+        console.log('Player healed!');
+        // Implement heal behavior here
+    }
+
+    attack() {
+        console.log('Player attacked!');
+        // Implement attack behavior here
+    }
+
+    shield() {
+        console.log('Player shielded!');
+        // Implement shield behavior here
     }
     getDirection(vx, vy) {
         if (vy < 0 && vx === 0) return 'Up';
