@@ -15,6 +15,9 @@ export class UI {
             }
         );
 
+        // Set the scroll factor to 0 so it stays fixed in the same position as the camera moves
+        this.abilityText.setScrollFactor(0);
+
         // Initially, update the UI to show available abilities
         this.update();
     }
