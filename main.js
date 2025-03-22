@@ -43,6 +43,22 @@ class DungeonScene extends Phaser.Scene {
                     frameHeight: 64
                 }
             );
+            this.load.spritesheet(
+                `player_dash_${dir}`,
+                `assets/player/Dash/Dash_${dir}.png`,
+                {
+                    frameWidth: 48,
+                    frameHeight: 64
+                }
+            );
+            this.load.spritesheet(
+                `player_dash_dust_${dir}`,
+                `assets/player/Dash/Dust/Dash_Dust_${dir}.png`,
+                {
+                    frameWidth: 48,
+                    frameHeight: 64
+                }
+            );
         });
         this.load.spritesheet('player', 'assets/player/idle.png', {
             frameWidth: 96,

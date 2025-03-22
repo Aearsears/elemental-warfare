@@ -44,12 +44,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             Phaser.Input.Keyboard.KeyCodes.A
         );
 
-        // Attacking flag
-        this.isAttacking = false;
+        // Dashing flag
+        this.isDashing = false;
 
         // Listen for animation completion specifically for player_attack
         this.on(
-            'animationcomplete-player_attack',
+            Phaser.Animations.Events.ANIMATION_COMPLETE,
             this.onAnimationComplete,
             this
         );
@@ -97,12 +97,34 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
                     repeat: 0
                 });
             }
+            if (!this.scene.anims.get(`player_dash_${dir}`)) {
+                this.scene.anims.create({
+                    key: `player_dash_${dir}`,
+                    frames: this.scene.anims.generateFrameNumbers(
+                        `player_dash_${dir}`,
+                        { start: 0, end: 7 }
+                    ),
+                    frameRate: 10,
+                    repeat: 0
+                });
+            }
+            if (!this.scene.anims.get(`player_dash_dust_${dir}`)) {
+                this.scene.anims.create({
+                    key: `player_dash_dust_${dir}`,
+                    frames: this.scene.anims.generateFrameNumbers(
+                        `player_dash_dust_${dir}`,
+                        { start: 0, end: 7 }
+                    ),
+                    frameRate: 10,
+                    repeat: 0
+                });
+            }
         });
     }
 
     onAnimationComplete() {
         console.log('Attack animation complete!');
-        this.isAttacking = false; // Reset attacking flag after the animation is done
+        this.isDashing = false; // Reset attacking flag after the animation is done
     }
 
     updateHealthBar() {
@@ -135,7 +157,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.healthBarBg.setPosition(this.x - 20, this.y - 25);
         this.healthBar.setPosition(this.x - 20, this.y - 25);
 
-        if (this.isAttacking) return; // Prevent movement when attacking
+        if (this.isDashing) return; // Prevent movement when attacking
 
         // Handle movement
         let moveX = this.body.velocity.x;
@@ -146,18 +168,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         if (moveX !== 0 || moveY !== 0) {
             this.lastDirection = direction;
-            this.play(`player_walk_${direction}`, true);
+            if (!this.isDashing) {
+                this.play(`player_walk_${direction}`, true);
+            }
         } else {
-            this.play(`player_idle_${this.lastDirection}`, true);
+            if (!this.isDashing) {
+                this.play(`player_idle_${this.lastDirection}`, true);
+            }
         }
 
         // Handle attack input
-        if (
-            Phaser.Input.Keyboard.JustDown(this.attackKey) &&
-            !this.isAttacking
-        ) {
-            this.isAttacking = true;
-            this.attack();
+        if (Phaser.Input.Keyboard.JustDown(this.attackKey) && !this.isDashing) {
+            this.isDashing = true;
+            this.dash(direction);
         }
     }
     getDirection(vx, vy) {
@@ -178,33 +201,57 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         return this.direction; // Default to last known direction if no movement
     }
-    attack() {
-        console.log('Attack triggered!');
-        this.play('player_attack', true); // Play the attack animation
+    dash(direction) {
+        console.log('dash triggered!');
+        this.play(`player_dash_${direction}`, true);
 
+        this.playDustEffect(direction);
+        // Set a temporary dash speed boost
+        this.body.velocity.x *= 2; // Increase dash speed (adjust multiplier)
+        this.body.velocity.y *= 2;
+
+        // Reset dash after some time (let's say after 300ms, you can adjust this)
+        this.scene.time.delayedCall(300, () => {
+            this.body.velocity.x /= 2;
+            this.body.velocity.y /= 2;
+            this.isDashing = false; // End dash
+        });
         // Enable and position the hitbox
-        this.attackHitbox.setVisible(true); // Show the hitbox
-        this.attackHitbox.setPosition(this.x + 10, this.y); // Adjust based on attack range
+        // this.attackHitbox.setVisible(true); // Show the hitbox
+        // this.attackHitbox.setPosition(this.x + 10, this.y); // Adjust based on attack range
 
-        // Draw the hitbox outline (debugging purposes)
-        this.hitboxOutline.clear(); // Clear any previous outline
-        this.hitboxOutline.strokeRect(
-            this.attackHitbox.x - this.attackHitbox.width / 2,
-            this.attackHitbox.y - this.attackHitbox.height / 2,
-            this.attackHitbox.width,
-            this.attackHitbox.height
-        );
+        // // Draw the hitbox outline (debugging purposes)
+        // this.hitboxOutline.clear(); // Clear any previous outline
+        // this.hitboxOutline.strokeRect(
+        //     this.attackHitbox.x - this.attackHitbox.width / 2,
+        //     this.attackHitbox.y - this.attackHitbox.height / 2,
+        //     this.attackHitbox.width,
+        //     this.attackHitbox.height
+        // );
 
-        // Check for collisions with enemies
-        this.scene.physics.world.overlap(
-            this.attackHitbox,
-            this.scene.enemies,
-            this.handleHitDetection,
-            null,
-            this
-        );
+        // // Check for collisions with enemies
+        // this.scene.physics.world.overlap(
+        //     this.attackHitbox,
+        //     this.scene.enemies,
+        //     this.handleHitDetection,
+        //     null,
+        //     this
+        // );
     }
+    // Function to simulate a dust effect with dash animation
+    playDustEffect(direction) {
+        // Create a temporary sprite to simulate the dust effect near the player
+        const dust = this.scene.add.sprite(this.x, this.y + 10, 'player'); // Use the player sprite temporarily for the dust effect
+        dust.setOrigin(0.5, 0.5); // Center the dust effect at the player's feet
 
+        // Play the dash animation at the player's feet for a short burst
+        dust.play(`player_dash_dust_${direction}`, true); // Use the dash animation for the dust effect
+
+        // Destroy the temporary dust sprite after the animation completes
+        dust.on('animationcomplete', () => {
+            dust.destroy(); // Remove the dust effect after it completes
+        });
+    }
     // Handle hit detection when attack hitbox overlaps with an enemy
     handleHitDetection(hitbox, enemy) {
         console.log('Enemy hit!');
