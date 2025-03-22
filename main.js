@@ -18,6 +18,32 @@ class DungeonScene extends Phaser.Scene {
 
     preload() {
         // Load textures (images or sprite sheets)
+        const directions = [
+            'Up',
+            'Down',
+            'Left_Down',
+            'Left_Up',
+            'Right_Down',
+            'Right_Up'
+        ];
+        directions.forEach((dir) => {
+            this.load.spritesheet(
+                `player_idle_${dir}`,
+                `assets/player/Idle/idle_${dir}.png`,
+                {
+                    frameWidth: 48,
+                    frameHeight: 64
+                }
+            );
+            this.load.spritesheet(
+                `player_walk_${dir}`,
+                `assets/player/Walk/walk_${dir}.png`,
+                {
+                    frameWidth: 48,
+                    frameHeight: 64
+                }
+            );
+        });
         this.load.spritesheet('player', 'assets/player/idle.png', {
             frameWidth: 96,
             frameHeight: 96
@@ -167,21 +193,20 @@ class DungeonScene extends Phaser.Scene {
     update() {
         if (this.isGameOver) return; // Stop updates if the game is over
         // Player movement
-        if (this.cursors.left.isDown) {
-            this.player.setVelocityX(-160);
-        } else if (this.cursors.right.isDown) {
-            this.player.setVelocityX(160);
-        } else {
-            this.player.setVelocityX(0);
-        }
+        let moveX = 0;
+        let moveY = 0;
 
-        if (this.cursors.up.isDown) {
-            this.player.setVelocityY(-160);
-        } else if (this.cursors.down.isDown) {
-            this.player.setVelocityY(160);
-        } else {
-            this.player.setVelocityY(0);
+        if (this.cursors.left.isDown) moveX = -1;
+        if (this.cursors.right.isDown) moveX = 1;
+        if (this.cursors.up.isDown) moveY = -1;
+        if (this.cursors.down.isDown) moveY = 1;
+
+        // Normalize diagonal movement
+        if (moveX !== 0 && moveY !== 0) {
+            moveX *= Math.SQRT1_2;
+            moveY *= Math.SQRT1_2;
         }
+        this.player.setVelocity(moveX * 200, moveY * 200);
 
         this.player.update(); // Ensure the health bar follows
 
@@ -246,7 +271,3 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
-
-window.addEventListener('resize', () => {
-    game.scale.resize(window.innerWidth, window.innerHeight);
-});

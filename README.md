@@ -1,2 +1,3 @@
 # elemental-warfare
-moba 
+
+everytime you dash you use an random ability from your deck

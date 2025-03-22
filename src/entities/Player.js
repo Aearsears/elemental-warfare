@@ -9,34 +9,42 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.experience = 0;
         this.level = 1;
         this.inventory = [];
+        this.directions = [
+            'Up',
+            'Down',
+            'Left_Down',
+            'Left_Up',
+            'Right_Down',
+            'Right_Up'
+        ];
+        this.lastDirection = 'Down'; // Store last direction for idle animation
 
         // Enable physics
         scene.physics.world.enable(this);
         scene.add.existing(this);
         this.setCollideWorldBounds(true);
 
-        // Set custom collision box for the player
-        this.setSize(24, 32); // Smaller collision box
-        this.setOffset(4, 0); // Offset the collision box to align with the sprite
+        // Set collision box
+        this.setSize(16, 32);
+        this.setOffset(4, 0);
 
-        // Health Bar Background (No physics needed)
+        // Health Bar
         this.healthBarBg = scene.add.graphics();
         this.healthBarBg.fillStyle(0x333333, 1);
         this.healthBarBg.fillRect(0, 0, 40, 6);
-
-        // Health Bar (Green for HP) (No physics needed)
         this.healthBar = scene.add.graphics();
         this.updateHealthBar();
 
         // Create animations
         this.createAnimations();
 
-        // Listen for the "A" key input
+        // Input keys for movement
+        this.cursors = scene.input.keyboard.createCursorKeys();
         this.attackKey = scene.input.keyboard.addKey(
             Phaser.Input.Keyboard.KeyCodes.A
         );
 
-        // A flag to check if the player is attacking
+        // Attacking flag
         this.isAttacking = false;
 
         // Listen for animation completion specifically for player_attack
@@ -65,54 +73,31 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     createAnimations() {
-        // Create the run, hurt, attack, and idle animations (Ensure these are not duplicated)
-        if (!this.scene.anims.get('player_run')) {
-            this.scene.anims.create({
-                key: 'player_run',
-                frames: this.scene.anims.generateFrameNumbers('player_run', {
-                    start: 0,
-                    end: 15
-                }),
-                frameRate: 10,
-                repeat: 0
-            });
-        }
+        this.directions.forEach((dir) => {
+            if (!this.scene.anims.get(`player_idle_${dir}`)) {
+                this.scene.anims.create({
+                    key: `player_idle_${dir}`,
+                    frames: this.scene.anims.generateFrameNumbers(
+                        `player_idle_${dir}`,
+                        { start: 0, end: 7 }
+                    ),
+                    frameRate: 10,
+                    repeat: 0
+                });
+            }
 
-        if (!this.scene.anims.get('player_hurt')) {
-            this.scene.anims.create({
-                key: 'player_hurt',
-                frames: this.scene.anims.generateFrameNumbers('player_hurt', {
-                    start: 0,
-                    end: 3
-                }),
-                frameRate: 5,
-                repeat: 0
-            });
-        }
-
-        if (!this.scene.anims.get('player_attack')) {
-            this.scene.anims.create({
-                key: 'player_attack',
-                frames: this.scene.anims.generateFrameNumbers('player_attack', {
-                    start: 0,
-                    end: 6
-                }),
-                frameRate: 20,
-                repeat: 0
-            });
-        }
-
-        if (!this.scene.anims.get('player_idle')) {
-            this.scene.anims.create({
-                key: 'player_idle',
-                frames: this.scene.anims.generateFrameNumbers('player', {
-                    start: 0,
-                    end: 9
-                }),
-                frameRate: 10,
-                repeat: 0
-            });
-        }
+            if (!this.scene.anims.get(`player_walk_${dir}`)) {
+                this.scene.anims.create({
+                    key: `player_walk_${dir}`,
+                    frames: this.scene.anims.generateFrameNumbers(
+                        `player_walk_${dir}`,
+                        { start: 0, end: 7 }
+                    ),
+                    frameRate: 10,
+                    repeat: 0
+                });
+            }
+        });
     }
 
     onAnimationComplete() {
@@ -150,15 +135,20 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.healthBarBg.setPosition(this.x - 20, this.y - 25);
         this.healthBar.setPosition(this.x - 20, this.y - 25);
 
+        if (this.isAttacking) return; // Prevent movement when attacking
+
         // Handle movement
-        if (this.body.velocity.x !== 0 || this.body.velocity.y !== 0) {
-            if (!this.isAttacking) {
-                // Don't play run animation if attacking
-                this.play('player_run', true);
-            }
-        } else if (!this.isAttacking) {
-            // Play idle animation only if not attacking
-            this.play('player_idle', true);
+        let moveX = this.body.velocity.x;
+        let moveY = this.body.velocity.y;
+        // Determine direction
+        let direction = this.lastDirection; // Default to last direction
+        direction = this.getDirection(moveX, moveY);
+
+        if (moveX !== 0 || moveY !== 0) {
+            this.lastDirection = direction;
+            this.play(`player_walk_${direction}`, true);
+        } else {
+            this.play(`player_idle_${this.lastDirection}`, true);
         }
 
         // Handle attack input
@@ -170,8 +160,24 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             this.attack();
         }
     }
+    getDirection(vx, vy) {
+        if (vy < 0 && vx === 0) return 'Up';
+        if (vy > 0 && vx === 0) return 'Down';
+        if (vx < 0 && vy < 0) return 'Left_Up';
+        if (vx < 0 && vy > 0) return 'Left_Down';
+        if (vx > 0 && vy < 0) return 'Right_Up';
+        if (vx > 0 && vy > 0) return 'Right_Down';
 
-    // Trigger attack
+        // If only moving left or right, infer vertical direction based on last movement
+        if (vx < 0)
+            return this.lastDirection.includes('Up') ? 'Left_Up' : 'Left_Down';
+        if (vx > 0)
+            return this.lastDirection.includes('Up')
+                ? 'Right_Up'
+                : 'Right_Down';
+
+        return this.direction; // Default to last known direction if no movement
+    }
     attack() {
         console.log('Attack triggered!');
         this.play('player_attack', true); // Play the attack animation
