@@ -65,22 +65,6 @@ class DungeonScene extends Phaser.Scene {
                 }
             );
         });
-        this.load.spritesheet('player', 'assets/player/idle.png', {
-            frameWidth: 96,
-            frameHeight: 96
-        });
-        this.load.spritesheet('player_run', 'assets/player/run.png', {
-            frameWidth: 96,
-            frameHeight: 96
-        });
-        this.load.spritesheet('player_hurt', 'assets/player/hurt.png', {
-            frameWidth: 96,
-            frameHeight: 96
-        });
-        this.load.spritesheet('player_attack', 'assets/player/attack.png', {
-            frameWidth: 96,
-            frameHeight: 96
-        });
 
         this.load.spritesheet('orc', 'assets/orc/idle.png', {
             frameWidth: 100,
@@ -175,6 +159,7 @@ class DungeonScene extends Phaser.Scene {
             }
         );
         this.countdownText.setOrigin(0.5, 0.5); // Center the text
+        this.countdownText.setDepth(1000);
 
         // Start the countdown before the level begins
         this.startCountdown();
@@ -222,15 +207,19 @@ class DungeonScene extends Phaser.Scene {
         this.bombAbility = new BombAbility(this.player);
         this.shieldAbility = new ShieldAbility(this.player);
         this.player.abilityPool = [
-            this.healAbility,
             this.bombAbility,
+            this.bombAbility,
+            this.bombAbility,
+            this.bombAbility,
+            this.bombAbility,
+            this.healAbility,
             this.shieldAbility
         ];
     }
 
     createEnemies() {
         const enemyTypes = [
-            { health: 50, damage: 10, speed: 50, color: 0xff0000 },
+            { health: 100, damage: 10, speed: 50, color: 0xff0000 },
             { health: 80, damage: 15, speed: 40, color: 0x00ff00 }
         ];
         const enemyCount = this.level * 2;

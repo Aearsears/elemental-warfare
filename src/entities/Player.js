@@ -73,7 +73,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         // Create a hitbox for the attack (initially inactive)
         this.attackHitbox = scene.add
             .zone(0, 0)
-            .setSize(64, 32)
+            .setSize(64, 64)
             .setVisible(true); // Define size of hitbox and make it visible
         scene.physics.world.enable(this.attackHitbox); // Enable physics for the hitbox
         this.attackHitbox.setOrigin(0.5, 0.5); // Set the origin to the center for easier positioning
@@ -227,6 +227,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.abilityUI.update();
 
+        if (this.attackHitbox.visible) {
+            this.scene.physics.world.overlap(
+                this.attackHitbox,
+                this.scene.enemies,
+                this.handleHitDetection,
+                null,
+                this
+            );
+        }
+
         if (this.isDashing) return; // Prevent movement when attacking
 
         // Handle movement
@@ -247,12 +257,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             }
         }
 
-        // Handle attack input
+        // Handle dash input
         if (Phaser.Input.Keyboard.JustDown(this.dashKey) && !this.isDashing) {
             this.isDashing = true;
             this.dash(direction ? direction : this.lastDirection);
         }
 
+        // Handle ability input
         if (
             Phaser.Input.Keyboard.JustDown(this.abilityKey) &&
             !this.isDashing
@@ -276,21 +287,21 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             });
         }
     }
-    heal() {
+    heal(value) {
         console.log('Player healed!');
-        this.health = Math.min(this.maxHealth, this.health + 20);
+        this.health = Math.min(this.maxHealth, this.health + value);
         this.playAbilityEffect('heal', true);
         this.isUsingAbility = false;
     }
 
-    bomb() {
+    bomb(damage) {
         console.log('Player attacked!');
         // Implement attack behavior here
-        this.playAbilityEffect('bomb', false);
+        this.playAbilityEffect('bomb', false, damage);
         this.isUsingAbility = false;
     }
 
-    shield() {
+    shield(value) {
         console.log('Player shielded!');
         // Implement shield behavior here
         this.playAbilityEffect('shield', true);
@@ -330,7 +341,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             this.isDashing = false; // End dash
         });
     }
-    playAbilityEffect(name, shouldFollow = true) {
+    playAbilityEffect(name, shouldFollow = true, damage = 0) {
         const ability = this.scene.add.sprite(this.x, this.y, 'player'); // Temporary sprite for effect
         ability.setOrigin(0.5, 0.5);
         ability.play(name, true);
@@ -339,6 +350,27 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             // Store abilities that should follow the player
             if (!this.followingAbilities) this.followingAbilities = [];
             this.followingAbilities.push(ability);
+        } else {
+            // Enable and position the hitbox
+            this.attackHitbox.setVisible(true); // Show the hitbox
+            this.attackHitbox.setPosition(this.x + 10, this.y); // Adjust based on attack range
+            // Store the ability's damage inside the hitbox
+            this.attackHitbox.damage = damage;
+            // Enable physics body
+            this.attackHitbox.body.enable = true;
+            // Draw the hitbox outline (debugging purposes)
+            this.hitboxOutline.clear(); // Clear any previous outline
+            this.hitboxOutline.strokeRect(
+                this.attackHitbox.x - this.attackHitbox.width / 2,
+                this.attackHitbox.y - this.attackHitbox.height / 2,
+                this.attackHitbox.width,
+                this.attackHitbox.height
+            );
+            // Set a timer to disable the hitbox after a short time
+            this.scene.time.delayedCall(200, () => {
+                this.attackHitbox.setVisible(false);
+                this.attackHitbox.body.enable = false;
+            });
         }
 
         // Destroy the ability after animation completes
@@ -353,27 +385,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         return ability;
     }
-    // Enable and position the hitbox
-    // this.attackHitbox.setVisible(true); // Show the hitbox
-    // this.attackHitbox.setPosition(this.x + 10, this.y); // Adjust based on attack range
-
-    // // Draw the hitbox outline (debugging purposes)
-    // this.hitboxOutline.clear(); // Clear any previous outline
-    // this.hitboxOutline.strokeRect(
-    //     this.attackHitbox.x - this.attackHitbox.width / 2,
-    //     this.attackHitbox.y - this.attackHitbox.height / 2,
-    //     this.attackHitbox.width,
-    //     this.attackHitbox.height
-    // );
-
-    // // Check for collisions with enemies
-    // this.scene.physics.world.overlap(
-    //     this.attackHitbox,
-    //     this.scene.enemies,
-    //     this.handleHitDetection,
-    //     null,
-    //     this
-    // );
 
     // Function to simulate a dust effect with dash animation
     playDustEffect(direction) {
@@ -390,8 +401,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         });
     }
     // Handle hit detection when attack hitbox overlaps with an enemy
-    handleHitDetection(hitbox, enemy) {
-        console.log('Enemy hit!');
-        enemy.takeDamage(this.damage); // Deal damage to the enemy
+    handleHitDetection(attackHitbox, enemy) {
+        if (enemy && attackHitbox.damage) {
+            enemy.takeDamage(attackHitbox.damage); // Apply stored damage
+        }
     }
 }

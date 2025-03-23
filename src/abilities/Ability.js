@@ -24,18 +24,21 @@ export class Ability {
 
 export class HealAbility extends Ability {
     constructor(player) {
-        super('Heal', () => player.heal(), 2000); // Heal cooldown is 2000ms
+        super('Heal', () => player.heal(this.value), 2000); // Heal cooldown is 2000ms
+        this.value = 20;
     }
 }
 
 export class BombAbility extends Ability {
     constructor(player) {
-        super('Bomb', () => player.bomb(), 1000); // Attack cooldown is 1000ms
+        super('Bomb', () => player.bomb(this.damage), 1000); // Attack cooldown is 1000ms
+        this.damage = 50;
     }
 }
 
 export class ShieldAbility extends Ability {
     constructor(player) {
-        super('Shield', () => player.shield(), 5000); // Shield cooldown is 5000ms
+        super('Shield', () => player.shield(this.value), 5000); // Shield cooldown is 5000ms
+        this.value = 20;
     }
 }

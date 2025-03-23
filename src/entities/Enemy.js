@@ -1,6 +1,6 @@
 export class Enemy extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, tileSize, type) {
-        super(scene, x, y, 'enemyTexture'); // Use actual texture or color key
+        super(scene, x, y, 'orc'); // Use actual texture or color key
 
         this.scene = scene;
         this.type = type;
@@ -95,8 +95,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     takeDamage(amount) {
+        console.log('Enemy health:', this.health);
         this.health -= amount;
         this.updateHealthBar();
+        console.log('Enemy took damage:', this.health);
 
         // Play hurt animation when taking damage
         this.play('orc_hurt', true);
@@ -128,6 +130,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     die() {
         // Play death animation
         this.play('orc_die', true);
+        this.setActive(false); // Disables it in the physics world
+        this.setVisible(false); // Hides it
 
         this.destroy();
         this.healthBar.destroy();
@@ -135,6 +139,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     update() {
+        if (!this.body) return; // Prevents errors if body is missing
         // Make sure the health bar follows the enemy
         this.healthBarBg.setPosition(this.x - 16, this.y - 20);
         this.healthBar.setPosition(this.x - 16, this.y - 20);
