@@ -225,6 +225,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.healthBar.setPosition(this.x - 20, this.y - 25);
         this.updateHealthBar();
 
+        this.abilityUI.update();
+
         if (this.isDashing) return; // Prevent movement when attacking
 
         // Handle movement
@@ -267,7 +269,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             ability.use(currentTime);
             // Remove the selected ability from the pool
             Phaser.Utils.Array.Remove(this.abilityPool, ability);
-            this.abilityUI.update();
         }
         if (this.followingAbilities) {
             this.followingAbilities.forEach((ability) => {

@@ -215,7 +215,6 @@ class DungeonScene extends Phaser.Scene {
         if (gameState.selectedAbility) {
             this.player.abilityPool.push(gameState.selectedAbility);
         }
-        console.log(this.player.abilityPool);
     }
 
     createAbilites() {
