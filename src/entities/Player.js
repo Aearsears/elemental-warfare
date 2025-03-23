@@ -488,6 +488,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         bullet.setActive(false); // Deactivate the bullet
         bullet.setVisible(false); // Hide the bullet
         bullet.body.stop(); // Stop the bullet's movement
+        bullet.destroy();
 
         // Handle damage to the enemy
         enemy.takeDamage(10); // For example, apply damage to the enemy
