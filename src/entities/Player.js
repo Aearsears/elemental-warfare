@@ -424,17 +424,55 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
     shootBullet() {
         // Create a new bullet from the bullet group
-        const bullet = this.bullets.getFirstDead(true, this.x, this.y);
+        const bullet = this.bullets.getFirstDead(true, this.x, this.y); // Use 'bullet' texture
 
         if (bullet) {
             bullet.setActive(true);
             bullet.setVisible(true);
-            bullet.setRotation(this.rotation); // Set bullet direction to player's facing
-            bullet.body.setVelocity(400, 0); // Set bullet speed and direction (horizontal)
+            const speed = 400; // Bullet speed (adjust as needed)
+            // Calculate the bullet's velocity based on the last direction
+            let velocityX = 0;
+            let velocityY = 0;
+
+            switch (this.lastDirection) {
+                case 'Up':
+                    velocityX = 0;
+                    velocityY = -speed;
+                    break;
+                case 'Down':
+                    velocityX = 0;
+                    velocityY = speed;
+                    break;
+                case 'Left_Down':
+                    velocityX = -speed;
+                    velocityY = speed;
+                    break;
+                case 'Left_Up':
+                    velocityX = -speed;
+                    velocityY = -speed;
+                    break;
+                case 'Right_Down':
+                    velocityX = speed;
+                    velocityY = speed;
+                    break;
+                case 'Right_Up':
+                    velocityX = speed;
+                    velocityY = -speed;
+                    break;
+                default:
+                    velocityX = 0;
+                    velocityY = 0;
+                    break;
+            }
+
+            // Apply the calculated velocity to the bullet
+            bullet.body.setVelocity(velocityX, velocityY);
             bullet.body.setCollideWorldBounds(true); // Collide with world bounds (to destroy outside the screen)
+
+            // Play the bullet animation (if using sprite sheet for animation)
             bullet.play('bulletMove');
-            // Optional: Add bullet's collision behavior or apply damage here
-            // For example, you can add an overlap check with enemies:
+
+            // Optional: Add bullet's collision behavior or apply damage here`
             this.scene.physics.add.overlap(
                 bullet,
                 this.scene.enemies,
