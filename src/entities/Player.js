@@ -32,6 +32,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         // Set collision box
         this.setSize(16, 32);
+        this.setOffset(0, 0);
 
         // Health Bar
         this.healthBarBg = scene.add.graphics();

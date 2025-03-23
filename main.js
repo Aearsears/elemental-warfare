@@ -14,6 +14,7 @@ class DungeonScene extends Phaser.Scene {
         this.dungeon = [];
         this.mapWidth = 640;
         this.mapHeight = 480;
+        this.tileSize = 16;
         this.enemies = [];
         this.items = [];
         this.collisionHandler = null; // Add this
@@ -120,22 +121,23 @@ class DungeonScene extends Phaser.Scene {
         this.enemies = []; // Reset enemies
         this.items = []; // Reset items
 
-        // Create DungeonMap instance and generate the dungeon
-        this.dungeonGenerator = new DungeonGenerator(
-            this.mapWidth,
-            this.mapHeight,
-            'wall_tileset',
-            'background_tileset',
-            16
-        );
-        this.dungeonGenerator.generateDungeon();
-        this.dungeonGenerator.drawDungeon(this);
-
         this.createPlayer();
         this.createEnemies();
         this.createItems();
         this.createControls();
         this.createAbilites();
+
+        // Create DungeonMap instance and generate the dungeon
+        this.dungeonGenerator = new DungeonGenerator(
+            this,
+            this.mapWidth,
+            this.mapHeight,
+            'wall_tileset',
+            'background_tileset',
+            this.tileSize
+        );
+        this.dungeonGenerator.generateDungeon();
+        this.dungeonGenerator.drawDungeon(this);
 
         this.collisionHandler = new CollisionHandler(
             this,

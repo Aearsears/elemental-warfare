@@ -1,11 +1,13 @@
 export class DungeonGenerator {
     constructor(
+        scene,
         mapWidth,
         mapHeight,
         wallTilesetKey,
         groundTilesetKey,
         tileSize
     ) {
+        this.scene = scene;
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
         this.wallTilesetKey = wallTilesetKey;
@@ -78,8 +80,8 @@ export class DungeonGenerator {
                 0
             ); // Wall layer created with ID 1
 
-            groundLayer.setDepth(0); // Background layer
-            wallLayer.setDepth(1); // Ensure walls are above ground
+            groundLayer.setDepth(-10); // Background layer
+            wallLayer.setDepth(-9); // Ensure walls are above ground
 
             // Now, we can iterate over the dungeon data and place the tiles
             for (let y = 0; y < this.mapHeight / this.tileSize; y++) {
@@ -93,6 +95,9 @@ export class DungeonGenerator {
                     }
                 }
             }
+            // Enable collision for wall tiles (ID 1 corresponds to wall tiles)
+            tilemap.setCollisionByExclusion([0]); // Exclude ground tiles from collision (0)
+            scene.physics.add.collider(this.scene.player, wallLayer); // Player collision with walls
         } catch (error) {
             // Log the error with more detailed information
             console.error(

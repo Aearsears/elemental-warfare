@@ -12,8 +12,8 @@ export class CollisionHandler {
         this.scene.physics.world.setBounds(
             0,
             0,
-            this.width - this.tileSize,
-            this.height - this.tileSize
+            this.width - this.tileSize * 2,
+            this.height - this.tileSize * 2
         );
         this.scene.physics.add.collider(
             this.scene.player,
