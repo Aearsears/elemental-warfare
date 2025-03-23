@@ -28,9 +28,9 @@ export class HealAbility extends Ability {
     }
 }
 
-export class AttackAbility extends Ability {
+export class BombAbility extends Ability {
     constructor(player) {
-        super('Attack', () => player.attack(), 1000); // Attack cooldown is 1000ms
+        super('Bomb', () => player.bomb(), 1000); // Attack cooldown is 1000ms
     }
 }
 

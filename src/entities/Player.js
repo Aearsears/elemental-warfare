@@ -1,6 +1,6 @@
 import {
     HealAbility,
-    AttackAbility,
+    BombAbility,
     ShieldAbility
 } from '../abilities/Ability.js';
 import { UI } from '../UI.js';
@@ -54,7 +54,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         // Available abilities pool
         this.abilityPool = [];
+        this.followingAbilities = [];
         this.abilityUI = new UI(scene, this);
+        this.isUsingAbility = false;
         // Update UI for abilities
         this.updateAbilityUI();
 
@@ -103,7 +105,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         //     new AttackAbility(this),
         //     new ShieldAbility(this)
         // ];
-        this.abilityPool = JSON.parse(JSON.stringify(pool));
+        this.abilityPool = pool;
     }
 
     createAnimations() {
@@ -154,12 +156,42 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
                 });
             }
         });
+        if (!this.scene.anims.get(`bomb`)) {
+            this.scene.anims.create({
+                key: `bomb`,
+                frames: this.scene.anims.generateFrameNumbers(`bomb`, {
+                    start: 0,
+                    end: 11
+                }),
+                frameRate: 10,
+                repeat: 0
+            });
+        }
+        if (!this.scene.anims.get(`heal`)) {
+            this.scene.anims.create({
+                key: `heal`,
+                frames: this.scene.anims.generateFrameNumbers(`heal`, {
+                    start: 0,
+                    end: 11
+                }),
+                frameRate: 10,
+                repeat: 0
+            });
+        }
+        if (!this.scene.anims.get(`shield`)) {
+            this.scene.anims.create({
+                key: `shield`,
+                frames: this.scene.anims.generateFrameNumbers(`shield`, {
+                    start: 0,
+                    end: 11
+                }),
+                frameRate: 10,
+                repeat: 0
+            });
+        }
     }
 
-    onAnimationComplete() {
-        console.log('Attack animation complete!');
-        this.isDashing = false; // Reset attacking flag after the animation is done
-    }
+    onAnimationComplete() {}
 
     updateHealthBar() {
         this.healthBar.clear();
@@ -204,11 +236,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         if (moveX !== 0 || moveY !== 0) {
             this.lastDirection = direction;
-            if (!this.isDashing) {
+            if (!this.isDashing && !this.isUsingAbility) {
                 this.play(`player_walk_${direction}`, true);
             }
         } else {
-            if (!this.isDashing) {
+            if (!this.isDashing && !this.isUsingAbility) {
                 this.play(`player_idle_${this.lastDirection}`, true);
             }
         }
@@ -229,25 +261,39 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             }
             const ability = Phaser.Utils.Array.GetRandom(this.abilityPool);
 
+            this.isUsingAbility = true;
+            console.log(`Using ${ability.name} ability!`);
+
             ability.use(currentTime);
             // Remove the selected ability from the pool
             Phaser.Utils.Array.Remove(this.abilityPool, ability);
             this.abilityUI.update();
         }
+        if (this.followingAbilities) {
+            this.followingAbilities.forEach((ability) => {
+                ability.setPosition(this.x, this.y);
+            });
+        }
     }
     heal() {
         console.log('Player healed!');
-        // Implement heal behavior here
+        this.health = Math.min(this.maxHealth, this.health + 20);
+        this.playAbilityEffect('heal', true);
+        this.isUsingAbility = false;
     }
 
-    attack() {
+    bomb() {
         console.log('Player attacked!');
         // Implement attack behavior here
+        this.playAbilityEffect('bomb', false);
+        this.isUsingAbility = false;
     }
 
     shield() {
         console.log('Player shielded!');
         // Implement shield behavior here
+        this.playAbilityEffect('shield', true);
+        this.isUsingAbility = false;
     }
     getDirection(vx, vy) {
         if (vy < 0 && vx === 0) return 'Up';
@@ -282,28 +328,52 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             this.body.velocity.y /= 2;
             this.isDashing = false; // End dash
         });
-        // Enable and position the hitbox
-        // this.attackHitbox.setVisible(true); // Show the hitbox
-        // this.attackHitbox.setPosition(this.x + 10, this.y); // Adjust based on attack range
-
-        // // Draw the hitbox outline (debugging purposes)
-        // this.hitboxOutline.clear(); // Clear any previous outline
-        // this.hitboxOutline.strokeRect(
-        //     this.attackHitbox.x - this.attackHitbox.width / 2,
-        //     this.attackHitbox.y - this.attackHitbox.height / 2,
-        //     this.attackHitbox.width,
-        //     this.attackHitbox.height
-        // );
-
-        // // Check for collisions with enemies
-        // this.scene.physics.world.overlap(
-        //     this.attackHitbox,
-        //     this.scene.enemies,
-        //     this.handleHitDetection,
-        //     null,
-        //     this
-        // );
     }
+    playAbilityEffect(name, shouldFollow = true) {
+        const ability = this.scene.add.sprite(this.x, this.y, 'player'); // Temporary sprite for effect
+        ability.setOrigin(0.5, 0.5);
+        ability.play(name, true);
+
+        if (shouldFollow) {
+            // Store abilities that should follow the player
+            if (!this.followingAbilities) this.followingAbilities = [];
+            this.followingAbilities.push(ability);
+        }
+
+        // Destroy the ability after animation completes
+        ability.on('animationcomplete', () => {
+            ability.destroy();
+            if (shouldFollow) {
+                this.followingAbilities = this.followingAbilities.filter(
+                    (a) => a !== ability
+                );
+            }
+        });
+
+        return ability;
+    }
+    // Enable and position the hitbox
+    // this.attackHitbox.setVisible(true); // Show the hitbox
+    // this.attackHitbox.setPosition(this.x + 10, this.y); // Adjust based on attack range
+
+    // // Draw the hitbox outline (debugging purposes)
+    // this.hitboxOutline.clear(); // Clear any previous outline
+    // this.hitboxOutline.strokeRect(
+    //     this.attackHitbox.x - this.attackHitbox.width / 2,
+    //     this.attackHitbox.y - this.attackHitbox.height / 2,
+    //     this.attackHitbox.width,
+    //     this.attackHitbox.height
+    // );
+
+    // // Check for collisions with enemies
+    // this.scene.physics.world.overlap(
+    //     this.attackHitbox,
+    //     this.scene.enemies,
+    //     this.handleHitDetection,
+    //     null,
+    //     this
+    // );
+
     // Function to simulate a dust effect with dash animation
     playDustEffect(direction) {
         // Create a temporary sprite to simulate the dust effect near the player

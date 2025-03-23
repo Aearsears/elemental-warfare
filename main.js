@@ -3,6 +3,11 @@ import { Item } from './src/items/Item.js';
 import { Player } from './src/entities/Player.js';
 import { Enemy } from './src/entities/Enemy.js';
 import { DungeonGenerator } from './src/dungeon/DungeonGenerator.js';
+import {
+    HealAbility,
+    BombAbility,
+    ShieldAbility
+} from './src/abilities/Ability.js';
 class DungeonScene extends Phaser.Scene {
     constructor() {
         super({ key: 'DungeonScene' });
@@ -102,6 +107,21 @@ class DungeonScene extends Phaser.Scene {
             frameHeight: 100
         });
 
+        this.load.spritesheet('bomb', 'assets/abilities/bomb_effect.png', {
+            frameWidth: 64,
+            frameHeight: 64
+        });
+
+        this.load.spritesheet('heal', 'assets/abilities/heal_effect.png', {
+            frameWidth: 64,
+            frameHeight: 64
+        });
+
+        this.load.spritesheet('shield', 'assets/abilities/shield_effect.png', {
+            frameWidth: 64,
+            frameHeight: 64
+        });
+
         this.load.image('background_tileset', 'assets/env/background.png'); // Replace with your tileset path
         this.load.image('wall_tileset', 'assets/env/walls.png'); // Replace with your tileset path
     }
@@ -126,6 +146,7 @@ class DungeonScene extends Phaser.Scene {
         this.createEnemies();
         this.createItems();
         this.createControls();
+        this.createAbilites();
 
         this.collisionHandler = new CollisionHandler(
             this,
@@ -188,9 +209,24 @@ class DungeonScene extends Phaser.Scene {
     }
     createPlayer() {
         this.player = new Player(this, 64, 64, 32); // Adjust starting position
-        if (gameState.selectedAbility) {
-            this.player.createAbilityPool(gameState.abilityPool);
+        if (gameState.abilityPool) {
+            this.player.abilityPool.push(...gameState.abilityPool);
         }
+        if (gameState.selectedAbility) {
+            this.player.abilityPool.push(gameState.selectedAbility);
+        }
+        console.log(this.player.abilityPool);
+    }
+
+    createAbilites() {
+        this.healAbility = new HealAbility(this.player);
+        this.bombAbility = new BombAbility(this.player);
+        this.shieldAbility = new ShieldAbility(this.player);
+        this.player.abilityPool = [
+            this.healAbility,
+            this.bombAbility,
+            this.shieldAbility
+        ];
     }
 
     createEnemies() {
@@ -266,7 +302,7 @@ class DungeonScene extends Phaser.Scene {
         // Make enemies chase the player
         this.enemies.forEach((enemy) => {
             enemy.update();
-            enemy.moveToward(this.player);
+            // enemy.moveToward(this.player);
         });
 
         // Check for item pickup
@@ -319,11 +355,11 @@ class DungeonScene extends Phaser.Scene {
 }
 const config = {
     type: Phaser.AUTO,
-    width: 640,
-    height: 480,
+    width: 1280,
+    height: 720,
     scale: {
-        parent: 'game-container', // Attach the game to the container
-        mode: Phaser.Scale.FIT, // Scales while maintaining aspect ratio
+        parent: 'game-container',
+        mode: Phaser.Scale.RESIZE, // Automatically resizes to fit the window
         autoCenter: Phaser.Scale.CENTER_BOTH
     },
     physics: { default: 'arcade', arcade: { debug: false } },
