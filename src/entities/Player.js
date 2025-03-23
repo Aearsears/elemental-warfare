@@ -32,7 +32,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         // Set collision box
         this.setSize(16, 32);
-        this.setOffset(0, 0);
+        this.setOrigin(0.5, 0.5);
+        this.setOffset(16, 32);
 
         // Health Bar
         this.healthBarBg = scene.add.graphics();
@@ -483,7 +484,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             // Play the bullet animation (if using sprite sheet for animation)
             bullet.play('bulletMove');
 
-            // Optional: Add bullet's collision behavior or apply damage here`
+            // Add the bullet-world bounds collision handler
+            bullet.on('worldbounds', () =>
+                this.handleBulletWorldBoundsCollision(bullet)
+            );
+
             this.scene.physics.add.overlap(
                 bullet,
                 this.scene.enemies,
@@ -503,5 +508,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         // Handle damage to the enemy
         enemy.takeDamage(10, bullet.direction); // For example, apply damage to the enemy
+    }
+    // Handle Bullet-Wall Collision (destroy the bullet on collision)
+    handleBulletWorldBoundsCollision(bullet, wall) {
+        // Deactivate the bullet and hide it
+        console.log('collisde');
+
+        bullet.setActive(false);
+        bullet.setVisible(false);
+        bullet.body.stop(); // Stop its movement
+
+        // Destroy the bullet
+        bullet.destroy();
     }
 }

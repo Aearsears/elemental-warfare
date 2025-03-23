@@ -96,8 +96,16 @@ export class DungeonGenerator {
                 }
             }
             // Enable collision for wall tiles (ID 1 corresponds to wall tiles)
-            tilemap.setCollisionByExclusion([0]); // Exclude ground tiles from collision (0)
-            scene.physics.add.collider(this.scene.player, wallLayer); // Player collision with walls
+            wallLayer.setCollisionByProperty({ collides: true });
+            scene.physics.add.collider(
+                this.scene.player,
+                wallLayer,
+                () => {
+                    console.log('collie');
+                }, // Collider callback function
+                null, // No specific filter function
+                this
+            ); // Player collision with walls
         } catch (error) {
             // Log the error with more detailed information
             console.error(

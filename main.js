@@ -181,6 +181,10 @@ class DungeonScene extends Phaser.Scene {
 
         // Start the countdown before the level begins
         this.startCountdown();
+        //debug
+
+        this.physics.world.createDebugGraphic();
+        this.physics.world.drawDebug = true;
     }
     startCountdown() {
         let countdown = 3; // Start from 3

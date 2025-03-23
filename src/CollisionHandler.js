@@ -12,12 +12,15 @@ export class CollisionHandler {
         this.scene.physics.world.setBounds(
             0,
             0,
-            this.width - this.tileSize * 2,
+            this.width + this.tileSize,
             this.height - this.tileSize * 2
         );
         this.scene.physics.add.collider(
             this.scene.player,
-            this.scene.dungeonLayer
+            this.scene.dungeonLayer,
+            this.handlePlayerDungeonCollision, // Collider callback function
+            null, // No specific filter function
+            this
         );
 
         // Collision between player and enemies
@@ -31,7 +34,11 @@ export class CollisionHandler {
             );
         });
     }
-
+    // Define the collider callback function
+    handlePlayerDungeonCollision(player, layer) {
+        console.log('Player collided with dungeon layer!');
+        // You can add additional checks to verify collision properties
+    }
     handlePlayerEnemyCollision(player, enemy) {
         console.log('Player hit by enemy!');
         // this.scene.reducePlayerHealth(enemy.damage);
