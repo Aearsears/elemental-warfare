@@ -94,7 +94,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.healthBar.fillRect(0, 0, 32 * (this.health / this.maxHealth), 5);
     }
 
-    takeDamage(amount) {
+    takeDamage(amount, damageDirection) {
         if (this.isHit) return; // Prevent taking damage multiple times in the same frame
 
         console.log('Enemy health:', this.health);
@@ -105,6 +105,23 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         // Play hurt animation when taking damage
         this.play('orc_hurt', true);
+
+        // Apply knockback effect
+        const knockbackStrength = 100; // Adjust this for the desired knockback strength
+        const knockbackDuration = 200; // Knockback effect duration in ms
+
+        if (damageDirection) {
+            // Apply knockback in the opposite direction of the damage
+            this.setVelocity(
+                damageDirection.x * knockbackStrength,
+                damageDirection.y * knockbackStrength
+            );
+
+            // Stop the knockback after a short duration
+            this.scene.time.delayedCall(knockbackDuration, () => {
+                this.setVelocity(0, 0); // Stop movement after knockback
+            });
+        }
 
         if (this.health <= 0) {
             this.die();

@@ -434,30 +434,39 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             let velocityX = 0;
             let velocityY = 0;
 
+            // Store the direction
+            let direction = new Phaser.Math.Vector2(0, 0); // Initialize direction vector
+
             switch (this.lastDirection) {
                 case 'Up':
                     velocityX = 0;
                     velocityY = -speed;
+                    direction.set(0, -1); // Direction vector
                     break;
                 case 'Down':
                     velocityX = 0;
                     velocityY = speed;
+                    direction.set(0, 1); // Direction vector
                     break;
                 case 'Left_Down':
                     velocityX = -speed;
                     velocityY = speed;
+                    direction.set(-1, 1); // Direction vector
                     break;
                 case 'Left_Up':
                     velocityX = -speed;
                     velocityY = -speed;
+                    direction.set(-1, -1); // Direction vector
                     break;
                 case 'Right_Down':
                     velocityX = speed;
                     velocityY = speed;
+                    direction.set(1, 1); // Direction vector
                     break;
                 case 'Right_Up':
                     velocityX = speed;
                     velocityY = -speed;
+                    direction.set(1, -1); // Direction vector
                     break;
                 default:
                     velocityX = 0;
@@ -468,7 +477,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             // Apply the calculated velocity to the bullet
             bullet.body.setVelocity(velocityX, velocityY);
             bullet.body.setCollideWorldBounds(true); // Collide with world bounds (to destroy outside the screen)
-
+            // Store direction in bullet for later use
+            bullet.direction = direction;
             // Play the bullet animation (if using sprite sheet for animation)
             bullet.play('bulletMove');
 
@@ -491,6 +501,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         bullet.destroy();
 
         // Handle damage to the enemy
-        enemy.takeDamage(10); // For example, apply damage to the enemy
+        enemy.takeDamage(10, bullet.direction); // For example, apply damage to the enemy
     }
 }
