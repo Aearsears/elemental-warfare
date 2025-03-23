@@ -30,8 +30,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         // Create animations for the enemy (idle, move, hurt)
         this.createAnimations();
 
-        // Default animation (e.g., idle)
-        // this.play('orc_idle');
+        // Flag to prevent multiple damage in the same frame
+        this.isHit = false;
     }
 
     createAnimations() {
@@ -95,7 +95,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     takeDamage(amount) {
+        if (this.isHit) return; // Prevent taking damage multiple times in the same frame
+
         console.log('Enemy health:', this.health);
+        this.isHit = true; // Set the hit flag
         this.health -= amount;
         this.updateHealthBar();
         console.log('Enemy took damage:', this.health);
@@ -105,6 +108,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         if (this.health <= 0) {
             this.die();
+        } else {
+            this.scene.time.delayedCall(200, () => {
+                this.isHit = false;
+            });
         }
     }
 
