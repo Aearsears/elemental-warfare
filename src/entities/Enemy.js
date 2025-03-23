@@ -109,7 +109,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         if (this.health <= 0) {
             this.die();
         } else {
-            this.scene.time.delayedCall(200, () => {
+            this.scene.time.delayedCall(500, () => {
                 this.isHit = false;
             });
         }
@@ -130,19 +130,31 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
             this.play('orc_move', true);
         } else {
             this.setVelocity(0, 0); // Stop movement
-            this.play('orc_idle', true); // Play idle animation when stopping
         }
     }
 
     die() {
         // Play death animation
+        console.log('Enemy died!');
         this.play('orc_die', true);
-        this.setActive(false); // Disables it in the physics world
-        this.setVisible(false); // Hides it
 
-        this.destroy();
-        this.healthBar.destroy();
-        this.healthBarBg.destroy();
+        // Add a listener for when the death animation completes
+        this.on('animationcomplete-orc_die', () => {
+            // Optional: Add any other logic that happens after the animation finishes
+            console.log(
+                'Death animation complete, waiting for delay to destroy the enemy...'
+            );
+
+            // Add a delay before destroying the enemy
+            this.scene.time.delayedCall(500, () => {
+                // 500ms delay before destruction
+                this.setActive(false); // Disables the enemy in the physics world
+                this.setVisible(false); // Hides the enemy
+                this.destroy(); // Destroy enemy after animation
+                this.healthBar.destroy(); // Destroy health bar
+                this.healthBarBg.destroy(); // Destroy health bar background
+            });
+        });
     }
 
     update() {
@@ -157,7 +169,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
             this.body.velocity.y === 0 &&
             this.health > 0
         ) {
-            this.play('orc_idle', true);
+            if (!this.isHit) {
+                this.play('orc_idle', true);
+            }
         }
     }
 }
