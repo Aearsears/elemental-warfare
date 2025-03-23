@@ -510,6 +510,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         enemy.takeDamage(10, bullet.direction); // For example, apply damage to the enemy
     }
     // Handle Bullet-Wall Collision (destroy the bullet on collision)
+    //TODO:fix not working
     handleBulletWorldBoundsCollision(bullet, wall) {
         // Deactivate the bullet and hide it
         console.log('collisde');

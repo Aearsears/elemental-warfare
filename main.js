@@ -330,14 +330,37 @@ class DungeonScene extends Phaser.Scene {
             }
             return true;
         });
-        if (this.enemies.length === 0) {
+
+        const allEnemiesDestroyed = this.enemies.every(
+            (enemy) => !enemy.active
+        );
+
+        if (allEnemiesDestroyed) {
             this.level++; // Increase the level after completing the current one
             this.levelComplete(); // Restart the level with new difficulty
         }
     }
     levelComplete() {
         // Transition to ability selection scene
-        this.scene.start('AbilitySelectionScene');
+        // this.scene.start('AbilitySelectionScene');
+        this.restart();
+    }
+    restart() {
+        if (this.isGameOver) return; // Prevent multiple restarts
+        console.log('Game Over!');
+        this.isGameOver = true; // Prevent multiple game over triggers
+
+        // Destroy all enemies and items
+        this.enemies.forEach((enemy) => enemy.destroy());
+        this.items.forEach((item) => item.destroy());
+
+        // Reset other scene objects
+        this.dungeon = [];
+
+        // Delay the scene restart slightly to avoid conflicts
+        this.time.delayedCall(500, () => {
+            this.scene.restart();
+        });
     }
     reducePlayerHealth(amount) {
         if (this.isGameOver) return; // Prevent multiple restarts
@@ -346,20 +369,7 @@ class DungeonScene extends Phaser.Scene {
         console.log(`Player Health: ${this.player.health}`);
 
         if (this.player.health <= 0) {
-            console.log('Game Over!');
-            this.isGameOver = true; // Prevent multiple game over triggers
-
-            // Destroy all enemies and items
-            this.enemies.forEach((enemy) => enemy.destroy());
-            this.items.forEach((item) => item.destroy());
-
-            // Reset other scene objects
-            this.dungeon = [];
-
-            // Delay the scene restart slightly to avoid conflicts
-            this.time.delayedCall(500, () => {
-                this.scene.restart();
-            });
+            this.restart();
         }
     }
 }
