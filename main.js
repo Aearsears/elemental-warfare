@@ -106,6 +106,11 @@ class DungeonScene extends Phaser.Scene {
             frameHeight: 64
         });
 
+        this.load.spritesheet('bullet', 'assets/abilities/bullet.png', {
+            frameWidth: 32,
+            frameHeight: 32
+        });
+
         this.load.image('background_tileset', 'assets/env/background.png'); // Replace with your tileset path
         this.load.image('wall_tileset', 'assets/env/walls.png'); // Replace with your tileset path
     }
@@ -139,6 +144,17 @@ class DungeonScene extends Phaser.Scene {
             this.tileSize
         );
         this.collisionHandler.setupCollisions();
+
+        //create bullet animation
+        this.anims.create({
+            key: 'bulletMove',
+            frames: this.anims.generateFrameNumbers('bullet', {
+                start: 0,
+                end: 3
+            }), // Adjust based on your sprite sheet
+            frameRate: 10, // How fast the frames cycle
+            repeat: -1 // Set to loop indefinitely
+        });
 
         // Set camera to follow the player
         this.cameras.main.startFollow(this.player);

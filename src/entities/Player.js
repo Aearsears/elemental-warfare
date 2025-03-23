@@ -49,6 +49,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             Phaser.Input.Keyboard.KeyCodes.SPACE
         );
         this.abilityKey = scene.input.keyboard.addKey(
+            Phaser.Input.Keyboard.KeyCodes.S
+        );
+        this.AttackKey = scene.input.keyboard.addKey(
             Phaser.Input.Keyboard.KeyCodes.A
         );
 
@@ -86,6 +89,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         // Set a very high depth to ensure it’s on top
         this.attackHitbox.setDepth(1000); // Ensure hitbox is drawn on top
         this.hitboxOutline.setDepth(1000); // Ensure the outline is also on top
+
+        // Bullet group for managing bullets
+        this.bullets = scene.physics.add.group({
+            classType: Phaser.Physics.Arcade.Sprite, // Bullet type
+            runChildUpdate: true, // Ensure the group is updated
+            maxSize: 10 // Limit max number of bullets to avoid memory overflow
+        });
     }
 
     // Randomly select three abilities from the pool
@@ -257,6 +267,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             }
         }
 
+        // Handle attack input
+        if (Phaser.Input.Keyboard.JustDown(this.AttackKey)) {
+            console.log('Attack triggered!');
+            this.shootBullet();
+        }
+
         // Handle dash input
         if (Phaser.Input.Keyboard.JustDown(this.dashKey) && !this.isDashing) {
             this.isDashing = true;
@@ -405,5 +421,37 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         if (enemy && attackHitbox.damage) {
             enemy.takeDamage(attackHitbox.damage); // Apply stored damage
         }
+    }
+    shootBullet() {
+        // Create a new bullet from the bullet group
+        const bullet = this.bullets.getFirstDead(true, this.x, this.y);
+
+        if (bullet) {
+            bullet.setActive(true);
+            bullet.setVisible(true);
+            bullet.setRotation(this.rotation); // Set bullet direction to player's facing
+            bullet.body.setVelocity(400, 0); // Set bullet speed and direction (horizontal)
+            bullet.body.setCollideWorldBounds(true); // Collide with world bounds (to destroy outside the screen)
+            bullet.play('bulletMove');
+            // Optional: Add bullet's collision behavior or apply damage here
+            // For example, you can add an overlap check with enemies:
+            this.scene.physics.add.overlap(
+                bullet,
+                this.scene.enemies,
+                this.handleBulletHit,
+                null,
+                this
+            );
+        }
+    }
+
+    // Optional: Handle bullet-enemy collision and destroy bullet
+    handleBulletHit(bullet, enemy) {
+        bullet.setActive(false); // Deactivate the bullet
+        bullet.setVisible(false); // Hide the bullet
+        bullet.body.stop(); // Stop the bullet's movement
+
+        // Handle damage to the enemy
+        enemy.takeDamage(10); // For example, apply damage to the enemy
     }
 }
