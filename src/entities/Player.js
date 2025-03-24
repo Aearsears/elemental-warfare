@@ -362,17 +362,20 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     dash(direction) {
         this.play(`player_dash_${direction}`, true);
         this.dashSound.play();
-
+        // Disable collision with enemies
+        this.body.checkCollision.none = true;
         this.playDustEffect(direction);
         // Set a temporary dash speed boost
-        this.body.velocity.x *= 2; // Increase dash speed (adjust multiplier)
-        this.body.velocity.y *= 2;
+        this.body.velocity.x *= 10; // Increase dash speed (adjust multiplier)
+        this.body.velocity.y *= 10;
 
         // Reset dash after some time (let's say after 300ms, you can adjust this)
         this.scene.time.delayedCall(300, () => {
             this.body.velocity.x /= 2;
             this.body.velocity.y /= 2;
             this.isDashing = false; // End dash
+            // Re-enable collision with enemies
+            this.body.checkCollision.none = false;
         });
     }
     playAbilityEffect(name, shouldFollow = true, damage = 0) {
