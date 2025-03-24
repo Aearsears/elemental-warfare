@@ -98,6 +98,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             runChildUpdate: true, // Ensure the group is updated
             maxSize: 10 // Limit max number of bullets to avoid memory overflow
         });
+        this.bombSound = scene.sound.add('bomb_sound');
+        this.bulletSound = scene.sound.add('bullet_sound');
+        this.healSound = scene.sound.add('heal_sound');
+        this.walkSound = scene.sound.add('walk_sound');
+        this.shieldSound = scene.sound.add('shield_sound');
+        this.dashSound = scene.sound.add('dash_sound');
+        this.hitSound = scene.sound.add('hit_sound');
     }
 
     // Randomly select three abilities from the pool
@@ -261,9 +268,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         if (moveX !== 0 || moveY !== 0) {
             this.lastDirection = direction;
             if (!this.isDashing && !this.isUsingAbility) {
+                if (!this.walkSound.isPlaying) {
+                    this.walkSound.play({ loop: true }); // Ensures the sound loops
+                }
                 this.play(`player_walk_${direction}`, true);
             }
         } else {
+            if (this.walkSound.isPlaying) {
+                this.walkSound.stop();
+            }
             if (!this.isDashing && !this.isUsingAbility) {
                 this.play(`player_idle_${this.lastDirection}`, true);
             }
@@ -307,6 +320,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
     heal(value) {
         console.log('Player healed!');
+        this.healSound.play();
         this.health = Math.min(this.maxHealth, this.health + value);
         this.playAbilityEffect('heal', true);
         this.isUsingAbility = false;
@@ -314,6 +328,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     bomb(damage) {
         console.log('Player attacked!');
+        this.bombSound.play();
         // Implement attack behavior here
         this.playAbilityEffect('bomb', false, damage);
         this.isUsingAbility = false;
@@ -321,6 +336,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     shield(value) {
         console.log('Player shielded!');
+        this.shieldSound.play();
         // Implement shield behavior here
         this.playAbilityEffect('shield', true);
         this.isUsingAbility = false;
@@ -344,8 +360,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         return this.direction; // Default to last known direction if no movement
     }
     dash(direction) {
-        console.log('dash triggered!');
         this.play(`player_dash_${direction}`, true);
+        this.dashSound.play();
 
         this.playDustEffect(direction);
         // Set a temporary dash speed boost
@@ -426,6 +442,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
     shootBullet() {
         // Create a new bullet from the bullet group
+        this.bulletSound.play();
         const bullet = this.bullets.getFirstDead(true, this.x, this.y); // Use 'bullet' texture
 
         if (bullet) {
@@ -508,6 +525,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         // Handle damage to the enemy
         enemy.takeDamage(10, bullet.direction); // For example, apply damage to the enemy
+        this.hitSound.play();
     }
     // Handle Bullet-Wall Collision (destroy the bullet on collision)
     //TODO:fix not working

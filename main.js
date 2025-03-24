@@ -117,6 +117,13 @@ class DungeonScene extends Phaser.Scene {
 
         //music and sfx
         this.load.audio('bgm', 'assets/music/bgm.wav'); // Replace with your actual file path
+        this.load.audio('bomb_sound', 'assets/sfx/bomb.wav');
+        this.load.audio('bullet_sound', 'assets/sfx/bullet.wav');
+        this.load.audio('dash_sound', 'assets/sfx/dash.wav');
+        this.load.audio('heal_sound', 'assets/sfx/heal.wav');
+        this.load.audio('walk_sound', 'assets/sfx/walk.wav');
+        this.load.audio('shield_sound', 'assets/sfx/shield.wav');
+        this.load.audio('hit_sound', 'assets/sfx/hit.wav');
     }
 
     create() {
