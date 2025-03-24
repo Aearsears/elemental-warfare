@@ -124,6 +124,8 @@ class DungeonScene extends Phaser.Scene {
         this.load.audio('walk_sound', 'assets/sfx/walk.wav');
         this.load.audio('shield_sound', 'assets/sfx/shield.wav');
         this.load.audio('hit_sound', 'assets/sfx/hit.wav');
+        //ui
+        this.load.image('card', 'assets/ui/card.png');
     }
 
     create() {
@@ -394,7 +396,7 @@ class DungeonScene extends Phaser.Scene {
 const config = {
     type: Phaser.AUTO,
     width: 640,
-    height: 480,
+    height: 550,
     scale: {
         parent: 'game-container',
         mode: Phaser.Scale.NONE, // No auto-scaling
