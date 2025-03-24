@@ -393,12 +393,12 @@ class DungeonScene extends Phaser.Scene {
 }
 const config = {
     type: Phaser.AUTO,
-    width: 1280,
-    height: 720,
+    width: 640,
+    height: 480,
     scale: {
         parent: 'game-container',
-        mode: Phaser.Scale.RESIZE, // Automatically resizes to fit the window
-        autoCenter: Phaser.Scale.CENTER_BOTH
+        mode: Phaser.Scale.NONE, // No auto-scaling
+        autoCenter: Phaser.Scale.CENTER_BOTH // Center the map in the container
     },
     physics: { default: 'arcade', arcade: { debug: false } },
     scene: DungeonScene
