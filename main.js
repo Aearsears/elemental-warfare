@@ -114,6 +114,9 @@ class DungeonScene extends Phaser.Scene {
 
         this.load.image('background_tileset', 'assets/env/background.png'); // Replace with your tileset path
         this.load.image('wall_tileset', 'assets/env/walls.png'); // Replace with your tileset path
+
+        //music and sfx
+        this.load.audio('bgm', 'assets/music/bgm.wav'); // Replace with your actual file path
     }
 
     create() {
@@ -148,15 +151,17 @@ class DungeonScene extends Phaser.Scene {
         this.collisionHandler.setupCollisions();
 
         //create bullet animation
-        this.anims.create({
-            key: 'bulletMove',
-            frames: this.anims.generateFrameNumbers('bullet', {
-                start: 0,
-                end: 3
-            }), // Adjust based on your sprite sheet
-            frameRate: 10, // How fast the frames cycle
-            repeat: -1 // Set to loop indefinitely
-        });
+        if (!this.anims.get('bulletMove')) {
+            this.anims.create({
+                key: 'bulletMove',
+                frames: this.anims.generateFrameNumbers('bullet', {
+                    start: 0,
+                    end: 3
+                }), // Adjust based on your sprite sheet
+                frameRate: 10, // How fast the frames cycle
+                repeat: -1 // Set to loop indefinitely
+            });
+        }
 
         // Set camera to follow the player
         this.cameras.main.startFollow(this.player);
@@ -185,6 +190,12 @@ class DungeonScene extends Phaser.Scene {
 
         this.physics.world.createDebugGraphic();
         this.physics.world.drawDebug = true;
+
+        this.backgroundMusic = this.sound.add('bgm', {
+            loop: true, // Make sure the music loops
+            volume: 0.5 // Adjust volume if needed (0.0 to 1.0)
+        });
+        this.backgroundMusic.play();
     }
     startCountdown() {
         let countdown = 3; // Start from 3
