@@ -16,8 +16,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         // Set custom collision box for the enemy (adjust width/height as needed)
         this.setSize(24, 32); // Smaller collision box
-        this.setOrigin(0.5, 0.5);
-        this.setOffset(24, 32); // Offset the collision box to align with the sprite
+        // this.setOrigin(0.5, 0.5);
+        this.setOffset(40, 32); // Offset the collision box to align with the sprite
 
         // Health Bar Background
         this.healthBarBg = scene.add.graphics();
