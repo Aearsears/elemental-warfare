@@ -96,7 +96,7 @@ export class DungeonGenerator {
                 }
             }
             // Enable collision for wall tiles (ID 1 corresponds to wall tiles)
-            wallLayer.setCollisionByProperty({ collides: true });
+            wallLayer.setCollisionByExclusion([-1]);
             scene.physics.add.collider(
                 this.scene.player,
                 wallLayer,

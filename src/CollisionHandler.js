@@ -12,16 +12,16 @@ export class CollisionHandler {
         this.scene.physics.world.setBounds(
             0,
             0,
-            this.width + this.tileSize,
-            this.height - this.tileSize * 2
+            this.width + this.tileSize * 2,
+            this.height + this.tileSize * 2
         );
-        this.scene.physics.add.collider(
-            this.scene.player,
-            this.scene.dungeonLayer,
-            this.handlePlayerDungeonCollision, // Collider callback function
-            null, // No specific filter function
-            this
-        );
+        // this.scene.physics.add.collider(
+        //     this.scene.player,
+        //     this.scene,
+        //     this.handlePlayerDungeonCollision, // Collider callback function
+        //     null, // No specific filter function
+        //     this
+        // );
 
         // Collision between player and enemies
         this.scene.enemies.forEach((enemy) => {
@@ -41,19 +41,26 @@ export class CollisionHandler {
     }
     handlePlayerEnemyCollision(player, enemy) {
         console.log('Player hit by enemy!');
-        // this.scene.reducePlayerHealth(enemy.damage);
-
+        // todo: need to fix knockback
         // Optional: Knockback effect (push the player away)
-        let knockbackDistance = 10;
+        let knockbackDistance = 200; // Increase for stronger knockback
         let angle = Phaser.Math.Angle.Between(
             enemy.x,
             enemy.y,
             player.x,
             player.y
-        );
+        ); // Angle from enemy to player
+        console.log('knockabck:' + Math.cos(angle) * knockbackDistance);
+
         player.setVelocity(
             Math.cos(angle) * knockbackDistance,
             Math.sin(angle) * knockbackDistance
         );
+        player.setDamping(true);
+        player.setDrag(100); // Adjust the drag value to control slowdown speed
+
+        enemy.setVelocity(0, 0);
+        // Optionally reduce player health here
+        // this.scene.reducePlayerHealth(enemy.damage);
     }
 }
