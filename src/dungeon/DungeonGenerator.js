@@ -101,8 +101,15 @@ export class DungeonGenerator {
                 this.scene.player,
                 wallLayer,
                 () => {
-                    console.log('collie');
+                    console.log('player collided with wall');
                 }, // Collider callback function
+                null, // No specific filter function
+                this
+            ); // Player collision with walls
+            scene.physics.add.collider(
+                this.scene.player.bullets,
+                wallLayer,
+                this.handleBulletWorldBoundsCollision, // Collider callback function
                 null, // No specific filter function
                 this
             ); // Player collision with walls
@@ -117,5 +124,17 @@ export class DungeonGenerator {
             console.error('Tileset Key for Walls:', this.wallTilesetKey);
             console.error('Tileset Key for Ground:', this.groundTilesetKey);
         }
+    }
+    // Handle Bullet-Wall Collision (destroy the bullet on collision)
+    handleBulletWorldBoundsCollision(bullet, wall) {
+        // Deactivate the bullet and hide it
+        console.log('bullet collided with a wall');
+
+        bullet.setActive(false);
+        bullet.setVisible(false);
+        bullet.body.stop(); // Stop its movement
+
+        // Destroy the bullet
+        bullet.destroy();
     }
 }

@@ -15,13 +15,6 @@ export class CollisionHandler {
             this.width + this.tileSize * 2,
             this.height + this.tileSize * 2
         );
-        // this.scene.physics.add.collider(
-        //     this.scene.player,
-        //     this.scene,
-        //     this.handlePlayerDungeonCollision, // Collider callback function
-        //     null, // No specific filter function
-        //     this
-        // );
 
         // Collision between player and enemies
         this.scene.enemies.forEach((enemy) => {
