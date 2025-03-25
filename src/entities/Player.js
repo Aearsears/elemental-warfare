@@ -65,6 +65,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         // Update UI for abilities
         this.updateAbilityUI();
 
+        //need to shuffle the abilites
+        Phaser.Utils.Array.Shuffle(this.abilityPool);
+
         // Dashing flag
         this.isDashing = false;
 
@@ -303,7 +306,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
                 console.log('No abilities available!');
                 return;
             }
-            const ability = Phaser.Utils.Array.GetRandom(this.abilityPool);
+            const ability = this.abilityPool[this.abilityPool.length - 1];
 
             this.isUsingAbility = true;
             console.log(`Using ${ability.name} ability!`);
