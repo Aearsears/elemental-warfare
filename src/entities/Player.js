@@ -10,7 +10,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.scene = scene;
         this.health = 100;
         this.maxHealth = 100;
-        this.damage = 20;
+        this.damage = 50;
         this.keys = 0;
         this.experience = 0;
         this.level = 1;
@@ -524,7 +524,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         bullet.destroy();
 
         // Handle damage to the enemy
-        enemy.takeDamage(10, bullet.direction); // For example, apply damage to the enemy
+        enemy.takeDamage(this.damage, bullet.direction); // For example, apply damage to the enemy
         this.hitSound.play();
     }
 }

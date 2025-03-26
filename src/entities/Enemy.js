@@ -33,6 +33,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         // Flag to prevent multiple damage in the same frame
         this.isHit = false;
+        this.isDead = false;
     }
 
     createAnimations() {
@@ -154,6 +155,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     die() {
         // Play death animation
         console.log('Enemy died!');
+        this.isDead = true;
         this.play('orc_die', true);
 
         // Add a listener for when the death animation completes
@@ -176,7 +178,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     update() {
-        if (!this.body) return; // Prevents errors if body is missing
+        if (!this.body || this.isDead) return; // Prevents errors if body is missing
         // Make sure the health bar follows the enemy
         this.healthBarBg.setPosition(this.x - 16, this.y - 20);
         this.healthBar.setPosition(this.x - 16, this.y - 20);
@@ -191,5 +193,6 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
                 this.play('orc_idle', true);
             }
         }
+        this.moveToward(this.scene.player, 10);
     }
 }
