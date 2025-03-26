@@ -10,23 +10,34 @@ export class UI {
         );
 
         // Create the text UI element to display remaining abilities
-        this.abilityText = this.scene.add.text(
-            this.scene.cameras.main.width - 250, // X position: right edge of the screen
-            this.scene.cameras.main.height - 20, // Y position: bottom of the screen
-            'Next Ability: ',
-            {
-                font: '16px "Press Start 2P"', // Use the pixel font
-                fill: '#ffffff',
-                padding: { x: 10, y: 10 },
-                align: 'right'
-            }
-        );
+        this.abilityText = this.scene.add
+            .text(
+                this.scene.cameras.main.width - 250, // X position: right edge of the screen
+                this.scene.cameras.main.height - 20, // Y position: bottom of the screen
+                'Next Ability: ',
+                {
+                    font: '16px "Press Start 2P"', // Use the pixel font
+                    fill: '#ffffff',
+                    padding: { x: 10, y: 10 },
+                    align: 'right'
+                }
+            )
+            .setOrigin(1, 1)
+            .setScrollFactor(0);
 
-        // Set the scroll factor to 0 so it stays fixed in the same position as the camera moves
-        this.abilityText.setScrollFactor(0);
-
-        // Adjust text alignment to be right-aligned
-        this.abilityText.setOrigin(1, 1); // Set the origin to bottom-right (1, 1)
+        this.waveText = this.scene.add
+            .text(
+                20, // X position: 20 pixels from the left
+                this.scene.cameras.main.height - 40, // Y position: 40 pixels from the bottom
+                `'Wave: ${this.scene.level}'`,
+                {
+                    font: '20px "Press Start 2P"',
+                    fill: '#ffffff', // Yellow color for visibility
+                    align: 'left'
+                }
+            )
+            .setOrigin(0, 1) // Align to the bottom-left corner
+            .setScrollFactor(0); // Fix position to camera
 
         // Initially, update the UI to show available abilities
         this.update();
@@ -83,6 +94,7 @@ export class UI {
             this.abilityIconContainer.removeAll(true);
             this.abilityText.setText(`No more abilities!`);
         }
+        this.waveText.setText(`Wave: ${this.scene.level}`);
     }
 
     // Optionally, you can hide the ability UI during game over or when no abilities are left

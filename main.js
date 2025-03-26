@@ -20,6 +20,7 @@ class DungeonScene extends Phaser.Scene {
         this.collisionHandler = null; // Add this
         this.isGameOver = false; // Prevents health from continuously dropping after game over
         this.isCountdownActive = false; // New flag to control countdown
+        this.level = 1;
     }
 
     preload() {
