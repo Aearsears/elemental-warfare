@@ -207,6 +207,10 @@ class DungeonScene extends Phaser.Scene {
         this.backgroundMusic.play();
     }
     startCountdown() {
+        this.player.isFrozen = true;
+        this.enemies.forEach((enemy) => {
+            enemy.isFrozen = true;
+        });
         let countdown = 3; // Start from 3
 
         // Use a timer event to update countdown every second
@@ -229,9 +233,9 @@ class DungeonScene extends Phaser.Scene {
         this.isCountdownActive = true; // Set countdown as active
     }
     startLevel() {
-        this.player.setVelocity(0, 0);
+        this.player.isFrozen = false;
         this.enemies.forEach((enemy) => {
-            enemy.setVelocity(0, 0);
+            enemy.isFrozen = false;
         });
     }
     createPlayer() {

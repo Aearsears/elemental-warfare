@@ -34,6 +34,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         // Flag to prevent multiple damage in the same frame
         this.isHit = false;
         this.isDead = false;
+        this.isFrozen = false;
     }
 
     createAnimations() {
@@ -182,6 +183,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         // Make sure the health bar follows the enemy
         this.healthBarBg.setPosition(this.x - 16, this.y - 20);
         this.healthBar.setPosition(this.x - 16, this.y - 20);
+
+        if (this.isFrozen) {
+            this.setVelocity(0, 0); // Prevent movement
+            return;
+        }
 
         // If the enemy is idle (not moving), play the idle animation
         if (

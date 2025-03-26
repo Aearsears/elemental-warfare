@@ -6,7 +6,7 @@ import {
 import { UI } from '../UI.js';
 export class Player extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, tileSize) {
-        super(scene, x, y, 'player');
+        super(scene, x, y, 'player_idle_Down');
         this.scene = scene;
         this.health = 100;
         this.maxHealth = 100;
@@ -24,6 +24,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             'Right_Up'
         ];
         this.lastDirection = 'Down'; // Store last direction for idle animation
+        this.isFrozen = false;
 
         // Enable physics
         scene.physics.world.enable(this);
@@ -248,6 +249,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.updateHealthBar();
 
         this.abilityUI.update();
+
+        if (this.isFrozen) {
+            this.setVelocity(0, 0); // Prevent movement
+            return;
+        }
 
         if (this.attackHitbox.visible) {
             this.scene.physics.world.overlap(
