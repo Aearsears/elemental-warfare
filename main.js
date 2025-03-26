@@ -332,7 +332,7 @@ class DungeonScene extends Phaser.Scene {
         // Make enemies chase the player
         this.enemies.forEach((enemy) => {
             enemy.update();
-            // enemy.moveToward(this.player);
+            enemy.moveToward(this.player, 10);
         });
 
         // Check for item pickup

@@ -466,32 +466,26 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
                 case 'Up':
                     velocityX = 0;
                     velocityY = -speed;
-                    direction.set(0, -1); // Direction vector
+                    direction.set(0, -1);
                     break;
                 case 'Down':
                     velocityX = 0;
                     velocityY = speed;
-                    direction.set(0, 1); // Direction vector
+                    direction.set(0, 1);
                     break;
-                case 'Left_Down':
-                    velocityX = -speed;
-                    velocityY = speed;
-                    direction.set(-1, 1); // Direction vector
-                    break;
+                case 'Left_Down': // Treat as Left
                 case 'Left_Up':
+                case 'Left':
                     velocityX = -speed;
-                    velocityY = -speed;
-                    direction.set(-1, -1); // Direction vector
+                    velocityY = 0;
+                    direction.set(-1, 0);
                     break;
-                case 'Right_Down':
-                    velocityX = speed;
-                    velocityY = speed;
-                    direction.set(1, 1); // Direction vector
-                    break;
+                case 'Right_Down': // Treat as Right
                 case 'Right_Up':
+                case 'Right':
                     velocityX = speed;
-                    velocityY = -speed;
-                    direction.set(1, -1); // Direction vector
+                    velocityY = 0;
+                    direction.set(1, 0);
                     break;
                 default:
                     velocityX = 0;
