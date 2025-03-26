@@ -21,6 +21,7 @@ class DungeonScene extends Phaser.Scene {
         this.isGameOver = false; // Prevents health from continuously dropping after game over
         this.isCountdownActive = false; // New flag to control countdown
         this.level = 1;
+        this.isSpawningEnemies = false;
     }
 
     preload() {
@@ -265,12 +266,14 @@ class DungeonScene extends Phaser.Scene {
     }
 
     createEnemies() {
+        console.log('enemies created!');
+
         const enemyTypes = [
             { health: 100, damage: 10, speed: 50, color: 0xff0000 },
             { health: 80, damage: 15, speed: 40, color: 0x00ff00 }
         ];
         const enemyCount = this.level * 2;
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < enemyCount; i++) {
             let x = Phaser.Math.Between(50, 600);
             let y = Phaser.Math.Between(50, 350);
             let type =
@@ -359,9 +362,13 @@ class DungeonScene extends Phaser.Scene {
             (enemy) => !enemy.active
         );
 
-        if (allEnemiesDestroyed) {
-            this.level++; // Increase the level after completing the current one
-            this.levelComplete(); // Restart the level with new difficulty
+        if (allEnemiesDestroyed && !this.isSpawningEnemies) {
+            this.isSpawningEnemies = true; // Prevent multiple triggers
+            this.level++;
+            this.time.delayedCall(1000, () => {
+                this.createEnemies();
+                this.isSpawningEnemies = false; // Reset flag after spawning
+            });
         }
     }
     levelComplete() {
