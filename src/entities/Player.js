@@ -558,9 +558,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.health = Math.max(0, this.health - amount);
         this.updateHealthBar();
 
-        // Flash white effect
-        this.setTint(0xffffff); // Turn white
-        this.scene.time.delayedCall(100, () => {
+        this.setTintFill(0xff0000);
+        this.scene.time.delayedCall(200, () => {
             this.clearTint(); // Remove the tint after 100ms
         });
         const knockbackStrength = 200; // Adjust this for the desired knockback strength
