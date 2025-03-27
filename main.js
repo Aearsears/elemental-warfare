@@ -321,11 +321,8 @@ class DungeonScene extends Phaser.Scene {
             x = Phaser.Math.Clamp(x, 32, 608);
             y = Phaser.Math.Clamp(y, 32, 448);
 
-            let enemyTier = Math.min(
-                Math.floor(this.level / 3),
-                enemyTypes.length - 1
-            );
-            let type = enemyTypes[Phaser.Math.Between(0, enemyTier)];
+            let type =
+                enemyTypes[Phaser.Math.Between(0, enemyTypes.length - 1)];
 
             let enemy = new Enemy(this, x, y, 32, type);
             this.enemies.push(enemy);
@@ -434,6 +431,7 @@ class DungeonScene extends Phaser.Scene {
         this.level = 1;
         // Delay the scene restart slightly to avoid conflicts
         this.time.delayedCall(2000, () => {
+            this.backgroundMusic.stop();
             this.scene.restart();
         });
     }
