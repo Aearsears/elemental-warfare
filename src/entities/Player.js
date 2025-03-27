@@ -471,7 +471,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
     shootBullet() {
         // Create a new bullet from the bullet group
-        this.bulletSound.play();
+        this.bulletSound.play({ volume: 0.5 });
         const bullet = this.bullets.getFirstDead(true, this.x, this.y); // Use 'bullet' texture
 
         if (bullet) {
@@ -548,7 +548,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         // Handle damage to the enemy
         enemy.takeDamage(this.damage, bullet.direction); // For example, apply damage to the enemy
-        this.hitSound.play();
+        this.hitSound.play({ volume: 0.5 });
     }
 
     takeDamage(amount, damageDirection) {

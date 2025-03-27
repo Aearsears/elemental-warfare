@@ -52,9 +52,6 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         const animations = ['idle', 'move', 'hurt', 'die'];
         animations.forEach((animation) => {
             if (!this.scene.anims.get(`${this.name}_${animation}`)) {
-                console.log(`${this.name}_${animation}`);
-                console.log(this.frames[animation]);
-
                 this.scene.anims.create({
                     key: `${this.name}_${animation}`,
                     frames: this.scene.anims.generateFrameNumbers(
