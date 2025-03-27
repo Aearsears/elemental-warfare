@@ -199,6 +199,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
                 this.play('orc_idle', true);
             }
         }
-        this.moveToward(this.scene.player, 10);
+        if (!this.isHit) {
+            this.moveToward(this.scene.player, 10);
+        }
     }
 }

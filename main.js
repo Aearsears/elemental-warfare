@@ -318,21 +318,6 @@ class DungeonScene extends Phaser.Scene {
 
     update() {
         if (this.isGameOver) return; // Stop updates if the game is over
-        // Player movement
-        let moveX = 0;
-        let moveY = 0;
-
-        if (this.cursors.left.isDown) moveX = -1;
-        if (this.cursors.right.isDown) moveX = 1;
-        if (this.cursors.up.isDown) moveY = -1;
-        if (this.cursors.down.isDown) moveY = 1;
-
-        // Normalize diagonal movement
-        if (moveX !== 0 && moveY !== 0) {
-            moveX *= Math.SQRT1_2;
-            moveY *= Math.SQRT1_2;
-        }
-        this.player.setVelocity(moveX * 200, moveY * 200);
 
         this.player.update(); // Ensure the health bar follows
 
@@ -399,10 +384,9 @@ class DungeonScene extends Phaser.Scene {
             this.scene.restart();
         });
     }
-    reducePlayerHealth(amount) {
+    reducePlayerHealth(amount, direction) {
         if (this.isGameOver) return; // Prevent multiple restarts
-        this.player.takeDamage(amount);
-        console.log(`Player Health: ${this.player.health}`);
+        this.player.takeDamage(amount, direction);
 
         if (this.player.health <= 0) {
             this.restart();

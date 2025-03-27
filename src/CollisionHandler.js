@@ -32,27 +32,19 @@ export class CollisionHandler {
         // You can add additional checks to verify collision properties
     }
     handlePlayerEnemyCollision(player, enemy) {
-        console.log('Player hit by enemy!');
-        // todo: need to fix knockback
-        // Optional: Knockback effect (push the player away)
-        let knockbackDistance = 200; // Increase for stronger knockback
+        // Apply knockback effect
+
         let angle = Phaser.Math.Angle.Between(
             enemy.x,
             enemy.y,
             player.x,
             player.y
         ); // Angle from enemy to player
-        console.log('knockabck:' + Math.cos(angle) * knockbackDistance);
+        let dir = {};
+        dir.x = Math.cos(angle);
+        dir.y = Math.sin(angle);
 
-        player.setVelocity(
-            Math.cos(angle) * knockbackDistance,
-            Math.sin(angle) * knockbackDistance
-        );
-        player.setDamping(true);
-        player.setDrag(100); // Adjust the drag value to control slowdown speed
-
-        enemy.setVelocity(0, 0);
         // Optionally reduce player health here
-        this.scene.reducePlayerHealth(enemy.damage);
+        this.scene.reducePlayerHealth(enemy.damage, dir);
     }
 }

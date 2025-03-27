@@ -223,12 +223,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.healthBar.fillRect(0, 0, 40 * (this.health / this.maxHealth), 6);
     }
 
-    takeDamage(amount) {
-        this.health = Math.max(0, this.health - amount);
-        this.updateHealthBar();
-        return this.health <= 0;
-    }
-
     heal(amount) {
         this.health = Math.min(this.maxHealth, this.health + amount);
         this.updateHealthBar();
@@ -266,28 +260,46 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             );
         }
 
-        if (this.isDashing) return; // Prevent movement when attacking
+        if (this.isDashing || this.isHit) return; // Prevent movement when attacking
 
-        // Handle movement
-        let moveX = this.body.velocity.x;
-        let moveY = this.body.velocity.y;
+        // Player movement
+        let moveX = 0;
+        let moveY = 0;
+
+        if (this.scene.cursors.left.isDown) moveX = -1;
+        if (this.scene.cursors.right.isDown) moveX = 1;
+        if (this.scene.cursors.up.isDown) moveY = -1;
+        if (this.scene.cursors.down.isDown) moveY = 1;
+
+        // Normalize diagonal movement
+        if (moveX !== 0 && moveY !== 0) {
+            moveX *= Math.SQRT1_2;
+            moveY *= Math.SQRT1_2;
+        }
+
         // Determine direction
         let direction = this.lastDirection; // Default to last direction
         direction = this.getDirection(moveX, moveY);
 
-        if (moveX !== 0 || moveY !== 0) {
-            this.lastDirection = direction;
-            if (!this.isDashing && !this.isUsingAbility) {
-                if (!this.walkSound.isPlaying) {
-                    this.walkSound.play({ loop: true }); // Ensures the sound loops
-                }
-                this.play(`player_walk_${direction}`, true);
+        this.lastDirection = direction;
+
+        if (
+            !this.isDashing &&
+            !this.isUsingAbility &&
+            !this.isHit &&
+            (moveX != 0 || moveY != 0)
+        ) {
+            if (!this.walkSound.isPlaying) {
+                this.walkSound.play({ loop: true }); // Ensures the sound loops
             }
+            this.setVelocity(moveX * 200, moveY * 200);
+            this.play(`player_walk_${direction}`, true);
         } else {
             if (this.walkSound.isPlaying) {
                 this.walkSound.stop();
             }
-            if (!this.isDashing && !this.isUsingAbility) {
+            if (!this.isDashing && !this.isUsingAbility && !this.isHit) {
+                this.setVelocity(0, 0);
                 this.play(`player_idle_${this.lastDirection}`, true);
             }
         }
@@ -359,15 +371,21 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         if (vx > 0 && vy < 0) return 'Right_Up';
         if (vx > 0 && vy > 0) return 'Right_Down';
 
-        // If only moving left or right, infer vertical direction based on last movement
-        if (vx < 0)
-            return this.lastDirection.includes('Up') ? 'Left_Up' : 'Left_Down';
-        if (vx > 0)
-            return this.lastDirection.includes('Up')
+        // If moving purely left or right, determine vertical direction from last movement
+        if (vx < 0) {
+            return this.lastDirection.startsWith('Right') ||
+                this.lastDirection === 'Up'
+                ? 'Left_Up'
+                : 'Left_Down';
+        }
+        if (vx > 0) {
+            return this.lastDirection.startsWith('Left') ||
+                this.lastDirection === 'Up'
                 ? 'Right_Up'
                 : 'Right_Down';
+        }
 
-        return this.direction; // Default to last known direction if no movement
+        return this.lastDirection; // Default to last known direction
     }
     dash(direction) {
         this.play(`player_dash_${direction}`, true);
@@ -539,27 +557,29 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         if (this.isHit) return; // Prevent taking damage multiple times in the same frame
 
         this.isHit = true; // Set the hit flag
-        this.health -= amount;
+        this.health = Math.max(0, this.health - amount);
         this.updateHealthBar();
-        console.log('player took damage:', this.health);
 
         // Flash white effect
         this.setTint(0xffffff); // Turn white
         this.scene.time.delayedCall(100, () => {
             this.clearTint(); // Remove the tint after 100ms
         });
-
-        // Apply knockback effect
-        const knockbackStrength = 100; // Adjust this for the desired knockback strength
+        const knockbackStrength = 200; // Adjust this for the desired knockback strength
         const knockbackDuration = 200; // Knockback effect duration in ms
-
         if (damageDirection) {
+            console.log(
+                `palyer.js ${this.isHit}:player took damage:`,
+                this.health
+            );
             // Apply knockback in the opposite direction of the damage
             this.setVelocity(
                 damageDirection.x * knockbackStrength,
                 damageDirection.y * knockbackStrength
             );
 
+            // this.setDamping(true);
+            // this.setDrag(100); // Adjust the drag value to control slowdown speed
             // Stop the knockback after a short duration
             this.scene.time.delayedCall(knockbackDuration, () => {
                 this.setVelocity(0, 0); // Stop movement after knockback
