@@ -111,6 +111,7 @@ export class UI {
     showUpgradeOptions() {
         if (!this.upgradeOptions) {
             // Create upgrade options when all enemies are dead
+            //TODO: make pretty
             this.upgradeOptions = this.scene.add.container(640 / 2, 550 / 2); // Position the container on the screen
             // Add a semi-transparent black background
             const background = this.scene.add.rectangle(
