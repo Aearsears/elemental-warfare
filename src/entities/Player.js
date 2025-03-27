@@ -10,7 +10,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.scene = scene;
         this.health = 100;
         this.maxHealth = 100;
-        this.damage = 50;
+        this.damage = 25;
         this.keys = 0;
         this.experience = 0;
         this.level = 1;
