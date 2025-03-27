@@ -76,7 +76,7 @@ class DungeonScene extends Phaser.Scene {
             { name: 'bat', frameWidth: 64, frameHeight: 64 },
             { name: 'mushroom', frameWidth: 80, frameHeight: 64 }
         ];
-        const animations = ['idle', 'attack', 'walk', 'hurt', 'death'];
+        const animations = ['idle', 'attack', 'move', 'hurt', 'die'];
         enemies.forEach((enemy) => {
             animations.forEach((animation) => {
                 this.load.spritesheet(
@@ -273,40 +273,54 @@ class DungeonScene extends Phaser.Scene {
 
         const enemyTypes = [
             {
-                name: 'Basic',
+                name: 'orc',
                 health: baseStats.health,
                 damage: baseStats.damage,
                 speed: baseStats.speed,
-                color: 0xff0000
+                width: 24,
+                height: 32,
+                idle: 5,
+                move: 7,
+                hurt: 3,
+                die: 3
             },
             {
-                name: 'Tank',
+                name: 'mushroom',
                 health: baseStats.health * 2,
                 damage: baseStats.damage * 0.8,
                 speed: baseStats.speed * 0.7,
-                color: 0x0000ff
+                width: 24,
+                height: 32,
+                idle: 6,
+                move: 7,
+                hurt: 4,
+                die: 14
             },
             {
-                name: 'Fast',
+                name: 'bat',
                 health: baseStats.health * 0.75,
                 damage: baseStats.damage * 1.2,
                 speed: baseStats.speed * 1.5,
-                color: 0xffff00
-            },
-            {
-                name: 'Ranged',
-                health: baseStats.health * 0.9,
-                damage: baseStats.damage * 1.5,
-                speed: baseStats.speed,
-                color: 0x00ff00
+                width: 24,
+                height: 32,
+                idle: 8,
+                move: 7,
+                hurt: 4,
+                die: 12
             }
         ];
 
         for (let i = 0; i < enemyCount; i++) {
-            let x = Phaser.Math.Between(50, 600);
-            let y = Phaser.Math.Between(50, 350);
+            let spawnDistance = Phaser.Math.Between(80, 150); // Min/max distance from player
+            let angle = Phaser.Math.FloatBetween(0, Math.PI * 2); // Random direction
 
-            // Scale enemy difficulty based on level
+            let x = this.player.x + Math.cos(angle) * spawnDistance;
+            let y = this.player.y + Math.sin(angle) * spawnDistance;
+
+            // Keep enemies within map bounds (640x480)
+            x = Phaser.Math.Clamp(x, 32, 608);
+            y = Phaser.Math.Clamp(y, 32, 448);
+
             let enemyTier = Math.min(
                 Math.floor(this.level / 3),
                 enemyTypes.length - 1

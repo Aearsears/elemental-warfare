@@ -1,13 +1,23 @@
 export class Enemy extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, tileSize, type) {
-        super(scene, x, y, 'orc_idle'); // Use actual texture or color key
+        super(scene, x, y, `${type.name}_idle`); // Use actual texture or color key
 
         this.scene = scene;
         this.type = type;
+        this.name = type.name;
         this.health = type.health;
         this.maxHealth = type.health;
         this.damage = type.damage;
         this.speed = type.speed;
+        this.width = type.width;
+        this.height = type.height;
+
+        this.frames = {
+            idle: type.idle,
+            move: type.move,
+            hurt: type.hurt,
+            die: type.die
+        };
 
         // Enable physics and add enemy to scene
         scene.physics.world.enable(this);
@@ -15,9 +25,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.setCollideWorldBounds(true);
 
         // Set custom collision box for the enemy (adjust width/height as needed)
-        this.setSize(24, 32); // Smaller collision box
+        this.setSize(this.width, this.height); // Smaller collision box
         // this.setOrigin(0.5, 0.5);
-        this.setOffset(40, 32); // Offset the collision box to align with the sprite
+        this.setOffset(this.width * 1.6, this.height); // Offset the collision box to align with the sprite
 
         // Health Bar Background
         this.healthBarBg = scene.add.graphics();
@@ -39,56 +49,26 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     createAnimations() {
         // Idle animation (only create if it doesn't exist)
-        if (!this.scene.anims.get('orc_idle')) {
-            this.scene.anims.create({
-                key: 'orc_idle',
-                frames: this.scene.anims.generateFrameNumbers('orc_idle', {
-                    start: 0,
-                    end: 5 // Adjust frame range for idle animation
-                }),
-                frameRate: 5,
-                repeat: -1 // Loop the idle animation
-            });
-        }
+        const animations = ['idle', 'move', 'hurt', 'die'];
+        animations.forEach((animation) => {
+            if (!this.scene.anims.get(`${this.name}_${animation}`)) {
+                console.log(`${this.name}_${animation}`);
+                console.log(this.frames[animation]);
 
-        // Move animation (only create if it doesn't exist)
-        if (!this.scene.anims.get('orc_move')) {
-            this.scene.anims.create({
-                key: 'orc_move',
-                frames: this.scene.anims.generateFrameNumbers('orc_walk', {
-                    start: 0,
-                    end: 7 // Adjust frame range for movement animation
-                }),
-                frameRate: 10,
-                repeat: -1
-            });
-        }
-
-        // Hurt animation (only create if it doesn't exist)
-        if (!this.scene.anims.get('orc_hurt')) {
-            this.scene.anims.create({
-                key: 'orc_hurt',
-                frames: this.scene.anims.generateFrameNumbers('orc_hurt', {
-                    start: 0,
-                    end: 3 // Adjust frame range for hurt animation
-                }),
-                frameRate: 5,
-                repeat: 0 // Don't loop the hurt animation
-            });
-        }
-
-        // Death animation (only create if it doesn't exist)
-        if (!this.scene.anims.get('orc_die')) {
-            this.scene.anims.create({
-                key: 'orc_die',
-                frames: this.scene.anims.generateFrameNumbers('orc_death', {
-                    start: 0,
-                    end: 3 // Adjust frame range for death animation
-                }),
-                frameRate: 5,
-                repeat: 0 // Don't loop the death animation
-            });
-        }
+                this.scene.anims.create({
+                    key: `${this.name}_${animation}`,
+                    frames: this.scene.anims.generateFrameNumbers(
+                        `${this.name}_${animation}`,
+                        {
+                            start: 0,
+                            end: this.frames[animation] // Adjust frame range for idle animation
+                        }
+                    ),
+                    frameRate: 5,
+                    repeat: 0 // Loop the idle animation
+                });
+            }
+        });
     }
 
     updateHealthBar() {
@@ -107,7 +87,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         console.log('Enemy took damage:', this.health);
 
         // Play hurt animation when taking damage
-        this.play('orc_hurt', true);
+        this.play(`${this.name}_hurt`, true);
 
         // Apply knockback effect
         const knockbackStrength = 100; // Adjust this for the desired knockback strength
@@ -147,7 +127,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
             );
 
             // Play move animation when moving
-            this.play('orc_move', true);
+            this.play(`${this.name}_move`, true);
         } else {
             this.setVelocity(0, 0); // Stop movement
         }
@@ -157,10 +137,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         // Play death animation
         console.log('Enemy died!');
         this.isDead = true;
-        this.play('orc_die', true);
+        this.play(`${this.name}_die`, true);
 
         // Add a listener for when the death animation completes
-        this.on('animationcomplete-orc_die', () => {
+        this.on(`animationcomplete-${this.name}_die`, () => {
             // Optional: Add any other logic that happens after the animation finishes
             console.log(
                 'Death animation complete, waiting for delay to destroy the enemy...'
@@ -196,7 +176,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
             this.health > 0
         ) {
             if (!this.isHit) {
-                this.play('orc_idle', true);
+                this.play(`${this.name}_idle`, true);
             }
         }
         if (!this.isHit) {
