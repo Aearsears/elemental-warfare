@@ -262,6 +262,7 @@ class DungeonScene extends Phaser.Scene {
             this.healAbility,
             this.shieldAbility
         ];
+        Phaser.Utils.Array.Shuffle(this.player.abilityPool);
     }
 
     createEnemies() {
