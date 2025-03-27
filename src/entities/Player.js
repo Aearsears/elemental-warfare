@@ -565,10 +565,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         const knockbackStrength = 200; // Adjust this for the desired knockback strength
         const knockbackDuration = 200; // Knockback effect duration in ms
         if (damageDirection) {
-            console.log(
-                `palyer.js ${this.isHit}:player took damage:`,
-                this.health
-            );
             // Apply knockback in the opposite direction of the damage
             this.setVelocity(
                 damageDirection.x * knockbackStrength,
