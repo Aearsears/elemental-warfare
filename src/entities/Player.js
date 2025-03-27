@@ -406,7 +406,35 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         });
     }
     playAbilityEffect(name, shouldFollow = true, damage = 0) {
-        const ability = this.scene.add.sprite(this.x, this.y, 'player'); // Temporary sprite for effect
+        // Store the direction
+        let direction = new Phaser.Math.Vector2(0, 0); // Initialize direction vector
+
+        switch (this.lastDirection) {
+            case 'Up':
+                direction.set(0, -1);
+                break;
+            case 'Down':
+                direction.set(0, 1);
+                break;
+            case 'Left_Down': // Treat as Left
+            case 'Left_Up':
+            case 'Left':
+                direction.set(-1, 0);
+                break;
+            case 'Right_Down': // Treat as Right
+            case 'Right_Up':
+            case 'Right':
+                direction.set(1, 0);
+                break;
+            default:
+                velocityX = 0;
+                velocityY = 0;
+                break;
+        }
+        let offset = name == 'bomb' ? 50 : 0; // Offset distance in pixels
+        let abilityX = this.x + direction.x * offset;
+        let abilityY = this.y + direction.y * offset;
+        const ability = this.scene.add.sprite(abilityX, abilityY, 'player'); // Temporary sprite for effect
         ability.setOrigin(0.5, 0.5);
         ability.play(name, true);
 
@@ -417,7 +445,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         } else {
             // Enable and position the hitbox
             this.attackHitbox.setVisible(true); // Show the hitbox
-            this.attackHitbox.setPosition(this.x + 10, this.y); // Adjust based on attack range
+            this.attackHitbox.setPosition(abilityX, abilityY); // Adjust based on attack range
             // Store the ability's damage inside the hitbox
             this.attackHitbox.damage = damage;
             // Enable physics body
