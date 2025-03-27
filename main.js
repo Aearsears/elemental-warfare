@@ -133,8 +133,9 @@ class DungeonScene extends Phaser.Scene {
         this.items = []; // Reset items
 
         this.createPlayer();
+        this.ui = this.player.abilityUI;
         this.createEnemies();
-        this.createItems();
+        // this.createItems();
         this.createControls();
         this.createAbilites();
 
@@ -306,7 +307,7 @@ class DungeonScene extends Phaser.Scene {
                 idle: 8,
                 move: 7,
                 hurt: 4,
-                die: 12
+                die: 11
             }
         ];
 
@@ -396,17 +397,19 @@ class DungeonScene extends Phaser.Scene {
         if (allEnemiesDestroyed && !this.isSpawningEnemies) {
             this.isSpawningEnemies = true; // Prevent multiple triggers
             this.level++;
+
+            // Show upgrade options
+            this.ui.showUpgradeOptions(); // Display the upgrade options
+
             this.countdownText.setText('Next wave...'); // Update the text
             this.countdownText.setVisible(true);
+
+            // Wait until upgrade is chosen before progressing
             this.time.delayedCall(2000, () => {
-                // Destroy all enemies and items
-                this.enemies.forEach((enemy) => enemy.destroy());
-                this.items.forEach((item) => item.destroy());
-
-                // Reset other scene objects
-                this.dungeon = [];
-
-                this.scene.restart();
+                if (!this.upgradeChosen) {
+                    // If the player hasn't selected an upgrade, don't proceed yet
+                    this.countdownText.setText('Please choose an upgrade.');
+                }
             });
         }
     }

@@ -108,4 +108,105 @@ export class UI {
         this.abilityText.setVisible(true);
         this.abilityIconContainer.setVisible(true); // Show the icon container
     }
+    showUpgradeOptions() {
+        if (!this.upgradeOptions) {
+            // Create upgrade options when all enemies are dead
+            this.upgradeOptions = this.scene.add.container(640 / 2, 550 / 2); // Position the container on the screen
+            // Add a semi-transparent black background
+            const background = this.scene.add.rectangle(
+                640 / 2,
+                550 / 2,
+                800,
+                400,
+                0x000000,
+                0.5
+            ); // Black color with 50% opacity
+            background.setOrigin(640 / 2, 480 / 2); // Center the rectangle on the container
+            const upgradeText = this.scene.add.text(
+                0,
+                0,
+                'Choose an upgrade:',
+                {
+                    font: '24px Arial',
+                    fill: '#ffffff'
+                }
+            );
+
+            // Upgrade buttons (could be health, damage, etc.)
+            const healthButton = this.scene.add
+                .text(0, 30, 'Increase Health by 20', {
+                    font: '20px Arial',
+                    fill: '#ffffff'
+                })
+                .setInteractive();
+
+            const damageButton = this.scene.add
+                .text(0, 60, 'Increase Damage by 10', {
+                    font: '20px Arial',
+                    fill: '#ffffff'
+                })
+                .setInteractive();
+
+            const speedButton = this.scene.add
+                .text(0, 90, 'Increase speed by 20', {
+                    font: '20px Arial',
+                    fill: '#ffffff'
+                })
+                .setInteractive();
+
+            // Add buttons to the container
+            this.upgradeOptions.add(upgradeText);
+            this.upgradeOptions.add(healthButton);
+            this.upgradeOptions.add(damageButton);
+            this.upgradeOptions.add(speedButton);
+
+            // Set button actions
+            healthButton.on('pointerdown', () => this.upgradeHealth());
+            damageButton.on('pointerdown', () => this.upgradeDamage());
+            speedButton.on('pointerdown', () => this.upgradeSpeed());
+
+            // Hide upgrade options after selection
+            this.upgradeOptions.setDepth(10); // Make sure upgrade options are on top
+        }
+    }
+
+    upgradeHealth() {
+        this.player.maxHealth += 20;
+        this.player.health = this.player.maxHealth; // Restore health on upgrade
+        this.player.updateHealthBar();
+        this.upgradeChosen = true; // Set upgradeChosen to true when an upgrade is selected
+        this.hideUpgradeOptions();
+    }
+
+    upgradeDamage() {
+        this.player.damage += 10;
+        this.upgradeChosen = true; // Set upgradeChosen to true when an upgrade is selected
+        this.hideUpgradeOptions();
+    }
+
+    upgradeSpeed() {
+        this.player.speed += 20;
+        this.upgradeChosen = true; // Set upgradeChosen to true when an upgrade is selected
+        this.hideUpgradeOptions();
+    }
+
+    hideUpgradeOptions() {
+        if (this.upgradeOptions) {
+            this.upgradeOptions.setVisible(false);
+            this.upgradeOptions = null;
+
+            // Now proceed to next wave after upgrade options are hidden
+            this.scene.time.delayedCall(500, () => {
+                // Destroy all enemies and items
+                this.scene.enemies.forEach((enemy) => enemy.destroy());
+                this.scene.items.forEach((item) => item.destroy());
+
+                // Reset other scene objects
+                this.scene.dungeon = [];
+
+                // Restart the scene to load the next wave
+                this.scene.scene.restart();
+            });
+        }
+    }
 }

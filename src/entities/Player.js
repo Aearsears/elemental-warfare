@@ -9,6 +9,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         super(scene, x, y, 'player_idle_Down');
         this.scene = scene;
         this.health = 100;
+        this.speed = 200;
         this.maxHealth = 100;
         this.damage = 25;
         this.keys = 0;
@@ -292,7 +293,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             if (!this.walkSound.isPlaying) {
                 this.walkSound.play({ loop: true }); // Ensures the sound loops
             }
-            this.setVelocity(moveX * 200, moveY * 200);
+            this.setVelocity(moveX * this.speed, moveY * this.speed);
             this.play(`player_walk_${direction}`, true);
         } else {
             if (this.walkSound.isPlaying) {
@@ -580,5 +581,51 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.scene.time.delayedCall(500, () => {
             this.isHit = false;
         });
+    }
+    // In the Player class, a new method for progression
+    getUpgradeOptions() {
+        const options = [
+            {
+                name: 'Increase Health',
+                action: this.increaseHealth.bind(this),
+                cost: 0
+            },
+            {
+                name: 'Increase Damage',
+                action: this.increaseDamage.bind(this),
+                cost: 0
+            },
+            {
+                name: 'Unlock Shield Ability',
+                action: this.unlockShield.bind(this),
+                cost: 0
+            },
+            {
+                name: 'Reduce Bomb Cooldown',
+                action: this.reduceBombCooldown.bind(this),
+                cost: 0
+            }
+        ];
+
+        // Select a random subset of 3 options (or just choose the ones you want)
+        return Phaser.Utils.Array.Shuffle(options).slice(0, 3);
+    }
+
+    increaseHealth() {
+        this.maxHealth += 20;
+        this.health = this.maxHealth; // Restore health to full
+        this.updateHealthBar();
+    }
+
+    increaseDamage() {
+        this.damage += 5;
+    }
+
+    unlockShield() {
+        this.abilityPool.push(new ShieldAbility(this)); // Assuming you have a ShieldAbility class
+    }
+
+    reduceBombCooldown() {
+        this.bombAbilityCooldown -= 1; // Assuming bomb has a cooldown attribute
     }
 }
