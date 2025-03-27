@@ -349,7 +349,9 @@ class DungeonScene extends Phaser.Scene {
         if (allEnemiesDestroyed && !this.isSpawningEnemies) {
             this.isSpawningEnemies = true; // Prevent multiple triggers
             this.level++;
-            this.time.delayedCall(1000, () => {
+            this.countdownText.setText('Next wave...'); // Update the text
+            this.countdownText.setVisible(true);
+            this.time.delayedCall(2000, () => {
                 // Destroy all enemies and items
                 this.enemies.forEach((enemy) => enemy.destroy());
                 this.items.forEach((item) => item.destroy());
@@ -369,7 +371,8 @@ class DungeonScene extends Phaser.Scene {
 
     restart() {
         if (this.isGameOver) return; // Prevent multiple restarts
-        console.log('Game Over!');
+        this.countdownText.setText('Game Over!'); // Update the text
+        this.countdownText.setVisible(true);
         this.isGameOver = true; // Prevent multiple game over triggers
 
         // Destroy all enemies and items
@@ -380,7 +383,7 @@ class DungeonScene extends Phaser.Scene {
         this.dungeon = [];
         this.level = 1;
         // Delay the scene restart slightly to avoid conflicts
-        this.time.delayedCall(500, () => {
+        this.time.delayedCall(2000, () => {
             this.scene.restart();
         });
     }
