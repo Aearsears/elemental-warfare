@@ -131,6 +131,7 @@ class DungeonScene extends Phaser.Scene {
     }
 
     create() {
+        this.isSpawningEnemies = false;
         this.isGameOver = false; // Reset game over state
         this.enemies = []; // Reset enemies
         this.items = []; // Reset items
@@ -266,13 +267,11 @@ class DungeonScene extends Phaser.Scene {
     }
 
     createEnemies() {
-        console.log('enemies created!');
-
+        const enemyCount = this.level * 2;
         const enemyTypes = [
             { health: 100, damage: 10, speed: 50, color: 0xff0000 },
             { health: 80, damage: 15, speed: 40, color: 0x00ff00 }
         ];
-        const enemyCount = this.level * 2;
         for (let i = 0; i < enemyCount; i++) {
             let x = Phaser.Math.Between(50, 600);
             let y = Phaser.Math.Between(50, 350);
@@ -366,8 +365,14 @@ class DungeonScene extends Phaser.Scene {
             this.isSpawningEnemies = true; // Prevent multiple triggers
             this.level++;
             this.time.delayedCall(1000, () => {
-                this.createEnemies();
-                this.isSpawningEnemies = false; // Reset flag after spawning
+                // Destroy all enemies and items
+                this.enemies.forEach((enemy) => enemy.destroy());
+                this.items.forEach((item) => item.destroy());
+
+                // Reset other scene objects
+                this.dungeon = [];
+
+                this.scene.restart();
             });
         }
     }
@@ -376,6 +381,7 @@ class DungeonScene extends Phaser.Scene {
         // this.scene.start('AbilitySelectionScene');
         this.restart();
     }
+
     restart() {
         if (this.isGameOver) return; // Prevent multiple restarts
         console.log('Game Over!');
@@ -387,7 +393,7 @@ class DungeonScene extends Phaser.Scene {
 
         // Reset other scene objects
         this.dungeon = [];
-
+        this.level = 1;
         // Delay the scene restart slightly to avoid conflicts
         this.time.delayedCall(500, () => {
             this.scene.restart();
@@ -395,8 +401,7 @@ class DungeonScene extends Phaser.Scene {
     }
     reducePlayerHealth(amount) {
         if (this.isGameOver) return; // Prevent multiple restarts
-
-        this.player.health -= amount;
+        this.player.takeDamage(amount);
         console.log(`Player Health: ${this.player.health}`);
 
         if (this.player.health <= 0) {

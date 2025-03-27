@@ -25,6 +25,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         ];
         this.lastDirection = 'Down'; // Store last direction for idle animation
         this.isFrozen = false;
+        this.isHit = false;
 
         // Enable physics
         scene.physics.world.enable(this);
@@ -532,5 +533,41 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         // Handle damage to the enemy
         enemy.takeDamage(this.damage, bullet.direction); // For example, apply damage to the enemy
         this.hitSound.play();
+    }
+
+    takeDamage(amount, damageDirection) {
+        if (this.isHit) return; // Prevent taking damage multiple times in the same frame
+
+        this.isHit = true; // Set the hit flag
+        this.health -= amount;
+        this.updateHealthBar();
+        console.log('player took damage:', this.health);
+
+        // Flash white effect
+        this.setTint(0xffffff); // Turn white
+        this.scene.time.delayedCall(100, () => {
+            this.clearTint(); // Remove the tint after 100ms
+        });
+
+        // Apply knockback effect
+        const knockbackStrength = 100; // Adjust this for the desired knockback strength
+        const knockbackDuration = 200; // Knockback effect duration in ms
+
+        if (damageDirection) {
+            // Apply knockback in the opposite direction of the damage
+            this.setVelocity(
+                damageDirection.x * knockbackStrength,
+                damageDirection.y * knockbackStrength
+            );
+
+            // Stop the knockback after a short duration
+            this.scene.time.delayedCall(knockbackDuration, () => {
+                this.setVelocity(0, 0); // Stop movement after knockback
+            });
+        }
+
+        this.scene.time.delayedCall(500, () => {
+            this.isHit = false;
+        });
     }
 }

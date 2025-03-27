@@ -8,7 +8,6 @@ export class CollisionHandler {
 
     setupCollisions() {
         // Collision between player and walls
-        //TODO: fix bottom layer not colliding
         this.scene.physics.world.setBounds(
             0,
             0,
@@ -54,6 +53,6 @@ export class CollisionHandler {
 
         enemy.setVelocity(0, 0);
         // Optionally reduce player health here
-        // this.scene.reducePlayerHealth(enemy.damage);
+        this.scene.reducePlayerHealth(enemy.damage);
     }
 }
