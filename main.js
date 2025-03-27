@@ -8,6 +8,9 @@ import {
     BombAbility,
     ShieldAbility
 } from './src/abilities/Ability.js';
+const isDebugMode =
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1'; // Only enable debug on localhost
 class DungeonScene extends Phaser.Scene {
     constructor() {
         super({ key: 'DungeonScene' });
@@ -199,9 +202,10 @@ class DungeonScene extends Phaser.Scene {
         // Start the countdown before the level begins
         this.startCountdown();
         //debug
-
-        this.physics.world.createDebugGraphic();
-        this.physics.world.drawDebug = true;
+        if (isDebugMode) {
+            this.physics.world.createDebugGraphic();
+            this.physics.world.drawDebug = true;
+        }
 
         this.backgroundMusic = this.sound.add('bgm', {
             loop: true, // Make sure the music loops
