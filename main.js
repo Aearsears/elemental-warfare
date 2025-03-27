@@ -239,7 +239,7 @@ class DungeonScene extends Phaser.Scene {
         });
     }
     createPlayer() {
-        this.player = new Player(this, 64, 64, 32); // Adjust starting position
+        this.player = new Player(this, 640 / 2, 480 / 2, 32);
         if (gameState.abilityPool) {
             this.player.abilityPool.push(...gameState.abilityPool);
         }
