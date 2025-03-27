@@ -319,12 +319,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         // Handle ability input
         if (
             Phaser.Input.Keyboard.JustDown(this.abilityKey) &&
-            !this.isDashing
+            !this.isDashing &&
+            this.abilityPool.length != 0
         ) {
-            if (this.abilityPool.length === 0) {
-                console.log('No abilities available!');
-                return;
-            }
             const ability = this.abilityPool[this.abilityPool.length - 1];
 
             this.isUsingAbility = true;
@@ -333,6 +330,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             ability.use(currentTime);
             // Remove the selected ability from the pool
             Phaser.Utils.Array.Remove(this.abilityPool, ability);
+            this.isUsingAbility = false;
         }
         if (this.followingAbilities) {
             this.followingAbilities.forEach((ability) => {
