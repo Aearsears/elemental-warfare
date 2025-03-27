@@ -575,8 +575,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
                 damageDirection.y * knockbackStrength
             );
 
-            // this.setDamping(true);
-            // this.setDrag(100); // Adjust the drag value to control slowdown speed
             // Stop the knockback after a short duration
             this.scene.time.delayedCall(knockbackDuration, () => {
                 this.setVelocity(0, 0); // Stop movement after knockback
