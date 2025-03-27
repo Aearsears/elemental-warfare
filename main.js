@@ -71,30 +71,23 @@ class DungeonScene extends Phaser.Scene {
                 }
             );
         });
-
-        this.load.spritesheet('orc', 'assets/orc/idle.png', {
-            frameWidth: 100,
-            frameHeight: 100
-        });
-        this.load.spritesheet('orc_attack1', 'assets/orc/attack1.png', {
-            frameWidth: 100,
-            frameHeight: 100
-        });
-        this.load.spritesheet('orc_attack2', 'assets/orc/attack2.png', {
-            frameWidth: 100,
-            frameHeight: 100
-        });
-        this.load.spritesheet('orc_walk', 'assets/orc/walk.png', {
-            frameWidth: 100,
-            frameHeight: 100
-        });
-        this.load.spritesheet('orc_hurt', 'assets/orc/hurt.png', {
-            frameWidth: 100,
-            frameHeight: 100
-        });
-        this.load.spritesheet('orc_death', 'assets/orc/death.png', {
-            frameWidth: 100,
-            frameHeight: 100
+        const enemies = [
+            { name: 'orc', frameWidth: 100, frameHeight: 100 },
+            { name: 'bat', frameWidth: 64, frameHeight: 64 },
+            { name: 'mushroom', frameWidth: 80, frameHeight: 64 }
+        ];
+        const animations = ['idle', 'attack', 'walk', 'hurt', 'death'];
+        enemies.forEach((enemy) => {
+            animations.forEach((animation) => {
+                this.load.spritesheet(
+                    `${enemy.name}_${animation}`,
+                    `assets/${enemy.name}/${animation}.png`,
+                    {
+                        frameWidth: enemy.frameWidth,
+                        frameHeight: enemy.frameHeight
+                    }
+                );
+            });
         });
 
         this.load.spritesheet('bomb', 'assets/abilities/bomb_effect.png', {
@@ -271,16 +264,55 @@ class DungeonScene extends Phaser.Scene {
     }
 
     createEnemies() {
-        const enemyCount = this.level * 2;
+        const enemyCount = Math.min(this.level * 2, 20); // Cap max enemies at 20 for balance
+        const baseStats = {
+            health: 50 + this.level * 10,
+            damage: 5 + this.level * 2,
+            speed: 40 + this.level * 1.5
+        };
+
         const enemyTypes = [
-            { health: 100, damage: 10, speed: 50, color: 0xff0000 },
-            { health: 80, damage: 15, speed: 40, color: 0x00ff00 }
+            {
+                name: 'Basic',
+                health: baseStats.health,
+                damage: baseStats.damage,
+                speed: baseStats.speed,
+                color: 0xff0000
+            },
+            {
+                name: 'Tank',
+                health: baseStats.health * 2,
+                damage: baseStats.damage * 0.8,
+                speed: baseStats.speed * 0.7,
+                color: 0x0000ff
+            },
+            {
+                name: 'Fast',
+                health: baseStats.health * 0.75,
+                damage: baseStats.damage * 1.2,
+                speed: baseStats.speed * 1.5,
+                color: 0xffff00
+            },
+            {
+                name: 'Ranged',
+                health: baseStats.health * 0.9,
+                damage: baseStats.damage * 1.5,
+                speed: baseStats.speed,
+                color: 0x00ff00
+            }
         ];
+
         for (let i = 0; i < enemyCount; i++) {
             let x = Phaser.Math.Between(50, 600);
             let y = Phaser.Math.Between(50, 350);
-            let type =
-                enemyTypes[Phaser.Math.Between(0, enemyTypes.length - 1)];
+
+            // Scale enemy difficulty based on level
+            let enemyTier = Math.min(
+                Math.floor(this.level / 3),
+                enemyTypes.length - 1
+            );
+            let type = enemyTypes[Phaser.Math.Between(0, enemyTier)];
+
             let enemy = new Enemy(this, x, y, 32, type);
             this.enemies.push(enemy);
         }

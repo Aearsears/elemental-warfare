@@ -1,6 +1,6 @@
 export class Enemy extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, tileSize, type) {
-        super(scene, x, y, 'orc'); // Use actual texture or color key
+        super(scene, x, y, 'orc_idle'); // Use actual texture or color key
 
         this.scene = scene;
         this.type = type;
@@ -42,7 +42,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         if (!this.scene.anims.get('orc_idle')) {
             this.scene.anims.create({
                 key: 'orc_idle',
-                frames: this.scene.anims.generateFrameNumbers('orc', {
+                frames: this.scene.anims.generateFrameNumbers('orc_idle', {
                     start: 0,
                     end: 5 // Adjust frame range for idle animation
                 }),
