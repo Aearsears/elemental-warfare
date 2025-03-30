@@ -457,7 +457,6 @@ class DungeonScene extends Phaser.Scene {
         this.level = 1;
         // Delay the scene restart slightly to avoid conflicts
         this.time.delayedCall(2000, () => {
-            this.backgroundMusic.stop();
             this.scene.restart();
         });
     }
