@@ -220,11 +220,13 @@ class DungeonScene extends Phaser.Scene {
             this.physics.world.drawDebug = true;
         }
 
-        this.backgroundMusic = this.sound.add('bgm', {
-            loop: true, // Make sure the music loops
-            volume: 0.5 // Adjust volume if needed (0.0 to 1.0)
-        });
-        this.backgroundMusic.play();
+        if (!this.sound.get('bgm')) {
+            this.backgroundMusic = this.sound.add('bgm', {
+                loop: true,
+                volume: 0.5
+            });
+            this.backgroundMusic.play();
+        }
     }
     startCountdown() {
         this.player.isFrozen = true;
