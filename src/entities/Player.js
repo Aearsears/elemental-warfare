@@ -355,12 +355,21 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.isUsingAbility = false;
     }
 
-    shield(value) {
+    shield(value, duration = 3000) {
+        if (this.isShielded) return; // Prevent multiple shields
+
         console.log('Player shielded!');
         this.shieldSound.play();
+        this.isShielded = true; // Set shield active
+        this.body.checkCollision.none = true;
         // Implement shield behavior here
         this.playAbilityEffect('shield', true);
         this.isUsingAbility = false;
+        // Set a timer to disable the shield after the duration
+        this.scene.time.delayedCall(duration, () => {
+            this.isShielded = false;
+            this.body.checkCollision.none = false;
+        });
     }
     getDirection(vx, vy) {
         if (vy < 0 && vx === 0) return 'Up';
