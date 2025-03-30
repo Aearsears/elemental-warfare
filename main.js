@@ -191,6 +191,25 @@ class DungeonScene extends Phaser.Scene {
             }
         );
         this.countdownText.setOrigin(0.5, 0.5); // Center the text
+        // Create a semi-transparent black background behind the countdown text
+        this.countdownTextBackground = this.add.graphics();
+        const padding = 20;
+        const textWidth = this.countdownText.width + padding;
+        const textHeight = this.countdownText.height + padding;
+        const x = this.cameras.main.centerX - textWidth / 2;
+        const y = this.cameras.main.centerY - textHeight / 2;
+
+        this.countdownTextBackground.fillStyle(0x000000, 0.5); // Black color with 50% opacity
+        this.countdownTextBackground.fillRoundedRect(
+            x,
+            y,
+            textWidth,
+            textHeight,
+            10
+        ); // Rounded rectangle
+
+        // Ensure the text appears on top of the background
+        this.countdownTextBackground.setDepth(999);
         this.countdownText.setDepth(1000);
 
         // Start the countdown before the level begins
@@ -224,6 +243,7 @@ class DungeonScene extends Phaser.Scene {
                 // Once countdown reaches 0, start the level
                 if (countdown <= 0) {
                     this.countdownText.setVisible(false); // Hide countdown text
+                    this.countdownTextBackground.setVisible(false);
                     this.isCountdownActive = false; // Set countdown as complete
                     this.startLevel(); // Start the actual level
                 }

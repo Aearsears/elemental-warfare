@@ -111,47 +111,53 @@ export class UI {
     showUpgradeOptions() {
         if (!this.upgradeOptions) {
             // Create upgrade options when all enemies are dead
-            //TODO: make pretty
             this.upgradeOptions = this.scene.add.container(640 / 2, 550 / 2); // Position the container on the screen
             // Add a semi-transparent black background
+            // Create a semi-transparent black background
             const background = this.scene.add.rectangle(
-                640 / 2,
-                550 / 2,
-                800,
-                400,
-                0x000000,
-                0.5
-            ); // Black color with 50% opacity
-            background.setOrigin(640 / 2, 480 / 2); // Center the rectangle on the container
+                0, // Position inside the container
+                0, // Position inside the container
+                2000, // Width
+                2000, // Height
+                0x000000, // Black color
+                0.5 // 50% Opacity
+            );
+            background.setOrigin(0.5, 0.5); // Center the background
+            // Create the upgrade text
             const upgradeText = this.scene.add.text(
                 0,
-                0,
+                -150, // Adjust Y position inside the container
                 'Choose an upgrade:',
                 {
                     font: '24px Arial',
-                    fill: '#ffffff'
+                    fill: '#ffffff',
+                    align: 'center'
                 }
             );
+            upgradeText.setOrigin(0.5, 0.5); // Center the text
 
             // Upgrade buttons (could be health, damage, etc.)
             const healthButton = this.scene.add
-                .text(0, 30, 'Increase Health by 20', {
+                .text(-100, -130, 'Increase Health by 20', {
                     font: '20px Arial',
-                    fill: '#ffffff'
+                    fill: '#ffffff',
+                    align: 'center'
                 })
                 .setInteractive();
 
             const damageButton = this.scene.add
-                .text(0, 60, 'Increase Damage by 10', {
+                .text(-100, -110, 'Increase Damage by 10', {
                     font: '20px Arial',
-                    fill: '#ffffff'
+                    fill: '#ffffff',
+                    align: 'center'
                 })
                 .setInteractive();
 
             const speedButton = this.scene.add
-                .text(0, 90, 'Increase speed by 20', {
+                .text(-100, -90, 'Increase speed by 20', {
                     font: '20px Arial',
-                    fill: '#ffffff'
+                    fill: '#ffffff',
+                    align: 'center'
                 })
                 .setInteractive();
 
