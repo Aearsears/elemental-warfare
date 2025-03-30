@@ -263,17 +263,19 @@ class DungeonScene extends Phaser.Scene {
     }
     createPlayer() {
         this.player = new Player(this, 640 / 2, 480 / 2, 32);
-        if (gameState.abilityPool) {
-            this.player.abilityPool.push(...gameState.abilityPool);
-        }
-        if (gameState.selectedAbility) {
-            this.player.abilityPool.push(gameState.selectedAbility);
-        }
     }
 
     createAbilites() {
-        this.bombAbility = new BombAbility(this.player);
-        this.player.abilityPool.push(this.bombAbility);
+        gameState.abilityPool.forEach((ability) => {
+            if (ability === 'Heal') {
+                this.player.abilityPool.push(new HealAbility(this.player));
+            } else if (ability === 'Bomb') {
+                this.player.abilityPool.push(new BombAbility(this.player));
+            }
+            if (ability === 'Shield') {
+                this.player.abilityPool.push(new ShieldAbility(this.player));
+            }
+        });
     }
 
     createEnemies() {
@@ -469,7 +471,7 @@ const config = {
     physics: { default: 'arcade', arcade: { debug: false } },
     scene: DungeonScene
 };
-const gameState = {
+window.gameState = {
     selectedAbility: null,
     abilityPool: []
 };
