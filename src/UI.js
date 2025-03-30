@@ -172,8 +172,8 @@ export class UI {
             damageButton.on('pointerdown', () => this.upgradeDamage());
             speedButton.on('pointerdown', () => this.upgradeSpeed());
             const chooseAbilityText = this.scene.add.text(
-                -100,
-                -170,
+                330,
+                300,
                 'Or Choose an Ability:',
                 { font: '24px Arial', fill: '#ffffff', align: 'center' }
             );

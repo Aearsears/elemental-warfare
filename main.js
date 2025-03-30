@@ -419,8 +419,7 @@ class DungeonScene extends Phaser.Scene {
             // Wait until upgrade is chosen before progressing
             this.time.delayedCall(2000, () => {
                 if (!this.upgradeChosen) {
-                    // If the player hasn't selected an upgrade, don't proceed yet
-                    // this.countdownText.setText('Please choose an upgrade.');
+                    this.countdownText.setVisible(false);
                 }
             });
         }
