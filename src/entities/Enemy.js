@@ -138,8 +138,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         // Play death animation
         console.log('Enemy died!');
         this.isDead = true;
+        this.body.enable = false; // Disables collisions and physics interactions
         this.play(`${this.name}_die`, true);
-
         // Add a listener for when the death animation completes
         this.on(`animationcomplete-${this.name}_die`, () => {
             // Optional: Add any other logic that happens after the animation finishes
@@ -151,10 +151,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
             this.scene.time.delayedCall(500, () => {
                 // 500ms delay before destruction
                 this.setActive(false); // Disables the enemy in the physics world
-                this.setVisible(false); // Hides the enemy
-                this.destroy(); // Destroy enemy after animation
                 this.healthBar.destroy(); // Destroy health bar
                 this.healthBarBg.destroy(); // Destroy health bar background
+                this.setVisible(false); // Hides the enemy
+                this.destroy(); // Destroy enemy after animation
             });
         });
     }

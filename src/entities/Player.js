@@ -121,7 +121,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     // Update the ability UI (Optional: display names, cooldowns, etc.)
     updateAbilityUI() {
-        console.log('Selected Abilities: ', this.abilityPool);
+        // console.log('Selected Abilities: ', this.abilityPool);
     }
 
     createAbilityPool(pool) {
