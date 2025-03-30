@@ -272,19 +272,8 @@ class DungeonScene extends Phaser.Scene {
     }
 
     createAbilites() {
-        this.healAbility = new HealAbility(this.player);
         this.bombAbility = new BombAbility(this.player);
-        this.shieldAbility = new ShieldAbility(this.player);
-        this.player.abilityPool = [
-            this.bombAbility,
-            this.bombAbility,
-            this.bombAbility,
-            this.bombAbility,
-            this.bombAbility,
-            this.healAbility,
-            this.shieldAbility
-        ];
-        Phaser.Utils.Array.Shuffle(this.player.abilityPool);
+        this.player.abilityPool.push(this.bombAbility);
     }
 
     createEnemies() {
@@ -431,7 +420,7 @@ class DungeonScene extends Phaser.Scene {
             this.time.delayedCall(2000, () => {
                 if (!this.upgradeChosen) {
                     // If the player hasn't selected an upgrade, don't proceed yet
-                    this.countdownText.setText('Please choose an upgrade.');
+                    // this.countdownText.setText('Please choose an upgrade.');
                 }
             });
         }

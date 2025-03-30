@@ -171,10 +171,44 @@ export class UI {
             healthButton.on('pointerdown', () => this.upgradeHealth());
             damageButton.on('pointerdown', () => this.upgradeDamage());
             speedButton.on('pointerdown', () => this.upgradeSpeed());
+            const chooseAbilityText = this.scene.add.text(
+                -100,
+                -170,
+                'Or Choose an Ability:',
+                { font: '24px Arial', fill: '#ffffff', align: 'center' }
+            );
+            chooseAbilityText.setOrigin(0.5, 0.5);
 
+            const abilities = ['Bomb', 'Shield', 'Heal'];
+            let startX = -100;
+            let startXText = 220;
+            abilities.forEach((ability) => {
+                const icon = this.scene.add
+                    .image(startX, 60, 'card')
+                    .setScale(0.8)
+                    .setInteractive();
+                icon.setOrigin(0.5, 0.5);
+                const text = this.scene.add.text(startXText, 340, ability, {
+                    font: '16px Arial',
+                    fill: '#ffffff',
+                    align: 'center'
+                });
+                text.setOrigin(0.5, 0.5);
+                text.setDepth(11); // Ensure text appears above the icon
+                icon.setDepth(10); // Keep icon below text
+                icon.on('pointerdown', () => this.chooseAbility(ability));
+                this.upgradeOptions.add(icon, text);
+                startX += 100;
+                startXText += 100;
+            });
             // Hide upgrade options after selection
             this.upgradeOptions.setDepth(10); // Make sure upgrade options are on top
         }
+    }
+    chooseAbility(ability) {
+        console.log(`Player chose ability: ${ability}`);
+        this.player.addAbility(ability);
+        this.hideUpgradeOptions();
     }
 
     upgradeHealth() {

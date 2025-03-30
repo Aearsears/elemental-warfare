@@ -665,4 +665,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     reduceBombCooldown() {
         this.bombAbilityCooldown -= 1; // Assuming bomb has a cooldown attribute
     }
+    addAbility(ability) {
+        if (ability == 'Heal') {
+            this.abilityPool.push(new HealAbility(this));
+        } else if (ability == 'Bomb') {
+            this.abilityPool.push(new BombAbility(this));
+        } else if (ability == 'Shield') {
+            this.abilityPool.push(new ShieldAbility(this));
+        }
+    }
 }
