@@ -1,8 +1,8 @@
 {
-    "name": "elemental-warfare",
+    "name": "dungeon-crawler-game",
     "version": "0.0.1",
-    "description": "moba game",
-    "main": "index.js",
+    "description": "dungeon-crawler-game",
+    "main": "main.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "live-server --port=8000 --open=/"
@@ -12,7 +12,7 @@
         "url": "git+https://github.com/Aearsears/elemental-warfare.git"
     },
     "keywords": [
-        "moba"
+        "game"
     ],
     "author": "aearsears",
     "license": "ISC",
@@ -24,7 +24,6 @@
         "live-server": "^1.2.2"
     },
     "dependencies": {
-        "phaser": "^3.88.2",
-        "pixi.js": "^8.9.0"
+        "phaser": "^3.88.2"
     }
 }
