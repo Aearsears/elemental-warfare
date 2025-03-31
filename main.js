@@ -40,7 +40,7 @@ class DungeonScene extends Phaser.Scene {
         directions.forEach((dir) => {
             this.load.spritesheet(
                 `player_idle_${dir}`,
-                `assets/player/Idle/idle_${dir}.png`,
+                `public/player/Idle/idle_${dir}.png`,
                 {
                     frameWidth: 48,
                     frameHeight: 64
@@ -48,7 +48,7 @@ class DungeonScene extends Phaser.Scene {
             );
             this.load.spritesheet(
                 `player_walk_${dir}`,
-                `assets/player/Walk/walk_${dir}.png`,
+                `public/player/Walk/walk_${dir}.png`,
                 {
                     frameWidth: 48,
                     frameHeight: 64
@@ -56,7 +56,7 @@ class DungeonScene extends Phaser.Scene {
             );
             this.load.spritesheet(
                 `player_dash_${dir}`,
-                `assets/player/Dash/Dash_${dir}.png`,
+                `public/player/Dash/Dash_${dir}.png`,
                 {
                     frameWidth: 48,
                     frameHeight: 64
@@ -64,7 +64,7 @@ class DungeonScene extends Phaser.Scene {
             );
             this.load.spritesheet(
                 `player_dash_dust_${dir}`,
-                `assets/player/Dash/Dust/Dash_Dust_${dir}.png`,
+                `public/player/Dash/Dust/Dash_Dust_${dir}.png`,
                 {
                     frameWidth: 48,
                     frameHeight: 64
@@ -81,7 +81,7 @@ class DungeonScene extends Phaser.Scene {
             animations.forEach((animation) => {
                 this.load.spritesheet(
                     `${enemy.name}_${animation}`,
-                    `assets/${enemy.name}/${animation}.png`,
+                    `public/${enemy.name}/${animation}.png`,
                     {
                         frameWidth: enemy.frameWidth,
                         frameHeight: enemy.frameHeight
@@ -90,40 +90,40 @@ class DungeonScene extends Phaser.Scene {
             });
         });
 
-        this.load.spritesheet('bomb', 'assets/abilities/bomb_effect.png', {
+        this.load.spritesheet('bomb', 'public/abilities/bomb_effect.png', {
             frameWidth: 64,
             frameHeight: 64
         });
 
-        this.load.spritesheet('heal', 'assets/abilities/heal_effect.png', {
+        this.load.spritesheet('heal', 'public/abilities/heal_effect.png', {
             frameWidth: 64,
             frameHeight: 64
         });
 
-        this.load.spritesheet('shield', 'assets/abilities/shield_effect.png', {
+        this.load.spritesheet('shield', 'public/abilities/shield_effect.png', {
             frameWidth: 64,
             frameHeight: 64
         });
 
-        this.load.spritesheet('bullet', 'assets/abilities/bullet.png', {
+        this.load.spritesheet('bullet', 'public/abilities/bullet.png', {
             frameWidth: 32,
             frameHeight: 32
         });
 
-        this.load.image('background_tileset', 'assets/env/background.png'); // Replace with your tileset path
-        this.load.image('wall_tileset', 'assets/env/walls.png'); // Replace with your tileset path
+        this.load.image('background_tileset', 'public/env/background.png'); // Replace with your tileset path
+        this.load.image('wall_tileset', 'public/env/walls.png'); // Replace with your tileset path
 
         //music and sfx
-        this.load.audio('bgm', 'assets/music/bgm.wav'); // Replace with your actual file path
-        this.load.audio('bomb_sound', 'assets/sfx/bomb.wav');
-        this.load.audio('bullet_sound', 'assets/sfx/bullet.wav');
-        this.load.audio('dash_sound', 'assets/sfx/dash.wav');
-        this.load.audio('heal_sound', 'assets/sfx/heal.wav');
-        this.load.audio('walk_sound', 'assets/sfx/walk.wav');
-        this.load.audio('shield_sound', 'assets/sfx/shield.wav');
-        this.load.audio('hit_sound', 'assets/sfx/hit.wav');
+        this.load.audio('bgm', 'public/music/bgm.wav'); // Replace with your actual file path
+        this.load.audio('bomb_sound', 'public/sfx/bomb.wav');
+        this.load.audio('bullet_sound', 'public/sfx/bullet.wav');
+        this.load.audio('dash_sound', 'public/sfx/dash.wav');
+        this.load.audio('heal_sound', 'public/sfx/heal.wav');
+        this.load.audio('walk_sound', 'public/sfx/walk.wav');
+        this.load.audio('shield_sound', 'public/sfx/shield.wav');
+        this.load.audio('hit_sound', 'public/sfx/hit.wav');
         //ui
-        this.load.image('card', 'assets/ui/card.png');
+        this.load.image('card', 'public/ui/card.png');
     }
 
     create() {

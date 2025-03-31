@@ -6,9 +6,9 @@ export class AbilitySelectionScene extends Phaser.Scene {
 
     preload() {
         // Preload any assets for the abilities (e.g., icons or images)
-        this.load.image('ability_1', 'assets/abilities/ability_1.png');
-        this.load.image('ability_2', 'assets/abilities/ability_2.png');
-        this.load.image('ability_3', 'assets/abilities/ability_3.png');
+        this.load.image('ability_1', 'public/abilities/ability_1.png');
+        this.load.image('ability_2', 'public/abilities/ability_2.png');
+        this.load.image('ability_3', 'public/abilities/ability_3.png');
     }
 
     create() {
