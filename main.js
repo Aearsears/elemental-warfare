@@ -1,13 +1,13 @@
-import { CollisionHandler } from './src/CollisionHandler.js';
-import { Item } from './src/items/Item.js';
-import { Player } from './src/entities/Player.js';
-import { Enemy } from './src/entities/Enemy.js';
-import { DungeonGenerator } from './src/dungeon/DungeonGenerator.js';
+import { CollisionHandler } from './public/src/CollisionHandler.js';
+import { Item } from './public/src/items/Item.js';
+import { Player } from './public/src/entities/Player.js';
+import { Enemy } from './public/src/entities/Enemy.js';
+import { DungeonGenerator } from './public/src/dungeon/DungeonGenerator.js';
 import {
     HealAbility,
     BombAbility,
     ShieldAbility
-} from './src/abilities/Ability.js';
+} from './public/src/abilities/Ability.js';
 const isDebugMode =
     window.location.hostname === 'localhost' ||
     window.location.hostname === '127.0.0.1'; // Only enable debug on localhost
