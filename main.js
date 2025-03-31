@@ -350,7 +350,7 @@ class DungeonScene extends Phaser.Scene {
                 shape: 'circle',
                 color: 0xffff00,
                 effect: (player) => {
-                    console.log('Collected health potion!');
+                    // console.log('Collected health potion!');
                     player.health += 20; // Example effect
                 }
             },
@@ -358,7 +358,7 @@ class DungeonScene extends Phaser.Scene {
                 shape: 'square',
                 color: 0xff0000,
                 effect: (player) => {
-                    console.log('Collected damage boost!');
+                    // console.log('Collected damage boost!');
                     player.damage += 5;
                 }
             }

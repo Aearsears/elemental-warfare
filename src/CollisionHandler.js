@@ -28,7 +28,7 @@ export class CollisionHandler {
     }
     // Define the collider callback function
     handlePlayerDungeonCollision(player, layer) {
-        console.log('Player collided with dungeon layer!');
+        // console.log('Player collided with dungeon layer!');
         // You can add additional checks to verify collision properties
     }
     handlePlayerEnemyCollision(player, enemy) {

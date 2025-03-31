@@ -68,7 +68,7 @@ export class AbilitySelectionScene extends Phaser.Scene {
 
     // This method is called when an ability is selected
     selectAbility(ability) {
-        console.log(`You selected: ${ability}`);
+        // console.log(`You selected: ${ability}`);
         this.selectedAbility = ability;
         gameState.selectedAbility = this.selectedAbility; // Store the selected ability globally
     }
@@ -76,12 +76,12 @@ export class AbilitySelectionScene extends Phaser.Scene {
     // This method is called to proceed to the next level after selecting an ability
     startNextLevel() {
         if (!this.selectedAbility) {
-            console.log('Please select an ability first!');
+            // console.log('Please select an ability first!');
             return;
         }
 
         // Store the selected ability (you can pass it to the next scene or level)
-        console.log(`Starting next level with ${this.selectedAbility}`);
+        // console.log(`Starting next level with ${this.selectedAbility}`);
 
         // Move to the next level (or dungeon scene)
         this.scene.start('DungeonScene');

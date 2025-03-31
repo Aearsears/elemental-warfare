@@ -206,7 +206,7 @@ export class UI {
         }
     }
     chooseAbility(ability) {
-        console.log(`Player chose ability: ${ability}`);
+        // console.log(`Player chose ability: ${ability}`);
         this.player.addAbility(ability);
         this.hideUpgradeOptions();
     }

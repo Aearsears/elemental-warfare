@@ -81,11 +81,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     takeDamage(amount, damageDirection) {
         if (this.isHit) return; // Prevent taking damage multiple times in the same frame
 
-        console.log('Enemy health:', this.health);
+        // console.log('Enemy health:', this.health);
         this.isHit = true; // Set the hit flag
         this.health -= amount;
         this.updateHealthBar();
-        console.log('Enemy took damage:', this.health);
+        // console.log('Enemy took damage:', this.health);
 
         // Play hurt animation when taking damage
         this.play(`${this.name}_hurt`, true);
@@ -136,16 +136,16 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     die() {
         // Play death animation
-        console.log('Enemy died!');
+        // console.log('Enemy died!');
         this.isDead = true;
         this.body.enable = false; // Disables collisions and physics interactions
         this.play(`${this.name}_die`, true);
         // Add a listener for when the death animation completes
         this.on(`animationcomplete-${this.name}_die`, () => {
             // Optional: Add any other logic that happens after the animation finishes
-            console.log(
-                'Death animation complete, waiting for delay to destroy the enemy...'
-            );
+            // console.log(
+            //     'Death animation complete, waiting for delay to destroy the enemy...'
+            // );
 
             // Add a delay before destroying the enemy
             this.scene.time.delayedCall(500, () => {

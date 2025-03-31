@@ -101,7 +101,7 @@ export class DungeonGenerator {
                 this.scene.player,
                 wallLayer,
                 () => {
-                    console.log('player collided with wall');
+                    // console.log('player collided with wall');
                 }, // Collider callback function
                 null, // No specific filter function
                 this
@@ -128,7 +128,7 @@ export class DungeonGenerator {
     // Handle Bullet-Wall Collision (destroy the bullet on collision)
     handleBulletWorldBoundsCollision(bullet, wall) {
         // Deactivate the bullet and hide it
-        console.log('bullet collided with a wall');
+        // console.log('bullet collided with a wall');
 
         bullet.setActive(false);
         bullet.setVisible(false);

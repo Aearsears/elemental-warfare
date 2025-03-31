@@ -17,7 +17,7 @@ export class Ability {
             this.action(); // Trigger the ability's action
             this.lastUsed = currentTime; // Update last used time
         } else {
-            console.log(`${this.name} is on cooldown!`);
+            // console.log(`${this.name} is on cooldown!`);
         }
     }
 }

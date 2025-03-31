@@ -121,7 +121,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     // Update the ability UI (Optional: display names, cooldowns, etc.)
     updateAbilityUI() {
-        // console.log('Selected Abilities: ', this.abilityPool);
+        // // console.log('Selected Abilities: ', this.abilityPool);
     }
 
     createAbilityPool(pool) {
@@ -307,7 +307,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         // Handle attack input
         if (Phaser.Input.Keyboard.JustDown(this.AttackKey)) {
-            console.log('Attack triggered!');
+            // console.log('Attack triggered!');
             this.shootBullet();
         }
 
@@ -326,7 +326,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             const ability = this.abilityPool[this.abilityPool.length - 1];
 
             this.isUsingAbility = true;
-            console.log(`Using ${ability.name} ability!`);
+            // console.log(`Using ${ability.name} ability!`);
 
             ability.use(currentTime);
             // Remove the selected ability from the pool
@@ -340,7 +340,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
     heal(value) {
-        console.log('Player healed!');
+        // console.log('Player healed!');
         this.healSound.play();
         this.health = Math.min(this.maxHealth, this.health + value);
         this.playAbilityEffect('heal', true);
@@ -348,7 +348,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     bomb(damage) {
-        console.log('Player attacked!');
+        // console.log('Player attacked!');
         this.bombSound.play();
         // Implement attack behavior here
         this.playAbilityEffect('bomb', false, damage);
@@ -358,7 +358,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     shield(value, duration = 3000) {
         if (this.isShielded) return; // Prevent multiple shields
 
-        console.log('Player shielded!');
+        // console.log('Player shielded!');
         this.shieldSound.play();
         this.isShielded = true; // Set shield active
         this.body.checkCollision.none = true;
